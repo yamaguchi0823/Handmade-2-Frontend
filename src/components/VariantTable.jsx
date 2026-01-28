@@ -40,6 +40,13 @@ export default function VariantTable({ variants, onDelta, updatingId }) {
               </tr>
             );
           })}
+        {Array.isArray(variants) && variants.length === 0 && (
+          <tr>
+            <td colSpan={4} style={{ textAlign: "center" }}>
+              該当データがありません
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
   );
