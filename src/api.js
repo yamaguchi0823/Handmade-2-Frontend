@@ -6,3 +6,12 @@ const api = axios.create({
 });
 
 export default api;
+
+export function fetchItems() {
+  return api.get("/items");
+}
+
+export function createItem(payload) {
+  // payload: { name, description }
+  return api.post("/items", payload);
+}

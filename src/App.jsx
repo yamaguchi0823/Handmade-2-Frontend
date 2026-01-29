@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "./api";
 import VariantTable from "./components/VariantTable";
+import ItemPanel from "./components/ItemsPanel";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -77,6 +78,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <ItemPanel />
       <h2>在庫一覧</h2>
       {error && (
         <div style={{ color: "red", marginBottom: "8px" }}>{error}</div>
