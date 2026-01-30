@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "./api";
 import VariantTable from "./components/VariantTable";
 import ItemPanel from "./components/ItemsPanel";
+import VariantCreateModal from "./components/VariantCreateModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -10,6 +11,7 @@ function App() {
   const [stockMode, setStockMode] = useState("ALL");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
+  const [variantModalOpen, setVariantModalOpen] = useState(false);
 
   // 一覧取得（共通処理）
   const loadVariants = async () => {
@@ -80,6 +82,16 @@ function App() {
     <div style={{ padding: "20px" }}>
       <ItemPanel />
       <h2>在庫一覧</h2>
+
+      <button type="button" onClick={() => setVariantModalOpen(true)}>
+        +バリエ追加
+      </button>
+      <VariantCreateModal
+        open={variantModalOpen}
+        onClose={() => setVariantModalOpen(false)}
+        onCreated={() => loadVariants()} // 登録後に一覧更新
+      />
+
       {error && (
         <div style={{ color: "red", marginBottom: "8px" }}>{error}</div>
       )}

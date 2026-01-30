@@ -15,3 +15,7 @@ export function createItem(payload) {
   // payload: { name, description }
   return api.post("/items", payload);
 }
+
+export function createVariant(payload) {
+  return api.post("/variants", payload);
+}
