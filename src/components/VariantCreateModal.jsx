@@ -82,18 +82,31 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
 
   return (
     <div className="variant-modal-overlay" onClick={onClose}>
-      <div className="variant-modal-box" onClick={(e) => e.stopPropagation()}>
-        <h3 className="variant-modal-title">バリエーション追加</h3>
+      <div
+        className="variant-modal-box p-3 rounded shadow bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          <h3 className="h5 mb-3">バリエーション追加</h3>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={onClose}
+          >
+            ✕
+          </button>
+        </div>
 
-        {error && <div className="variant-modal-error">{error}</div>}
+        {error && <div className="alert alert-danger py-2">{error}</div>}
 
         {loadingItems ? (
-          <div>作品一覧を読み込み中・・・</div>
+          <div className="text-muted">作品一覧を読み込み中・・・</div>
         ) : (
           <form onSubmit={submit}>
-            <div className="variant-form-row">
-              <label className="variant-form-label">作品</label>
+            <div className="mb-3">
+              <label className="form-label">作品</label>
               <select
+                className="form-select"
                 value={itemId}
                 onChange={(e) => setItemId(e.target.value)}
               >
@@ -105,43 +118,54 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
               </select>
             </div>
 
-            <div className="variant-form-row">
-              <label className="variant-form-label">SKU</label>
+            <div className="mb-3">
+              <label className="form-label">SKU</label>
               <input
                 value={skuCode}
                 onChange={(e) => setSkuCode(e.target.value)}
                 placeholder="例：EARRING-RED-S"
-                className="variant-input-sku"
+                className="form-control"
               />
             </div>
 
-            <div className="variant-form-row">
-              <label className="variant-form-label">初期在庫</label>
-              <input
-                type="number"
-                value={stock}
-                onChange={(e) => setStock(e.target.value)}
-                min="0"
-                className="variant-input-number"
-              />
+            <div className="mb-3 row g-2">
+              <div className="col">
+                <label className="form-label">初期在庫</label>
+                <input
+                  type="number"
+                  value={stock}
+                  onChange={(e) => setStock(e.target.value)}
+                  min="0"
+                  className="form-control"
+                />
+              </div>
+
+              <div className="col">
+                <label className="form-label">価格</label>
+                <input
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  min="0"
+                  className="form-control"
+                />
+              </div>
             </div>
 
-            <div className="variant-form-row">
-              <label className="variant-form-label">価格</label>
-              <input
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-                min="0"
-                className="variant-input-number"
-              />
-            </div>
-
-            <div className="variant-modal-buttons">
-              <button type="submit" disabled={saving}>
+            <div className="d-flex gap-2">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={saving}
+              >
                 {saving ? "登録中" : "登録"}
               </button>
-              <button type="button" onClick={onClose} disabled={saving}>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={onClose}
+                disabled={saving}
+              >
                 キャンセル
               </button>
             </div>
