@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createVariant, fetchItems } from "../api";
+import "./VariantCreateModal.css";
 
 export default function VariantCreateModal({ open, onClose, onCreated }) {
   // 作品一覧と選択中の作品
@@ -79,37 +80,19 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
     }
   };
 
-  const overlayStyle = {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.35)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  };
-
-  const modalStyle = {
-    background: "#fff",
-    padding: 16,
-    width: 520,
-    borderRadius: 8,
-    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-  };
-
   return (
-    <div style={overlayStyle} onClick={onClose}>
-      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-        <h3 style={{ marginTop: 0 }}>バリエーション追加</h3>
+    <div className="variant-modal-overlay" onClick={onClose}>
+      <div className="variant-modal-box" onClick={(e) => e.stopPropagation()}>
+        <h3 className="variant-modal-title">バリエーション追加</h3>
 
-        {error && <div style={{ color: "red", marginBottom: 8 }}>{error}</div>}
+        {error && <div className="variant-modal-error">{error}</div>}
 
         {loadingItems ? (
           <div>作品一覧を読み込み中・・・</div>
         ) : (
           <form onSubmit={submit}>
-            <div style={{ marginBottom: 8 }}>
-              <label style={{ display: "inline-block", width: 90 }}>作品</label>
+            <div className="variant-form-row">
+              <label className="variant-form-label">作品</label>
               <select
                 value={itemId}
                 onChange={(e) => setItemId(e.target.value)}
@@ -122,41 +105,39 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
               </select>
             </div>
 
-            <div style={{ marginBottom: 8 }}>
-              <label style={{ display: "inline-block", width: 90 }}>SKU</label>
+            <div className="variant-form-row">
+              <label className="variant-form-label">SKU</label>
               <input
                 value={skuCode}
                 onChange={(e) => setSkuCode(e.target.value)}
                 placeholder="例：EARRING-RED-S"
-                style={{ width: 300 }}
+                className="variant-input-sku"
               />
             </div>
 
-            <div style={{ marginBottom: 8 }}>
-              <label style={{ display: "inline-block", width: 90 }}>
-                初期在庫
-              </label>
+            <div className="variant-form-row">
+              <label className="variant-form-label">初期在庫</label>
               <input
                 type="number"
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 min="0"
-                style={{ width: 120 }}
+                className="variant-input-number"
               />
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "inline-block", width: 90 }}>価格</label>
+            <div className="variant-form-row">
+              <label className="variant-form-label">価格</label>
               <input
                 type="number"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 min="0"
-                style={{ width: 120 }}
+                className="variant-input-number"
               />
             </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
+            <div className="variant-modal-buttons">
               <button type="submit" disabled={saving}>
                 {saving ? "登録中" : "登録"}
               </button>
