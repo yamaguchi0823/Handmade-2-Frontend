@@ -3,15 +3,19 @@ import api from "./api";
 import VariantTable from "./components/VariantTable";
 import ItemPanel from "./components/ItemsPanel";
 import VariantCreateModal from "./components/VariantCreateModal";
+import VariantEditModal from "./components/VariantEditModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
+  const [variantModalOpen, setVariantModalOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingVariant, setEditingVariant] = useState(null);
+
   const [q, setQ] = useState("");
   const [stockMode, setStockMode] = useState("ALL");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
-  const [variantModalOpen, setVariantModalOpen] = useState(false);
 
   // 一覧取得（共通処理）
   const loadVariants = async () => {
@@ -20,10 +24,7 @@ function App() {
       setError(""); // 成功したら消えるように開始時にクリア
 
       const res = await api.get("/variants", {
-        params: {
-          q: q || undefined,
-          stockMode,
-        },
+        params: { q: q || undefined, stockMode },
       });
       setVariants(res.data); // 配列がくる
     } catch (e) {
@@ -133,6 +134,17 @@ function App() {
         variants={variants}
         onDelta={changeStock}
         updatingId={updatingId}
+        onEdit={(v) => {
+          setEditingVariant(v);
+          setEditOpen(true);
+        }}
+      />
+
+      <VariantEditModal
+        open={editOpen}
+        variant={editingVariant}
+        onClose={() => setEditOpen(false)}
+        onUpdated={() => loadVariants()}
       />
     </div>
   );

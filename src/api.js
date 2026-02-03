@@ -19,3 +19,7 @@ export function createItem(payload) {
 export function createVariant(payload) {
   return api.post("/variants", payload);
 }
+
+export function updateVariant(variantId, payload) {
+  return api.put(`/variants/${variantId}`, payload);
+}

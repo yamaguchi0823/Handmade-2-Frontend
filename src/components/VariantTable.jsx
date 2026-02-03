@@ -1,5 +1,10 @@
 // src/components/VariantTable.jsx
-export default function VariantTable({ variants, onDelta, updatingId }) {
+export default function VariantTable({
+  variants,
+  onDelta,
+  updatingId,
+  onEdit,
+}) {
   const isArray = Array.isArray(variants);
 
   const stockBadge = (v) => {
@@ -71,6 +76,14 @@ export default function VariantTable({ variants, onDelta, updatingId }) {
                         disabled={busy}
                       >
                         +
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => onEdit(v)}
+                        disabled={busy}
+                      >
+                        編集
                       </button>
                       {busy && (
                         <span
