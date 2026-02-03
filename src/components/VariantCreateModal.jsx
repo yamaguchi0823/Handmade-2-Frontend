@@ -9,6 +9,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
   // 入力フォームの値（input要素と結びつく）
   const [skuCode, setSkuCode] = useState("");
   const [stock, setStock] = useState("0");
+  const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
   const [price, setPrice] = useState("0");
 
   // 画面制御用
@@ -64,6 +65,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
         itemId: Number(itemId),
         skuCode: skuCode.trim(),
         stock: Number(stock || 0),
+        stockAlertThreshold: Number(stockAlertThreshold || 0),
         price: Number(price || 0),
         status: "ACTIVE",
       });
@@ -137,6 +139,18 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
                   onChange={(e) => setStock(e.target.value)}
                   min="0"
                   className="form-control"
+                />
+              </div>
+
+              <div className="col">
+                <label className="form-label">在庫しきい値</label>
+                <input
+                  type="number"
+                  value={stockAlertThreshold}
+                  onChange={(e) => setStockAlertThreshold(e.target.value)}
+                  min="0"
+                  className="form-control"
+                  placeholder="例：3"
                 />
               </div>
 
