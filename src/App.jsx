@@ -17,6 +17,12 @@ function App() {
   const [status, setStatus] = useState("");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState("");
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(""), 3000);
+  };
 
   // 一覧取得（共通処理）
   const loadVariants = async () => {
@@ -56,6 +62,7 @@ function App() {
         },
       );
       await loadVariants(); // 再取得
+      showToast("在庫を更新しました");
     } catch (e) {
       console.error(e);
 
@@ -85,83 +92,115 @@ function App() {
   );
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="container py-4 overflow-x-auto">
       <ItemPanel />
-      <h2>在庫一覧</h2>
+      <hr className="my-4" />
+      {toast && (
+        <div className="alert alert-success py-2" role="alert">
+          {toast}
+        </div>
+      )}
 
-      <button type="button" onClick={() => setVariantModalOpen(true)}>
-        +バリエ追加
-      </button>
+      <div className="d-flex align-items-center justify-content-between mb-2">
+        <h2 className="h4 mb-0">在庫一覧</h2>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setVariantModalOpen(true)}
+        >
+          +バリエ追加
+        </button>
+      </div>
+
       <VariantCreateModal
         open={variantModalOpen}
         onClose={() => setVariantModalOpen(false)}
-        onCreated={() => loadVariants()} // 登録後に一覧更新
+        onCreated={() => {
+          loadVariants(); // 登録後に一覧更新
+          showToast("バリエーションを追加しました");
+        }}
       />
 
       {error && (
-        <div style={{ color: "red", marginBottom: "8px" }}>{error}</div>
+        <div className="alert alert-danger py-2 mb-2" role="alert">
+          {error}
+        </div>
       )}
+
       <form
-        style={{ marginBottom: "12px" }}
+        className="row g-2 align-items-end mb-3"
         onSubmit={(e) => {
           e.preventDefault(); // ページリロード禁止
           loadVariants();
         }}
       >
-        <input
-          type="text"
-          placeholder="キーワード（作品名/SKU）"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          style={{ marginRight: "8px" }}
-        />
-        <select
-          value={stockMode}
-          onChange={(e) => setStockMode(e.target.value)}
-          className="form-select d-inline-block"
-          style={{ width: 180, marginRight: "8px" }}
-        >
-          <option value="ALL">すべて</option>
-          <option value="IN_STOCK">在庫あり</option>
-          <option value="OUT_OF_STOCK">在庫なし</option>
-          <option value="LOW_STOCK">在庫少</option>
-        </select>
+        <div className="col-12 col-md-4">
+          <label className="form-label">キーワード</label>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="作品名/SKU"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+        </div>
+        <div className="col-6 col-md-3">
+          <label className="form-label">在庫</label>
+          <select
+            value={stockMode}
+            onChange={(e) => setStockMode(e.target.value)}
+            className="form-select"
+          >
+            <option value="ALL">すべて</option>
+            <option value="IN_STOCK">在庫あり</option>
+            <option value="OUT_OF_STOCK">在庫なし</option>
+            <option value="LOW_STOCK">在庫少</option>
+          </select>
+        </div>
+        <div className="col-6 col-md-3">
+          <label className="form-label">状態</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="form-select"
+          >
+            <option value="">状態：すべて</option>
+            <option value="ACTIVE">ACTIVE（販売中）</option>
+            <option value="INACTIVE">INACTIVE（停止）</option>
+          </select>
+        </div>
 
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="form-select d-inline-block"
-          style={{ width: 180, marginRight: "8px" }}
-        >
-          <option value="">状態：すべて</option>
-          <option value="ACTIVE">ACTIVE（販売中）</option>
-          <option value="INACTIVE">INACTIVE（停止）</option>
-        </select>
-
-        <button
-          type="submit"
-          disabled={searching}
-          style={{ backgroundColor: "pink" }}
-        >
-          {searching ? "検索中" : "検索"}
-        </button>
+        <div className="col-12 col-md-2 d-grid">
+          <button
+            type="submit"
+            disabled={searching}
+            className="btn btn-outline-primary"
+          >
+            {searching ? "検索中" : "検索"}
+          </button>
+        </div>
       </form>
 
-      <VariantTable
-        variants={variants}
-        onDelta={changeStock}
-        updatingId={updatingId}
-        onEdit={(v) => {
-          setEditingVariant(v);
-          setEditOpen(true);
-        }}
-      />
+      <div className="table-responsive">
+        <VariantTable
+          variants={variants}
+          onDelta={changeStock}
+          updatingId={updatingId}
+          onEdit={(v) => {
+            setEditingVariant(v);
+            setEditOpen(true);
+          }}
+        />
+      </div>
 
       <VariantEditModal
         open={editOpen}
         variant={editingVariant}
         onClose={() => setEditOpen(false)}
-        onUpdated={() => loadVariants()}
+        onUpdated={() => {
+          loadVariants();
+          showToast("更新しました");
+        }}
       />
     </div>
   );
