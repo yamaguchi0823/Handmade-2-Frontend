@@ -14,6 +14,7 @@ function App() {
 
   const [q, setQ] = useState("");
   const [stockMode, setStockMode] = useState("ALL");
+  const [status, setStatus] = useState("");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,7 +25,11 @@ function App() {
       setError(""); // 成功したら消えるように開始時にクリア
 
       const res = await api.get("/variants", {
-        params: { q: q || undefined, stockMode },
+        params: {
+          q: q || undefined,
+          stockMode,
+          status: status || undefined,
+        },
       });
       setVariants(res.data); // 配列がくる
     } catch (e) {
@@ -113,12 +118,24 @@ function App() {
         <select
           value={stockMode}
           onChange={(e) => setStockMode(e.target.value)}
-          style={{ marginRight: "8px" }}
+          className="form-select d-inline-block"
+          style={{ width: 180, marginRight: "8px" }}
         >
           <option value="ALL">すべて</option>
           <option value="IN_STOCK">在庫あり</option>
           <option value="OUT_OF_STOCK">在庫なし</option>
           <option value="LOW_STOCK">在庫少</option>
+        </select>
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className="form-select d-inline-block"
+          style={{ width: 180, marginRight: "8px" }}
+        >
+          <option value="">状態：すべて</option>
+          <option value="ACTIVE">ACTIVE（販売中）</option>
+          <option value="INACTIVE">INACTIVE（停止）</option>
         </select>
 
         <button

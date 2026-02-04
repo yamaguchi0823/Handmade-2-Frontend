@@ -27,8 +27,18 @@ export default function VariantTable({
         <thead className="table-light">
           <tr>
             <th style={{ width: 70 }}>ID</th>
-            <th style={{ width: 110 }}>SKU</th>
-            <th style={{ width: 120 }}>在庫</th>
+            <th style={{ width: 180 }}>作品名</th>
+            <th>SKU</th>
+            <th style={{ width: 110 }} className="text-end">
+              在庫
+            </th>
+            <th style={{ width: 110 }} className="text-end">
+              しきい値
+            </th>
+            <th style={{ width: 120 }} className="text-end">
+              価格
+            </th>
+            <th style={{ width: 120 }}>状態</th>
             <th style={{ width: 170 }}>操作</th>
           </tr>
         </thead>
@@ -40,8 +50,6 @@ export default function VariantTable({
               const stock = Number(v.stock ?? 0);
               const threshold = Number(v.stockAlertThreshold ?? 0);
 
-              const canMinus = stock > 0;
-
               const isOut = stock === 0;
               const isLow = threshold > 0 && stock > 0 && stock <= threshold;
               const rowClass = isOut
@@ -49,17 +57,37 @@ export default function VariantTable({
                 : isLow
                   ? "table-warning"
                   : "";
+              const canMinus = stock > 0;
 
               return (
                 <tr key={v.id} className={rowClass}>
                   <td>{v.id}</td>
+                  <td
+                    className="text-truncate"
+                    style={{ maxWidth: 180 }}
+                    title={v.itemName ?? ""}
+                  >
+                    {v.itemName ?? "-"}
+                  </td>
                   <td className="text-nowrap">{v.skuCode}</td>
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>
                   </td>
-                  <td>{stockBadge(v)}</td>
+                  <td className="text-end">{v.stockAlertThreshold ?? 0}</td>
+                  <td className="text-end">
+                    {v.price != null ? Number(v.price).toLocaleString() : "-"}
+                  </td>
+
                   <td>
-                    <div className="d-flex align-items-center gap-2">
+                    <div className="d-flex flex-column gap-1">
+                      {stockBadge(v)}
+                      <span className="badge text-bg-light border">
+                        {v.status ?? "-"}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className="d-flex align-items-center gap-2 flex-wrap">
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
