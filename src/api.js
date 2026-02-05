@@ -23,3 +23,9 @@ export function createVariant(payload) {
 export function updateVariant(variantId, payload) {
   return api.put(`/variants/${variantId}`, payload);
 }
+
+export function fetchStockHistory(variantId, limit = 50) {
+  return api.get(`/variants/${variantId}/stock-movements`, {
+    params: { limit },
+  });
+}

@@ -4,6 +4,7 @@ import VariantTable from "./components/VariantTable";
 import ItemPanel from "./components/ItemsPanel";
 import VariantCreateModal from "./components/VariantCreateModal";
 import VariantEditModal from "./components/VariantEditModal";
+import StockHistoryModal from "./components/StockHistoryModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -19,6 +20,8 @@ function App() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [toastTimer, setToastTimer] = useState(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyVariant, setHistoryVariant] = useState(null);
 
   const showToast = (msg) => {
     setToast(msg);
@@ -205,6 +208,10 @@ function App() {
             setEditingVariant(v);
             setEditOpen(true);
           }}
+          onHistory={(v) => {
+            setHistoryVariant(v);
+            setHistoryOpen(true);
+          }}
         />
       </div>
 
@@ -218,6 +225,15 @@ function App() {
         onUpdated={() => {
           loadVariants();
           showToast("更新しました");
+        }}
+      />
+
+      <StockHistoryModal
+        open={historyOpen}
+        variant={historyVariant}
+        onClose={() => {
+          setHistoryOpen(false);
+          setHistoryVariant(null);
         }}
       />
     </div>
