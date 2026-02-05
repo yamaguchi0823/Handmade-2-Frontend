@@ -115,12 +115,13 @@ export default function VariantTable({
                       </button>
                       {busy && (
                         <span
-                          className="sprinner-border spinner-border-sm"
+                          className="spinner-border spinner-border-sm"
                           role="status"
                           aria-hidden="true"
-                        >
-                          更新中...
-                        </span>
+                        />
+                      )}
+                      {busy && (
+                        <span className="visually-hidden">更新中...</span>
                       )}
                     </div>
                   </td>
@@ -129,14 +130,14 @@ export default function VariantTable({
             })}
           {isArray && variants.length === 0 && (
             <tr>
-              <td colSpan={5} className="text-center text-muted py-4">
+              <td colSpan={8} className="text-center text-muted py-4">
                 該当データがありません
               </td>
             </tr>
           )}
           {!isArray && (
             <tr>
-              <td colspan={5} className="text-center text-muted py-4">
+              <td colSpan={8} className="text-center text-muted py-4">
                 データ形式が不正です
               </td>
             </tr>

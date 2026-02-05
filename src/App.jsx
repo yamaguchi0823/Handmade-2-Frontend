@@ -18,10 +18,13 @@ function App() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
+  const [toastTimer, setToastTimer] = useState(null);
 
   const showToast = (msg) => {
     setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    if (toastTimer) clearTimeout(toastTimer);
+    const t = setTimeout(() => setToast(""), 3000);
+    setToastTimer(t);
   };
 
   // 一覧取得（共通処理）
@@ -61,7 +64,19 @@ function App() {
           note: "Reactから調整",
         },
       );
-      await loadVariants(); // 再取得
+
+      const newStock = res.data?.stock;
+
+      // ★一覧を全取り直しせず、その行だけ更新
+      if (typeof newStock === "number") {
+        setVariants((prev) =>
+          prev.map((v) => (v.id === variantId ? { ...v, stock: newStock } : v)),
+        );
+      } else {
+        // 万一レスポンス形が違う場合だけ再取得
+        await loadVariants();
+      }
+
       showToast("在庫を更新しました");
     } catch (e) {
       console.error(e);
@@ -196,7 +211,10 @@ function App() {
       <VariantEditModal
         open={editOpen}
         variant={editingVariant}
-        onClose={() => setEditOpen(false)}
+        onClose={() => {
+          setEditOpen(false);
+          setEditingVariant(null);
+        }}
         onUpdated={() => {
           loadVariants();
           showToast("更新しました");

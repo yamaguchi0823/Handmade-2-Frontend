@@ -50,7 +50,12 @@ export default function VariantEditModal({
   };
 
   return (
-    <div className="variant-modal-overlay" onClick={onClose}>
+    <div
+      className="variant-modal-overlay"
+      onClick={() => {
+        if (!saving) onClose?.();
+      }}
+    >
       <div
         className="variant-modal-box p-3 rounded shadow bg-white"
         onClick={(e) => e.stopPropagation()}
