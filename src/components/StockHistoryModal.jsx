@@ -1,0 +1,128 @@
+import { useEffect, useState } from "react";
+import { fetchStockHistory } from "../api";
+
+export default function StockHistoryModal({ open, onClose, variant }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!open || !variant) return;
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const res = await fetchStockHistory(variant.id, 50);
+        setRows(Array.isArray(res.data) ? res.data : []);
+      } catch (e) {
+        console.error(e);
+        setError("履歴の取得に失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [open, variant]);
+
+  if (!open || !variant) return null;
+
+  return (
+    <div
+      className="variant-modal-overlay"
+      onClick={() => {
+        if (!loading) onClose?.();
+      }}
+    >
+      <div
+        className="variant-modal-box p-3 rounded shadow bg-white"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          <h3 className="h5 mb-0">在庫履歴</h3>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={onClose}
+            disabled={loading}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="mb-2 text-muted">
+          <div>
+            SKU: <span className="fw-semibold">{variant.skuCode}</span>
+          </div>
+          <div>作品:{variant.itemName}</div>
+        </div>
+
+        {error && <div className="alert alert-danger py-2">{error}</div>}
+
+        {loading ? (
+          <div className="d-flex align-items-center gap-2">
+            <span
+              className="spinner-border spiner-border-sm"
+              role="status"
+              aria-hidden="true"
+            />
+            <span className="text-muted">読み込み中...</span>
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-sm table-bordered align-middle">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: 160 }}>日時</th>
+                  <th style={{ width: 90 }}>種別</th>
+                  <th className="text-end" style={{ width: 80 }}>
+                    増減
+                  </th>
+                  <th className="text-end" style={{ width: 80 }}>
+                    前
+                  </th>
+                  <th className="text-end" style={{ width: 80 }}>
+                    後
+                  </th>
+                  <th>メモ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id}>
+                    <td className="text-nowrap">
+                      {String(r.createdAt ?? "-")}
+                    </td>
+                    <td className="text-nowrap">{r.movementType ?? "-"}</td>
+                    <td className="text-end">{r.delta ?? 0}</td>
+                    <td className="text-end">{r.qtyBefore ?? 0}</td>
+                    <td className="text-end">{r.qtyAfter ?? 0}</td>
+                    <td>{r.note ?? ""}</td>
+                  </tr>
+                ))}
+                {rows.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-muted py-3">
+                      履歴がありません
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="d-flex justify-content-end mt-2">
+          <button
+            className="btn btn-outline-secondary"
+            onClick={onClose}
+            disabled={loading}
+          >
+            閉じる
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
