@@ -4,6 +4,7 @@ import VariantTable from "./components/VariantTable";
 import ItemPanel from "./components/ItemsPanel";
 import VariantCreateModal from "./components/VariantCreateModal";
 import VariantEditModal from "./components/VariantEditModal";
+import StockAdjustModal from "./components/StockAdjustModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -11,6 +12,8 @@ function App() {
   const [variantModalOpen, setVariantModalOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [adjustVariant, setAdjustVariant] = useState(null);
 
   const [q, setQ] = useState("");
   const [stockMode, setStockMode] = useState("ALL");
@@ -205,6 +208,10 @@ function App() {
             setEditingVariant(v);
             setEditOpen(true);
           }}
+          onAdjust={(v) => {
+            setAdjustVariant(v);
+            setAdjustOpen(true);
+          }}
         />
       </div>
 
@@ -218,6 +225,23 @@ function App() {
         onUpdated={() => {
           loadVariants();
           showToast("更新しました");
+        }}
+      />
+
+      <StockAdjustModal
+        open={adjustOpen}
+        variant={adjustVariant}
+        onClose={() => {
+          setAdjustOpen(false);
+          setAdjustVariant(null);
+        }}
+        onAdjusted={(newStock) => {
+          setVariants((prev) =>
+            prev.map((v) =>
+              v.id === adjustVariant.id ? { ...v, stock: newStock } : v,
+            ),
+          );
+          showToast("棚卸を反映しました");
         }}
       />
     </div>

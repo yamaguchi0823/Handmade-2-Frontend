@@ -23,3 +23,7 @@ export function createVariant(payload) {
 export function updateVariant(variantId, payload) {
   return api.put(`/variants/${variantId}`, payload);
 }
+export function adjustStock(variantId, payload) {
+  // payload:{ newStock, note }
+  return api.post(`/variants/${variantId}/stock-movements/adjust`, payload);
+}

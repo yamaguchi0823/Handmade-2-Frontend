@@ -4,6 +4,7 @@ export default function VariantTable({
   onDelta,
   updatingId,
   onEdit,
+  onAdjust,
 }) {
   const isArray = Array.isArray(variants);
 
@@ -113,6 +114,16 @@ export default function VariantTable({
                       >
                         編集
                       </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-warning"
+                        onClick={() => onAdjust(v)}
+                        disabled={busy}
+                      >
+                        棚卸
+                      </button>
+
                       {busy && (
                         <span
                           className="spinner-border spinner-border-sm"
