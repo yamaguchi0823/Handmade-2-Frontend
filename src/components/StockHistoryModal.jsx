@@ -22,9 +22,18 @@ export default function StockHistoryModal({ open, onClose, variant }) {
         setLoading(false);
       }
     };
-
     load();
   }, [open, variant]);
+
+  useEffect(() => {
+    if (!open) return;
+    // モーダル表示中は背景スクロール禁止
+    document.body.classList.add("modal-open");
+    // 閉じたら戻す（重要）
+    return () => {
+      document.body.classList.remove("modal-open");
+    };
+  }, [open]);
 
   if (!open || !variant) return null;
 
@@ -70,7 +79,7 @@ export default function StockHistoryModal({ open, onClose, variant }) {
             <span className="text-muted">読み込み中...</span>
           </div>
         ) : (
-          <div className="table-responsive">
+          <div className="variant-modal-body table-responsive">
             <table className="table table-sm table-bordered align-middle">
               <thead className="table-light">
                 <tr>
@@ -91,10 +100,8 @@ export default function StockHistoryModal({ open, onClose, variant }) {
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.id}>
-                    <td className="text-nowrap">
-                      {String(r.createdAt ?? "-")}
-                    </td>
-                    <td className="text-nowrap">{r.movementType ?? "-"}</td>
+                    <td className="">{String(r.createdAt ?? "-")}</td>
+                    <td className="">{r.movementType ?? "-"}</td>
                     <td className="text-end">{r.delta ?? 0}</td>
                     <td className="text-end">{r.qtyBefore ?? 0}</td>
                     <td className="text-end">{r.qtyAfter ?? 0}</td>

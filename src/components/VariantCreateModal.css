@@ -1,3 +1,7 @@
+body.modal-open {
+  overflow: hidden;
+}
+
 /* 背景の黒のオーバーレイ */
 .variant-modal-overlay {
   position: fixed;
@@ -6,11 +10,20 @@
   display: flex;
   align-items: center; /*縦方向*/
   justify-content: center; /*横方向*/
+  padding: 16px;
   z-index: 1000;
 }
 
 /* モーダル本体 */
 .variant-modal-box {
-  width: 520px;
-  max-width: calc(100vw - 24px);
+  width: min(900px, 100%);
+  max-height: calc(100vh - 32px);
+  /* max-width: calc(100vw - 24px); */
+  overflow: hidden;
+}
+
+/* モーダルの中身をスクロールできる領域 */
+.variant-modal-body {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
