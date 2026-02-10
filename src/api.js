@@ -33,3 +33,12 @@ export function adjustStock(variantId, payload) {
   // payload:{ newStock, note }
   return api.post(`/variants/${variantId}/stock-movements/adjust`, payload);
 }
+
+export function uploadVariantImage(variantId, file) {
+  const fd = new FormData();
+  fd.append("file", file);
+
+  return api.post(`/variants/${variantId}/image`, fd, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { updateVariant } from "../api";
+import { updateVariant, uploadVariantImage } from "../api";
 
 export default function VariantEditModal({
   open,
@@ -10,6 +10,8 @@ export default function VariantEditModal({
   const [status, setStatus] = useState("ACTIVE");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
   const [price, setPrice] = useState("0");
+  const [imageFile, setImageFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -21,6 +23,8 @@ export default function VariantEditModal({
     setStockAlertThreshold(String(variant.stockAlertThreshold ?? 0));
     setPrice(String(variant.price ?? 0));
     setError("");
+    setImageFile(null);
+    setUploading(false);
   }, [open, variant]);
 
   useEffect(() => {
@@ -88,6 +92,59 @@ export default function VariantEditModal({
         {error && <div className="alert alert-danger py-2">{error}</div>}
 
         <form onSubmit={submit}>
+          <div className="mb-3">
+            <label className="form-label">画像</label>
+            {variant.imageUrl && (
+              <div className="mb-2">
+                <img
+                  src={variant.imageUrl}
+                  alt=""
+                  style={{
+                    width: 120,
+                    height: 120,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                  }}
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              className="form-control"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+              disabled={saving || uploading}
+            />
+            <div className="form-text">
+              画像を選んで「画像アップロード」を押してください
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-outline-primary mt-2"
+              disabled={!imageFile || uploading || saving}
+              onClick={async () => {
+                try {
+                  setUploading(true);
+                  setError("");
+                  await uploadVariantImage(variant.id, imageFile);
+                  onUpdated?.(); // 一覧を再取得（画像URL反映のため）
+                  setImageFile(null);
+                } catch (e) {
+                  console.error(e);
+                  setError(
+                    e.response?.data?.message ||
+                      "画像アップロードに失敗しました",
+                  );
+                } finally {
+                  setUploading(false);
+                }
+              }}
+            >
+              {uploading ? "アップロード中..." : "画像アップロード"}
+            </button>
+          </div>
+
           <div className="mb-3">
             <label className="form-label">ステータス</label>
             <select
