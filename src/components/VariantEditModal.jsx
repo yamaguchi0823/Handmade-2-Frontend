@@ -23,6 +23,13 @@ export default function VariantEditModal({
     setError("");
   }, [open, variant]);
 
+  useEffect(() => {
+    if (!open) return;
+
+    document.body.classList.add("modal-open");
+    return () => document.body.classList.remove("modal-open");
+  }, [open]);
+
   if (!open || !variant) return null;
 
   const submit = async (e) => {
