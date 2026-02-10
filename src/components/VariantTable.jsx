@@ -64,13 +64,39 @@ export default function VariantTable({
               return (
                 <tr key={v.id} className={rowClass}>
                   <td>{v.id}</td>
-                  <td
+                  <td>
+                    <div className="d-flex align-items-center gap-2">
+                      {v.imageUrl ? (
+                        <img
+                          src={v.imageUrl}
+                          alt=""
+                          style={{
+                            width: 36,
+                            height: 36,
+                            objectFit: "cover",
+                            borderRadius: 6,
+                          }}
+                        />
+                      ) : (
+                        <div style={{ width: 36, height: 36 }} />
+                      )}
+
+                      <span
+                        className="text-truncate"
+                        style={{ maxWidth: 140 }}
+                        title={v.itemName ?? ""}
+                      >
+                        {v.itemName ?? "-"}
+                      </span>
+                    </div>
+                  </td>
+                  {/* <td
                     className="text-truncate"
                     style={{ maxWidth: 180 }}
                     title={v.itemName ?? ""}
                   >
                     {v.itemName ?? "-"}
-                  </td>
+                  </td> */}
                   <td className="text-nowrap">{v.skuCode}</td>
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>
