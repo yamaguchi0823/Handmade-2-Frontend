@@ -99,6 +99,18 @@ function App() {
     }
   };
 
+  // 画像URLを更新
+  const setVariantImageUrl = (variantId, imageUrl) => {
+    setVariants((prev) =>
+      prev.map((v) => (v.id === variantId ? { ...v, imageUrl } : v)),
+    );
+
+    //編集モーダル側で表示している variant も更新しておくと気持ち良い
+    setEditingVariant((prev) =>
+      prev && prev.id === variantId ? { ...prev, imageUrl } : prev,
+    );
+  };
+
   // 初回表示時
   useEffect(
     () => {
@@ -232,6 +244,10 @@ function App() {
         onUpdated={() => {
           loadVariants();
           showToast("更新しました");
+        }}
+        onImageUploaded={(variantId, imageUrl) => {
+          setVariantImageUrl(variantId, imageUrl);
+          showToast("画像を更新しました");
         }}
       />
 
