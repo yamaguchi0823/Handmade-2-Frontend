@@ -102,12 +102,16 @@ function App() {
   // 画像URLを更新
   const setVariantImageUrl = (variantId, imageUrl) => {
     setVariants((prev) =>
-      prev.map((v) => (v.id === variantId ? { ...v, imageUrl } : v)),
+      prev.map((v) =>
+        v.id === variantId ? { ...v, imageUrl: imageUrl || null } : v,
+      ),
     );
 
     //編集モーダル側で表示している variant も更新しておくと気持ち良い
     setEditingVariant((prev) =>
-      prev && prev.id === variantId ? { ...prev, imageUrl } : prev,
+      prev && prev.id === variantId
+        ? { ...prev, imageUrl: imageUrl || null }
+        : prev,
     );
   };
 

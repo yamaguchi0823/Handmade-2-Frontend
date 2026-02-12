@@ -42,3 +42,7 @@ export function uploadVariantImage(variantId, file) {
     headers: { "Content-Type": "multipart/form-data" },
   });
 }
+
+export function deleteVariantImage(variantId) {
+  return api.delete(`/variants/${variantId}/image`);
+}
