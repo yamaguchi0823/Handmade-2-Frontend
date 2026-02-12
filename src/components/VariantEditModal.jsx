@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { updateVariant, uploadVariantImage } from "../api";
+import { updateVariant, uploadVariantImage, deleteVariantImage } from "../api";
 
 export default function VariantEditModal({
   open,
@@ -149,6 +149,35 @@ export default function VariantEditModal({
             >
               {uploading ? "アップロード中..." : "画像アップロード"}
             </button>
+
+            {variant.imageUrl && (
+              <button
+                type="button"
+                className="btn btn-outline-danger btn-sm"
+                disabled={saving || uploading}
+                onClick={async () => {
+                  const ok = window.confirm("画像を削除しますか？");
+                  if (!ok) return;
+
+                  try {
+                    setUploading(true);
+                    setError("");
+                    await deleteVariantImage(variant.id);
+
+                    // 親に「画像が消えた」ことを通知（即時反映）
+                    onImageUploaded?.(variant.id, null);
+                    setImageFile(null);
+                  } catch (e) {
+                    console.error(e);
+                    setError(e.response?.data?.message || "画像を削除しました");
+                  } finally {
+                    setUploading(false);
+                  }
+                }}
+              >
+                画像を削除
+              </button>
+            )}
           </div>
 
           <div className="mb-3">
