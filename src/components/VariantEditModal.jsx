@@ -6,6 +6,7 @@ export default function VariantEditModal({
   onClose,
   variant,
   onUpdated,
+  onImageUploaded,
 }) {
   const [status, setStatus] = useState("ACTIVE");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
@@ -127,8 +128,13 @@ export default function VariantEditModal({
                 try {
                   setUploading(true);
                   setError("");
-                  await uploadVariantImage(variant.id, imageFile);
-                  onUpdated?.(); // 一覧を再取得（画像URL反映のため）
+                  const res = await uploadVariantImage(variant.id, imageFile);
+                  const imageUrl = res.data?.imageUrl;
+
+                  if (typeof imageUrl === "string" && imageUrl.length > 0) {
+                    onImageUploaded?.(variant.id, imageUrl);
+                  }
+
                   setImageFile(null);
                 } catch (e) {
                   console.error(e);
