@@ -32,13 +32,26 @@ export default function ImagePreviewModal({ open, imageUrl, title, onClose }) {
           <div className="text-truncate" style={{ maxWidth: "80%" }}>
             <span className="fw-semibold">{title || "画像プレビュー"}</span>
           </div>
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-secondary"
-            onClick={onClose}
-          >
-            ✕
-          </button>
+
+          <div className="d-flex align-items-center gap-2">
+            <a
+              className="btn btn-outline-primary"
+              href={imageUrl}
+              download
+              target="_blank"
+              rel="noreferrer"
+            >
+              ダウンロード
+            </a>
+
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={onClose}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         {/* スクロール領域 */}
