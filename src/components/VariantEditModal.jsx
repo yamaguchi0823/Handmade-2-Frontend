@@ -7,6 +7,7 @@ export default function VariantEditModal({
   variant,
   onUpdated,
   onImageUploaded,
+  onPreviewImage,
 }) {
   const [status, setStatus] = useState("ACTIVE");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
@@ -100,11 +101,14 @@ export default function VariantEditModal({
                 <img
                   src={variant.imageUrl}
                   alt=""
+                  onClick={() => onPreviewImage?.(variant)}
+                  title="クリックで拡大"
                   style={{
                     width: 120,
                     height: 120,
                     objectFit: "cover",
                     borderRadius: 8,
+                    cursor: "zoom-in",
                   }}
                 />
               </div>

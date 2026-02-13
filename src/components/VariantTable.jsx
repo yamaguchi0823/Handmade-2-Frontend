@@ -6,6 +6,7 @@ export default function VariantTable({
   onEdit,
   onAdjust,
   onHistory,
+  onPreviewImage,
 }) {
   const isArray = Array.isArray(variants);
 
@@ -70,12 +71,15 @@ export default function VariantTable({
                         <img
                           src={v.imageUrl}
                           alt=""
+                          onClick={() => onPreviewImage?.(v)}
                           style={{
                             width: 36,
                             height: 36,
                             objectFit: "cover",
                             borderRadius: 6,
+                            cursor: "zoom-in",
                           }}
+                          title="クリックで拡大"
                         />
                       ) : (
                         <div style={{ width: 36, height: 36 }} />
