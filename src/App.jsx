@@ -6,6 +6,7 @@ import VariantCreateModal from "./components/VariantCreateModal";
 import VariantEditModal from "./components/VariantEditModal";
 import StockAdjustModal from "./components/StockAdjustModal";
 import StockHistoryModal from "./components/StockHistoryModal";
+import ImagePreviewModal from "./components/ImagePreviewModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -25,6 +26,10 @@ function App() {
   const [toastTimer, setToastTimer] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [historyVariant, setHistoryVariant] = useState(null);
+
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewTitle, setPreviewTitle] = useState("");
 
   const showToast = (msg) => {
     setToast(msg);
@@ -227,6 +232,12 @@ function App() {
             setEditingVariant(v);
             setEditOpen(true);
           }}
+          onPreviewImage={(v) => {
+            if (!v.imageUrl) return;
+            setPreviewUrl(v.imageUrl);
+            setPreviewTitle(`${v.itemName ?? ""} / ${v.skuCode ?? ""}`);
+            setPreviewOpen(true);
+          }}
           onHistory={(v) => {
             setHistoryVariant(v);
             setHistoryOpen(true);
@@ -251,7 +262,24 @@ function App() {
         }}
         onImageUploaded={(variantId, imageUrl) => {
           setVariantImageUrl(variantId, imageUrl);
-          showToast("画像を更新しました");
+          showToast(imageUrl ? "画像を更新しました" : "画像を削除しました");
+        }}
+        onPreviewImage={(v) => {
+          if (!v?.imageUrl) return;
+          setPreviewUrl(v.imageUrl);
+          setPreviewTitle(`${v.itemName ?? ""} / ${v.skuCode ?? ""}`);
+          setPreviewOpen(true);
+        }}
+      />
+
+      <ImagePreviewModal
+        open={previewOpen}
+        imageUrl={previewUrl}
+        title={previewTitle}
+        onClose={() => {
+          setPreviewOpen(false);
+          setPreviewUrl("");
+          setPreviewTitle("");
         }}
       />
 
