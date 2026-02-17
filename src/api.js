@@ -46,3 +46,7 @@ export function uploadVariantImage(variantId, file) {
 export function deleteVariantImage(variantId) {
   return api.delete(`/variants/${variantId}/image`);
 }
+
+export function createSale(payload) {
+  return api.post("/sales", payload);
+}
