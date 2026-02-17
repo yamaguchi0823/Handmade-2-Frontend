@@ -95,6 +95,7 @@ export default function StockHistoryModal({ open, onClose, variant }) {
                     後
                   </th>
                   <th>メモ</th>
+                  <th>参照</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,6 +107,7 @@ export default function StockHistoryModal({ open, onClose, variant }) {
                     <td className="text-end">{r.qtyBefore ?? 0}</td>
                     <td className="text-end">{r.qtyAfter ?? 0}</td>
                     <td>{r.note ?? ""}</td>
+                    <td>{r.refType ? `${r.refType}` : ""}</td>
                   </tr>
                 ))}
                 {rows.length === 0 && (

@@ -1,0 +1,180 @@
+import { useEffect, useMemo, useState } from "react";
+import { createSale } from "../api";
+
+export default function SaleCreateModal({
+  open,
+  onClose,
+  variants,
+  onCreated,
+}) {
+  const [variantId, setVariantId] = useState("");
+  const [qty, setQty] = useState("1");
+  const [note, setNote] = useState("");
+
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  // open中は背景スクロール禁止
+  useEffect(() => {
+    if (!open) return;
+    document.body.classList.add("modal-open");
+    return () => document.body.classList.remove("modal-open");
+  }, [open]);
+
+  // 開いたときに初期化
+  useEffect(() => {
+    if (!open) return;
+    setVariantId("");
+    setQty("1");
+    setNote("");
+    setError("");
+    setSaving(false);
+  }, [open]);
+
+  const list = Array.isArray(variants) ? variants : [];
+
+  // プルダウン用：表示テスト
+  const options = useMemo(() => {
+    return list.map((v) => ({
+      id: v.id,
+      label: `${v.id} ${v.itemName ?? ""} / ${v.skuCode ?? ""}(在庫：${v.stock ?? 0})`,
+      price: v.price ?? 0,
+    }));
+  }, [list]);
+
+  if (!open) return null;
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const vid = Number(variantId);
+    const q = Number(qty);
+
+    if (!vid || vid <= 0) {
+      setError("バリエーションを選択してください");
+      return;
+    }
+    if (!Number.isInteger(q) || q === 0) {
+      setError("数量は０以外の整数で入力してください（返品はマイナス）");
+      return;
+    }
+
+    // unitPriceは今は送らなくてもOK（サーバがDBから補完できる設計）
+    // でも表示上わかりやすいので、選択中のpriceを使って送ってもOK
+    const selected = options.find((o) => o.id === vid);
+    const unitPrice = selected ? Number(selected.price ?? 0) : 0;
+
+    try {
+      setSaving(true);
+
+      const payload = {
+        note: note?.trim() || null,
+        lines: [{ variantId: vid, qty: q, unitPrice }],
+      };
+
+      await createSale(payload);
+
+      onCreated?.(); // 親で在庫一覧更新＆トースト
+      onClose?.();
+    } catch (err) {
+      console.error(err);
+      const msg =
+        err?.response?.data?.message ||
+        (err?.response?.status === 409 ? "在庫が不足しています" : "") ||
+        "販売登録に失敗しました";
+      setError(msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div
+      className="variant-modal-overlay"
+      onClick={() => {
+        if (!saving) onClose?.();
+      }}
+    >
+      <div
+        className="variant-modal-box p-3 rounded shadow bg-white"
+        style={{ width: "min(720px,100%)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          <h3 className="h5 mb-0">販売登録</h3>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
+            ✕
+          </button>
+        </div>
+
+        {error && <div className="alert alert-danger py-2">{error}</div>}
+
+        <form onSubmit={submit}>
+          <div className="mb-3">
+            <label className="form-label">バリエーション</label>
+            <select
+              className="form-select"
+              value={variantId}
+              onChange={(e) => setVariantId(e.target.value)}
+              disabled={saving}
+            >
+              <option value="">選択してください</option>
+              {options.map((o) => (
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            <div className="form-text">
+              返品は「数量をマイナス」で入力できます（例：-1）
+            </div>
+          </div>
+
+          <div className="row g-2 mb-3">
+            <div className="col-6">
+              <label className="form-label">数量</label>
+              <input
+                className="form-control"
+                type="number"
+                step="1"
+                value={qty}
+                onChange={(e) => setQty(e.target.value)}
+                disabled={saving}
+              />
+            </div>
+            <div className="col-6">
+              <label className="form-label">メモ</label>
+              <input
+                className="form-control"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                disabled={saving}
+                placeholder="例：イベント/返品など"
+              />
+            </div>
+          </div>
+
+          <div className="d-flex gap-2">
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? "登録中" : "登録"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={onClose}
+              disabled={saving}
+            >
+              キャンセル
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
