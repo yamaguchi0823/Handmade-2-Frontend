@@ -7,6 +7,7 @@ import VariantEditModal from "./components/VariantEditModal";
 import StockAdjustModal from "./components/StockAdjustModal";
 import StockHistoryModal from "./components/StockHistoryModal";
 import ImagePreviewModal from "./components/ImagePreviewModal";
+import SaleCreateModal from "./components/SaleCreateModal";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -16,6 +17,9 @@ function App() {
   const [editingVariant, setEditingVariant] = useState(null);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjustVariant, setAdjustVariant] = useState(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyVariant, setHistoryVariant] = useState(null);
+  const [saleOpen, setSaleOpen] = useState(false);
 
   const [q, setQ] = useState("");
   const [stockMode, setStockMode] = useState("ALL");
@@ -24,8 +28,6 @@ function App() {
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
   const [toastTimer, setToastTimer] = useState(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [historyVariant, setHistoryVariant] = useState(null);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -147,21 +149,20 @@ function App() {
         <h2 className="h4 mb-0">在庫一覧</h2>
         <button
           type="button"
+          className="btn btn-outline-primary"
+          onClick={() => setSaleOpen(true)}
+        >
+          +販売登録
+        </button>
+
+        <button
+          type="button"
           className="btn btn-primary"
           onClick={() => setVariantModalOpen(true)}
         >
           +バリエ追加
         </button>
       </div>
-
-      <VariantCreateModal
-        open={variantModalOpen}
-        onClose={() => setVariantModalOpen(false)}
-        onCreated={() => {
-          loadVariants(); // 登録後に一覧更新
-          showToast("バリエーションを追加しました");
-        }}
-      />
 
       {error && (
         <div className="alert alert-danger py-2 mb-2" role="alert">
@@ -306,6 +307,25 @@ function App() {
         onClose={() => {
           setHistoryOpen(false);
           setHistoryVariant(null);
+        }}
+      />
+
+      <VariantCreateModal
+        open={variantModalOpen}
+        onClose={() => setVariantModalOpen(false)}
+        onCreated={() => {
+          loadVariants(); // 登録後に一覧更新
+          showToast("バリエーションを追加しました");
+        }}
+      />
+
+      <SaleCreateModal
+        open={saleOpen}
+        onClose={() => setSaleOpen(false)}
+        variants={variants}
+        onCreated={async () => {
+          await loadVariants(); // 在庫を更新
+          showToast("販売を登録しました");
         }}
       />
     </div>
