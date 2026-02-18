@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createSale } from "../api";
+import { createSale, fetchChannels } from "../api";
 
 export default function SaleCreateModal({
   open,
@@ -10,6 +10,8 @@ export default function SaleCreateModal({
   const [variantId, setVariantId] = useState("");
   const [qty, setQty] = useState("1");
   const [note, setNote] = useState("");
+  const [channels, setChannels] = useState([]);
+  const [channelId, setChannelId] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -32,6 +34,24 @@ export default function SaleCreateModal({
   }, [open]);
 
   const list = Array.isArray(variants) ? variants : [];
+
+  // 開いたときにchannels一覧を取得
+  useEffect(() => {
+    if (!open) return;
+
+    const load = async () => {
+      try {
+        const res = await fetchChannels();
+        setChannels(Array.isArray(res.data) ? res.data : []);
+      } catch (e) {
+        console.error(e);
+        // チャネル取得失敗でも販売登録はできるようにする（だからエラーにはしない）
+        setChannels([]);
+      }
+    };
+
+    load();
+  }, [open]);
 
   // プルダウン用：表示テスト
   const options = useMemo(() => {
@@ -69,6 +89,7 @@ export default function SaleCreateModal({
       setSaving(true);
 
       const payload = {
+        channelId: channelId ? Number(channelId) : null,
         note: note?.trim() || null,
         lines: [{ variantId: vid, qty: q, unitPrice }],
       };
@@ -131,8 +152,27 @@ export default function SaleCreateModal({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">チャネル</label>
+            <select
+              className="form-select"
+              value={channelId}
+              onChange={(e) => setChannelId(e.target.value)}
+              disabled={saving}
+            >
+              <option value="">（未選択）</option>
+              {channels.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                  （手数料：{Number(c.feeRate ?? 0)}% / 固定費：
+                  {Number(c.fixedFee ?? 0)}）
+                </option>
+              ))}
+            </select>
             <div className="form-text">
-              返品は「数量をマイナス」で入力できます（例：-1）
+              あとでチャネル別利益を出すために使います
             </div>
           </div>
 
@@ -157,6 +197,9 @@ export default function SaleCreateModal({
                 disabled={saving}
                 placeholder="例：イベント/返品など"
               />
+            </div>
+            <div className="form-text">
+              返品は「数量をマイナス」で入力できます（例：-1）
             </div>
           </div>
 
