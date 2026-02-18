@@ -8,6 +8,7 @@ import StockAdjustModal from "./components/StockAdjustModal";
 import StockHistoryModal from "./components/StockHistoryModal";
 import ImagePreviewModal from "./components/ImagePreviewModal";
 import SaleCreateModal from "./components/SaleCreateModal";
+import SalesPanel from "./components/SalesPanel";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -138,6 +139,9 @@ function App() {
   return (
     <div className="container py-4 overflow-x-auto">
       <ItemPanel />
+      <hr className="my-4" />
+      <SalesPanel />
+
       <hr className="my-4" />
       {toast && (
         <div className="alert alert-success py-2" role="alert">
