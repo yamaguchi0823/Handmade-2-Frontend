@@ -72,6 +72,7 @@ export default function SalePanel({ onChanged }) {
           <tbody>
             {sales.map((s) => (
               <tr key={s.id}>
+                <td>{s.id}</td>
                 <td>{s.soldAt}</td>
                 <td className="text-end">{s.totalQty}</td>
                 <td className="text-end">

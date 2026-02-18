@@ -54,3 +54,7 @@ export function createSale(payload) {
 export function fetchSales(limit = 50) {
   return api.get("/sales", { params: { limit } });
 }
+
+export function fetchSaleDetail(saleId) {
+  return api.get(`/sales/${saleId}`);
+}
