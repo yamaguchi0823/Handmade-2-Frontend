@@ -65,6 +65,8 @@ export default function SalePanel({ onChanged }) {
               <th style={{ width: 180 }}>販売日時</th>
               <th style={{ width: 120 }}>点数</th>
               <th style={{ width: 140 }}>合計</th>
+              <th>チャネル</th>
+              <th>利益</th>
               <th>メモ</th>
               <th style={{ width: 120 }}>操作</th>
             </tr>
@@ -79,6 +81,12 @@ export default function SalePanel({ onChanged }) {
                   {s.totalAmount != null
                     ? Number(s.totalAmount).toLocaleString()
                     : "-"}
+                </td>
+                <td>{s.channelName ?? "-"}</td>
+                <td
+                  className={`text-end ${Number(s.profit ?? 0) < 0 ? "text-danger" : ""}`}
+                >
+                  {s.profit != null ? Number(s.profit).toLocaleString() : "-"}
                 </td>
                 <td
                   className="text-truncate"
