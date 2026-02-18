@@ -58,3 +58,7 @@ export function fetchSales(limit = 50) {
 export function fetchSaleDetail(saleId) {
   return api.get(`/sales/${saleId}`);
 }
+
+export function fetchChannels() {
+  return api.get("/channels");
+}
