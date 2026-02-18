@@ -50,3 +50,11 @@ export function deleteVariantImage(variantId) {
 export function createSale(payload) {
   return api.post("/sales", payload);
 }
+
+export function fetchSales(limit = 50) {
+  return api.get("/sales", { params: { limit } });
+}
+
+export function fetchSaleDetail(saleId) {
+  return api.get(`/sales/${saleId}`);
+}
