@@ -9,6 +9,7 @@ import StockHistoryModal from "./components/StockHistoryModal";
 import ImagePreviewModal from "./components/ImagePreviewModal";
 import SaleCreateModal from "./components/SaleCreateModal";
 import SalesPanel from "./components/SalesPanel";
+import ChannelProfitPanel from "./components/ChannelProfitPanel";
 
 function App() {
   const [variants, setVariants] = useState([]);
@@ -138,9 +139,11 @@ function App() {
 
   return (
     <div className="container py-4 overflow-x-auto">
-      <ItemPanel />
+      <ChannelProfitPanel />
       <hr className="my-4" />
       <SalesPanel />
+      <hr className="my-4" />
+      <ItemPanel />
 
       <hr className="my-4" />
       {toast && (
