@@ -62,3 +62,7 @@ export function fetchSaleDetail(saleId) {
 export function fetchChannels() {
   return api.get("/channels");
 }
+
+export function fetchChannelProfit(params) {
+  return api.get("/reports/channel-profit", { params });
+}
