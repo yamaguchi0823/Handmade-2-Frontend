@@ -165,9 +165,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
-      {/* 既存：チャネル別利益テーブル（期間入力付きのままでもOK） */}
-      <ChannelProfitPanel from={from} to={to} reloadkey={reloadKey} />
     </div>
   );
 }
