@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import ChannelProfitPanel from "../components/ChannelProfitPanel";
 import { fetchChannelProfit, fetchLowStockVariants } from "../api";
+import { useNavigate } from "react-router-dom";
 
 function ymd(d) {
   // YYYY-MM-DD
@@ -34,6 +35,8 @@ export default function DashboardPage() {
     profit: 0,
     lowStockCount: 0,
   });
+
+  const navigate = useNavigate();
 
   const loadSummary = async () => {
     try {
@@ -126,7 +129,11 @@ export default function DashboardPage() {
         </div>
 
         <div className="col-12 col-md-3">
-          <div className="card">
+          <div
+            className="card"
+            role="button"
+            onClick={() => navigate(`/profit?from=${from}&to=${to}`)}
+          >
             <div className="card-body">
               <div className="text-muted small">今月利益</div>
               <div
