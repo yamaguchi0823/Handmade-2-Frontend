@@ -66,3 +66,8 @@ export function fetchChannels() {
 export function fetchChannelProfit(params) {
   return api.get("/reports/channel-profit", { params });
 }
+
+// 在庫少だけ取りたい（件数に使う）
+export function fetchLowStockVariants() {
+  return api.get("/variants", { params: { stockMode: "LOW_STOCK" } });
+}
