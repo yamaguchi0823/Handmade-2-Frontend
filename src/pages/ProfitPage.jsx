@@ -1,10 +1,26 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ChannelProfitPanel from "../components/ChannelProfitPanel";
 
 export default function ProfitPage() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
+
+  const [searchParams] = useSearchParams();
+
+  // ダッシュボードから ?from=...&to=...できたら自動セット＆自動集計
+  useEffect(() => {
+    const f = searchParams.get("from") || "";
+    const t = searchParams.get("to") || "";
+    setFrom(f);
+    setTo(t);
+
+    if (f || t) {
+      setReloadKey((k) => k + 1); // 自動で集計
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
