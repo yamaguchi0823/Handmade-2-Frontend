@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchChannelProfit } from "../api";
 
 // Dachboardから「期間」と「更新トリガー」をもらう
-export default function ChannelProfitPanel({ from, to, reloadkey }) {
+export default function ChannelProfitPanel({ from, to, reloadKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,7 +25,7 @@ export default function ChannelProfitPanel({ from, to, reloadkey }) {
 
     load();
     // reloadKeyが変わった時だけ再取得する
-  }, [reloadkey, from, to]);
+  }, [reloadKey, from, to]);
 
   return (
     <div className="mt-2">
