@@ -1,66 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchChannelProfit } from "../api";
 
-export default function ChannelProfitPanel() {
-  const [from, setfrom] = useState("");
-  const [to, setTo] = useState("");
+// Dachboardから「期間」と「更新トリガー」をもらう
+export default function ChannelProfitPanel({ from, to, reloadkey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const load = async () => {
-    try {
-      setLoading(true);
-      const res = await fetchChannelProfit({
-        from: from || undefined,
-        to: to || undefined,
-      });
-      setRows(res.data ?? []);
-    } catch (e) {
-      console.error(e);
-      alert("集計取得に失敗しました");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const res = await fetchChannelProfit({
+          from: from || undefined,
+          to: to || undefined,
+        });
+        setRows(res.data ?? []);
+      } catch (e) {
+        console.error(e);
+        alert("集計取得に失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+    // reloadKeyが変わった時だけ再取得する
+  }, [reloadkey, from, to]);
 
   return (
-    <div className="mt-4">
-      <h3 className="h5 mb-3">チャネル別利益</h3>
-
-      <div className="row g-2 mb-3">
-        <div className="col">
-          <label className="form-label">From</label>
-          <input
-            type="date"
-            className="form-control"
-            value={from}
-            onChange={(e) => setfrom(e.target.value)}
-          />
-        </div>
-
-        <div className="col">
-          <label className="form-label">To</label>
-          <input
-            type="date"
-            className="form-control"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
-        </div>
-
-        <div className="col d-flex align-items-end">
-          <button
-            className="btn btn-primary w-100"
-            onClick={load}
-            disabled={loading}
-          >
-            {loading ? "集計中" : "集計"}
-          </button>
+    <div className="mt-2">
+      <div className="d-flex align-items-center justify-content-between mb-2">
+        <h3 className="h5 mb-3">チャネル別利益</h3>
+        <div className="text-muted small">
+          {from && to ? `${from}～${to}` : "期間：全期間"}
+          {loading ? "（更新中）" : ""}
         </div>
       </div>
 
       <div className="table-responsive">
-        <table className="table table-bordered align-iddle">
+        <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
               <th>チャネル</th>
