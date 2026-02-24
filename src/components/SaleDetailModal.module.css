@@ -1,0 +1,23 @@
+/* src/components/SaleDetailModal.module.css */
+
+/* このモーダルだけ箱幅を少し狭めたい */
+.box {
+  width: min(900px, 100%);
+}
+
+/* 列幅（tableのthに当てる） */
+.thVariant {
+  width: 80px;
+}
+.thSku {
+  width: 140px;
+}
+.thQty {
+  width: 100px;
+}
+.thUnit {
+  width: 120px;
+}
+.thSub {
+  width: 140px;
+}
