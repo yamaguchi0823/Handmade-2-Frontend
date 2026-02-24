@@ -20,6 +20,7 @@ function money(n) {
 export default function ChannelProfitPanel({ from, to, reloadKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [metric, setMetric] = useState("profit"); // profit or totalAmont
 
   useEffect(() => {
     const load = async () => {
@@ -58,14 +59,24 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
 
   // グラフ用データ（利益が大きい順）
   const chartData = useMemo(() => {
+    const key = metric; // "profit" or "totalAmount"
+
     return rows
-      .map((r) => ({
-        name: r.channelName ?? "未設定",
-        profit: Number(r.profit ?? 0),
-        totalAmount: Number(r.totalAmount ?? 0),
-      }))
-      .sort((a, b) => b.profit - a.profit);
-  }, [rows]);
+      .map((r) => {
+        const profit = Number(r.profit ?? 0);
+        const totalAmount = Number(r.totalAmount ?? 0);
+        const profitRate =
+          totalAmount === 0 ? null : (profit / totalAmount) * 100;
+
+        return {
+          name: r.channelName ?? "未設定",
+          profit,
+          totalAmount,
+          profitRate,
+        };
+      })
+      .sort((a, b) => Number(b[key] ?? 0) - Number(a[key] ?? 0));
+  }, [rows, metric]);
 
   return (
     <div className="mt-2">
@@ -77,11 +88,45 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
         </div>
       </div>
 
-      {/* 棒グラフ（利益） */}
+      {/* 横棒グラフ（売上/利益 切替） */}
       {chartData.length > 0 && (
         <div className="card mb-3">
           <div className="card-body">
-            <div className="fw-semibold mb-2">利益（チャネル別）</div>
+            <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+              <div className="fw-semibold mb-2">
+                {metric === "profit"
+                  ? "利益（チャネル別）"
+                  : "売上（チャネル別）"}
+              </div>
+              {/* 切替スイッチ */}
+              <div
+                className="btn-group"
+                role="group"
+                aria-label="metric switch"
+              >
+                <button
+                  type="button"
+                  className={`btn btn-sm ${
+                    metric === "profit" ? "btn-primary" : "btn-outline-primary"
+                  }`}
+                  onClick={() => setMetric("profit")}
+                >
+                  利益
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-sm ${
+                    metric === "totalAmount"
+                      ? "btn-primary"
+                      : "btn-outline-primary"
+                  }`}
+                  onClick={() => setMetric("totalAmount")}
+                >
+                  売上
+                </button>
+              </div>
+            </div>
+
             <div style={{ width: "100%", height: 230 }}>
               <ResponsiveContainer>
                 <BarChart
@@ -90,10 +135,45 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
                   margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
+                  {/* 数値軸 */}
                   <XAxis type="number" />
+                  {/* チャネル名 */}
                   <YAxis type="category" dataKey="name" width={150} />
-                  <Tooltip formatter={(value) => [money(value), "利益"]} />
-                  <Bar dataKey="profit">
+                  <Tooltip
+                    content={({ active, payload, label }) => {
+                      if (!active || !payload || payload.length === 0)
+                        return null;
+
+                      const d = payload[0].payload; // chartDataの１行分
+                      const value = d?.[metric];
+
+                      const rateText =
+                        d.profitRate == null
+                          ? "-"
+                          : `${d.profitRate.toFixed(1)}%`;
+
+                      return (
+                        <div className="bg-white border rounded px-2 py-1 small">
+                          <div className="fw-semibold mb-1">{label}</div>
+
+                          <div>
+                            {metric === "profit" ? "利益" : "売上"}:
+                            {money(value)}
+                          </div>
+                          {/* <div>売上：{money(d.totalAmount)}</div>
+                          <div>利益：{money(d.profit)}</div> */}
+                          <div>
+                            利益率：
+                            <span className={d.profit < 0 ? "text-danger" : ""}>
+                              {rateText}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  {/* 切替本体 */}
+                  <Bar dataKey={metric}>
                     {chartData.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
@@ -106,7 +186,9 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
             </div>
 
             <div className="text-muted small">
-              ※ 棒がマイナスの場合は左方向に伸びます
+              {metric === "profit"
+                ? "※ 棒がマイナスの場合は左方向に伸びます"
+                : "※ 売上の大きいチャネルが一目でわかります"}
             </div>
           </div>
         </div>
@@ -123,6 +205,7 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               <th className="text-end">手数料</th>
               <th className="text-end">固定費</th>
               <th className="text-end">利益</th>
+              <th className="text-end">利益率</th>
             </tr>
           </thead>
           <tbody>
@@ -141,12 +224,24 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
                 >
                   {money(r.profit)}
                 </td>
+                <td
+                  className={`text-end ${
+                    Number(r.profit ?? 0) < 0 ? "text-danger" : ""
+                  }`}
+                >
+                  {(() => {
+                    const amt = Number(r.totalAmount ?? 0);
+                    const profit = Number(r.profit ?? 0);
+                    if (amt === 0) return "-";
+                    return `${((profit / amt) * 100).toFixed(1)}%`;
+                  })()}
+                </td>
               </tr>
             ))}
 
             {rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-center text-muted py-4">
+                <td colSpan={8} className="text-center text-muted py-4">
                   データがありません
                 </td>
               </tr>
@@ -169,6 +264,16 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
                   }`}
                 >
                   {money(total.profit)}
+                </th>
+                <th
+                  className={`text-end ${Number(total.profit ?? 0) < 0 ? "text-danger" : ""}`}
+                >
+                  {(() => {
+                    const amt = Number(total.totalAmount ?? 0);
+                    const profit = Number(total.profit ?? 0);
+                    if (amt === 0) return "-";
+                    return `${((profit / amt) * 100).toFixed(1)}%`;
+                  })()}
                 </th>
               </tr>
             </tfoot>
