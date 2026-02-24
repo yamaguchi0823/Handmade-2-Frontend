@@ -1,6 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchChannelProfit } from "../api";
 
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  Cell,
+} from "recharts";
+
 function money(n) {
   return Number(n ?? 0).toLocaleString();
 }
@@ -45,6 +56,17 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
     };
   }, [rows]);
 
+  // グラフ用データ（利益が大きい順）
+  const chartData = useMemo(() => {
+    return rows
+      .map((r) => ({
+        name: r.channelName ?? "未設定",
+        profit: Number(r.profit ?? 0),
+        totalAmount: Number(r.totalAmount ?? 0),
+      }))
+      .sort((a, b) => b.profit - a.profit);
+  }, [rows]);
+
   return (
     <div className="mt-2">
       <div className="d-flex align-items-center justify-content-between mb-2">
@@ -54,6 +76,41 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
           {loading ? "（更新中）" : ""}
         </div>
       </div>
+
+      {/* 棒グラフ（利益） */}
+      {chartData.length > 0 && (
+        <div className="card mb-3">
+          <div className="card-body">
+            <div className="fw-semibold mb-2">利益（チャネル別）</div>
+            <div style={{ width: "100%", height: 230 }}>
+              <ResponsiveContainer>
+                <BarChart
+                  data={chartData}
+                  layout="vertical" // 横棒
+                  margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={150} />
+                  <Tooltip formatter={(value) => [money(value), "利益"]} />
+                  <Bar dataKey="profit">
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.profit < 0 ? "#dc3545" : "#0d6efd"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="text-muted small">
+              ※ 棒がマイナスの場合は左方向に伸びます
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="table-responsive">
         <table className="table table-bordered align-middle">
