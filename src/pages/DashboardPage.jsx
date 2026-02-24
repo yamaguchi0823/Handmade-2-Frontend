@@ -19,7 +19,10 @@ function monthRangeToday() {
 }
 
 function money(n) {
-  return Number(n ?? 0).toLocaleString();
+  return Number(n ?? 0).toLocaleString("ja-JP", {
+    style: "currency",
+    currency: "JPY",
+  });
 }
 
 export default function DashboardPage() {
@@ -122,7 +125,7 @@ export default function DashboardPage() {
             <div className="card-body">
               <div className="text-muted small">今月売上</div>
               <div className="fs-4 fw-semibold text-end">
-                {money(summary.totalAmount)} 円
+                {money(summary.totalAmount)}
               </div>
             </div>
           </div>
@@ -141,7 +144,7 @@ export default function DashboardPage() {
                   Number(summary.profit) < 0 ? "text-danget" : ""
                 }`}
               >
-                {money(summary.profit)} 円
+                {money(summary.profit)}
               </div>
             </div>
           </div>
