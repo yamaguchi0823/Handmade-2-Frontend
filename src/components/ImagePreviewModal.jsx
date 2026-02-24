@@ -25,11 +25,10 @@ export default function ImagePreviewModal({ open, imageUrl, title, onClose }) {
     <div className="variant-modal-overlay" onClick={onClose}>
       <div
         className="variant-modal-box p-3 rounded shadow bg-white"
-        style={{ width: "min(960px, 100%)" }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="d-flex align-items-center justify-content-between mb-2">
-          <div className="text-truncate" style={{ maxWidth: "80%" }}>
+          <div className={`text-truncate variant-modal-title`}>
             <span className="fw-semibold">{title || "画像プレビュー"}</span>
           </div>
 
@@ -60,12 +59,7 @@ export default function ImagePreviewModal({ open, imageUrl, title, onClose }) {
             <img
               src={imageUrl}
               alt={title || ""}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "75vh",
-                objectFit: "contain",
-                borderRadius: 8,
-              }}
+              className="variant-preview-img"
             />
           </div>
         </div>
