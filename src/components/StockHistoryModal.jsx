@@ -72,7 +72,7 @@ export default function StockHistoryModal({ open, onClose, variant }) {
         {loading ? (
           <div className="d-flex align-items-center gap-2">
             <span
-              className="spinner-border spiner-border-sm"
+              className="spinner-border spinner-border-sm"
               role="status"
               aria-hidden="true"
             />
@@ -83,17 +83,11 @@ export default function StockHistoryModal({ open, onClose, variant }) {
             <table className="table table-sm table-bordered align-middle">
               <thead className="table-light">
                 <tr>
-                  <th style={{ width: 160 }}>日時</th>
-                  <th style={{ width: 90 }}>種別</th>
-                  <th className="text-end" style={{ width: 80 }}>
-                    増減
-                  </th>
-                  <th className="text-end" style={{ width: 80 }}>
-                    前
-                  </th>
-                  <th className="text-end" style={{ width: 80 }}>
-                    後
-                  </th>
+                  <th className="stockhist-th-dt">日時</th>
+                  <th className="stockhist-th-type">種別</th>
+                  <th className="text-end stockhist-th-num">増減</th>
+                  <th className="text-end stockhist-th-num">前</th>
+                  <th className="text-end stockhist-th-num">後</th>
                   <th>メモ</th>
                   <th>参照</th>
                 </tr>
@@ -112,7 +106,7 @@ export default function StockHistoryModal({ open, onClose, variant }) {
                 ))}
                 {rows.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center text-muted py-3">
+                    <td colSpan={7} className="text-center text-muted py-3">
                       履歴がありません
                     </td>
                   </tr>

@@ -1,6 +1,9 @@
 /* src/styles/modals.css */
 
-/* overlay */
+/* =========================
+   Modal Layout
+========================= */
+
 .variant-modal-overlay {
   position: fixed;
   inset: 0;
@@ -12,11 +15,29 @@
   z-index: 1050; /* bootstrap modal相当の高さ */
 }
 
-/* box */
 .variant-modal-box {
-  width: min(960px, 100%);
-  max-height: calc(100vh - 24px);
   overflow: hidden; /* header+body構造で中だけscrollさせる */
+  max-height: calc(100vh - 24px);
+}
+.variant-modal-body {
+  overflow: auto;
+  max-height: calc(100vh - 140px);
+}
+
+/* =========================
+   Modal Width Utilities
+========================= */
+.modal-sm {
+  width: min(560px, 100%);
+}
+.modal-md {
+  width: min(720px, 100%);
+}
+.modal-lg {
+  width: min(900px, 100%);
+}
+.modal-xl {
+  width: min(96px, 100%);
 }
 
 /* タイトルの省略（max 80%） */
@@ -30,4 +51,15 @@
   max-height: 75vh;
   object-fit: contain;
   border-radius: 8px;
+}
+
+/* ===== Stock history table column widths ===== */
+.stockhist-th-dt {
+  width: 160px;
+}
+.stockhist-th-type {
+  width: 90px;
+}
+.stockhist-th-num {
+  width: 80px;
 }

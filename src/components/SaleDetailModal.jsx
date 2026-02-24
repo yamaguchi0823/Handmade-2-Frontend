@@ -16,7 +16,7 @@ export default function SaleDetailModal({ open, sale, onClose }) {
   return (
     <div className="variant-modal-overlay" onClick={onClose}>
       <div
-        className={`variant-modal-box ${styles.box} p-3 rounded shadow bg-white`}
+        className={`variant-modal-box modal-lg p-3 rounded shadow bg-white`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="d-flex align-items-center justify-content-between mb-2">

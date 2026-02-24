@@ -118,8 +118,7 @@ export default function SaleCreateModal({
       }}
     >
       <div
-        className="variant-modal-box p-3 rounded shadow bg-white"
-        style={{ width: "min(720px,100%)" }}
+        className="variant-modal-box modal-md p-3 rounded shadow bg-white"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="d-flex align-items-center justify-content-between mb-2">
