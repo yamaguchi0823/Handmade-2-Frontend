@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { fetchSales, fetchSaleDetail } from "../api";
 import SaleDetailModal from "./SaleDetailModal";
 
-export default function SalePanel({ onChanged }) {
+function money(n) {
+  return Number(n ?? 0).toLocaleString();
+}
+function formatDateTime(v) {
+  if (!v) return "-";
+  const s = String(v).replace("T", " ");
+  return s.length >= 16 ? s.slice(0, 16) : s;
+}
+
+export default function SalesPanel({ onChanged }) {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -45,7 +54,7 @@ export default function SalePanel({ onChanged }) {
 
   return (
     <div className="mb-4">
-      <div className="d-flex align-itam-center justify-content-between mb-2">
+      <div className="d-flex align-items-center justify-content-between mb-2">
         <h2 className="h4 mb-0">販売一覧</h2>
         <button
           className="btn btn-outline-secondary"
@@ -61,21 +70,21 @@ export default function SalePanel({ onChanged }) {
         <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
-              <th className="th80">ID</th>
+              <th className="u-w-80">ID</th>
               <th>販売日時</th>
-              <th className="th80">点数</th>
-              <th className="th100">合計</th>
+              <th className="u-w-80">点数</th>
+              <th className="u-w-100">合計</th>
               <th>チャネル</th>
               <th>利益</th>
               <th>メモ</th>
-              <th className="th80">操作</th>
+              <th className="u-w-80">操作</th>
             </tr>
           </thead>
           <tbody>
             {sales.map((s) => (
               <tr key={s.id}>
-                <td>{s.id}</td>
-                <td>{s.soldAt}</td>
+                <td className="text-nowrap">{s.id}</td>
+                <td className="text-nowrap">{formatDateTime(s.soldAt)}</td>
                 <td className="text-end">{s.totalQty}</td>
                 <td className="text-end">
                   {s.totalAmount != null
@@ -88,7 +97,7 @@ export default function SalePanel({ onChanged }) {
                 >
                   {s.profit != null ? Number(s.profit).toLocaleString() : "-"}
                 </td>
-                <td className="text-truncate" title={s.note ?? ""}>
+                <td className="u-maxw-240 text-truncate" title={s.note ?? ""}>
                   {s.note ?? ""}
                 </td>
                 <td>
@@ -103,7 +112,7 @@ export default function SalePanel({ onChanged }) {
             ))}
             {sales.length === 0 && !loading && (
               <tr>
-                <td colSpan={6} className="text-center text-muted py-4">
+                <td colSpan={8} className="text-center text-muted py-4">
                   販売データがありません
                 </td>
               </tr>
