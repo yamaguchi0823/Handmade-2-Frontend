@@ -91,3 +91,12 @@
 .stockhist-th-num {
   width: 80px;
 }
+
+/* thumbnail(edit modal etc.) */
+.app-thumb-120 {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: zoom-in;
+}
