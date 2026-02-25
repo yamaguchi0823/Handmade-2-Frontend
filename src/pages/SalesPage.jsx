@@ -1,39 +1,53 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../api";
 import SalesPanel from "../components/SalesPanel";
 import SaleCreateModal from "../components/SaleCreateModal";
+import PageHeader from "../components/PageHeader";
 
 export default function SalesPage() {
   const [saleOpen, setSaleOpen] = useState(false);
   const [variants, setVariants] = useState([]);
   const [toast, setToast] = useState("");
 
+  const toastTimerRef = useRef(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(""), 3000);
+  };
+
   const loadVariants = async () => {
     try {
       const res = await api.get("/variants");
-      setVariants(res.data ?? []);
+      setVariants(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
+      setVariants([]);
     }
   };
 
   useEffect(() => {
     loadVariants();
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
   }, []);
 
   return (
     <div>
-      <div className="d-flex align-items-center justify-content-between mb-3">
-        <h2 className="h4 mb-0">販売</h2>
-
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setSaleOpen(true)}
-        >
-          +販売登録
-        </button>
-      </div>
+      <PageHeader
+        title="販売"
+        actions={
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => setSaleOpen(true)}
+          >
+            +販売登録
+          </button>
+        }
+      />
 
       {toast && <div className="alert alert-success py-2">{toast}</div>}
 
@@ -43,8 +57,9 @@ export default function SalesPage() {
         open={saleOpen}
         onClose={() => setSaleOpen(false)}
         variants={variants}
-        onCreated={() => {
-          setToast("販売を登録しました");
+        onCreated={async () => {
+          await loadVariants(); // 次の登録の選択肢も最新に
+          showToast("販売を登録しました");
         }}
       />
     </div>
