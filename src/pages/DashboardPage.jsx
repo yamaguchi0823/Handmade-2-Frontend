@@ -4,7 +4,6 @@ import { fetchChannelProfit, fetchLowStockVariants } from "../api";
 import { useNavigate } from "react-router-dom";
 
 function ymd(d) {
-  // YYYY-MM-DD
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
@@ -14,7 +13,7 @@ function ymd(d) {
 function monthRangeToday() {
   const now = new Date();
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
-  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0); // 月末
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   return { from: ymd(from), to: ymd(to) };
 }
 
@@ -45,7 +44,6 @@ export default function DashboardPage() {
     try {
       setLoading(true);
 
-      // ① 今月のチャネル別集計（売上・利益・件数を合計する）
       const res = await fetchChannelProfit({
         from: from || undefined,
         to: to || undefined,
@@ -62,7 +60,6 @@ export default function DashboardPage() {
       );
       const profit = rows.reduce((sum, r) => sum + Number(r.profit ?? 0), 0);
 
-      // ② 在庫少 件数（今月関係なく「現在」）
       const res2 = await fetchLowStockVariants();
       const lowStockCount = Array.isArray(res2.data) ? res2.data.length : 0;
 
@@ -70,7 +67,6 @@ export default function DashboardPage() {
       setReloadKey((k) => k + 1);
     } catch (e) {
       console.error(e);
-      // 失敗しても真っ白にしない
       setSummary((prev) => ({ ...prev }));
       alert("ダッシュボード集計の取得に失敗しました");
     } finally {
@@ -85,37 +81,49 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="d-flex align-item-center justify-content-between mb-3 flex-wrap gap-2">
-        <h2 className="h4 mb-3">ダッシュボード</h2>
+      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <h2 className="h4 mb-0">ダッシュボード</h2>
 
-        <div className="d-flex gap-2 align-items-end flex-wrap">
-          <div>
+        {/* 期間入力＋更新 */}
+        <form
+          className="row g-2 align-items-end"
+          onSubmit={(e) => {
+            e.preventDefault();
+            loadSummary();
+          }}
+        >
+          <div className="col-12 col-sm-auto">
             <label className="form-label mb-1">From</label>
             <input
               type="date"
               className="form-control"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
+              disabled={loading}
             />
           </div>
-          <div>
-            <label className="form-label">To</label>
+
+          <div className="col-12 col-sm-auto">
+            <label className="form-label mb-1">To</label>
             <input
               type="date"
               className="form-control"
               value={to}
               onChange={(e) => setTo(e.target.value)}
+              disabled={loading}
             />
           </div>
-          <button
-            className="btn btn-primary"
-            onClick={loadSummary}
-            disabled={loading}
-            style={{ height: 38, marginTop: 23 }}
-          >
-            {loading ? "更新中" : "更新"}
-          </button>
-        </div>
+
+          <div className="col-12 col-sm-auto d-grid">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "更新中" : "更新"}
+            </button>
+          </div>
+        </form>
       </div>
 
       {/* サマリーカード */}
@@ -141,7 +149,7 @@ export default function DashboardPage() {
               <div className="text-muted small">今月利益</div>
               <div
                 className={`fs-4 fw-semibold text-end ${
-                  Number(summary.profit) < 0 ? "text-danget" : ""
+                  Number(summary.profit) < 0 ? "text-danger" : ""
                 }`}
               >
                 {money(summary.profit)}
@@ -170,11 +178,13 @@ export default function DashboardPage() {
               <div className="fs-4 fw-semibold text-end">
                 {Number(summary.lowStockCount).toLocaleString()} 件
               </div>
-              {/* <div className="text-muted small">しきい値以下の件数</div> */}
             </div>
           </div>
         </div>
       </div>
+
+      {/* ここに ChannelProfitPanel を置くなら（今の props に合わせて） */}
+      {/* <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} /> */}
     </div>
   );
 }
