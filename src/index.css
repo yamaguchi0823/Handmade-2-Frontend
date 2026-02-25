@@ -1,4 +1,16 @@
-:root {
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: #f6f7f9;
+}
+#root {
+  min-height: 100vh;
+}
+
+/* :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -65,4 +77,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */
