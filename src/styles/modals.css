@@ -64,6 +64,20 @@
   border-radius: 8px;
 }
 
+/* 列幅（tableのthに当てる） */
+.th80 {
+  width: 80px;
+}
+.th100 {
+  width: 100px;
+}
+.th120 {
+  width: 120px;
+}
+.th140 {
+  width: 140px;
+}
+
 /* ===== Stock history table column widths ===== */
 .stockhist-th-dt {
   width: 160px;
