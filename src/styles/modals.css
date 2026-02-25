@@ -32,7 +32,7 @@
   width: min(900px, 100%);
 }
 .app-modal-xl {
-  width: min(96px, 100%);
+  width: min(960px, 100%);
 }
 /* layout */
 .app-modal-header {
@@ -64,6 +64,23 @@
   border-radius: 8px;
 }
 
+/* 列幅（tableのthに当てる） */
+.th40 {
+  width: 40px;
+}
+.th80 {
+  width: 80px;
+}
+.th100 {
+  width: 100px;
+}
+.th120 {
+  width: 120px;
+}
+.th140 {
+  width: 140px;
+}
+
 /* ===== Stock history table column widths ===== */
 .stockhist-th-dt {
   width: 160px;
@@ -73,4 +90,13 @@
 }
 .stockhist-th-num {
   width: 80px;
+}
+
+/* thumbnail(edit modal etc.) */
+.app-thumb-120 {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: zoom-in;
 }

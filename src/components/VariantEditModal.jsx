@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import BaseModal from "./BaseModal";
 import { updateVariant, uploadVariantImage, deleteVariantImage } from "../api";
 
 export default function VariantEditModal({
@@ -27,14 +28,8 @@ export default function VariantEditModal({
     setError("");
     setImageFile(null);
     setUploading(false);
+    setSaving(false);
   }, [open, variant]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    document.body.classList.add("modal-open");
-    return () => document.body.classList.remove("modal-open");
-  }, [open]);
 
   if (!open || !variant) return null;
 
@@ -55,101 +50,129 @@ export default function VariantEditModal({
       onClose?.();
     } catch (e2) {
       console.error(e2);
-      const msg = e2.response?.data?.message || "更新に失敗しました";
-      setError(msg);
+      setError(e2?.response?.data?.message || "更新に失敗しました");
     } finally {
       setSaving(false);
     }
   };
 
+  const busy = saving || uploading;
+
+  const uploadImage = async () => {
+    if (!imageFile) return;
+
+    try {
+      setUploading(true);
+      setError("");
+
+      const res = await uploadVariantImage(variant.id, imageFile);
+      const imageUrl = res.data?.imageUrl;
+
+      if (typeof imageUrl === "string" && imageUrl.length > 0) {
+        onImageUploaded?.(variant.id, imageUrl);
+      }
+
+      setImageFile(null);
+    } catch (e) {
+      console.error(e);
+      setError(e?.response?.data?.message || "画像アップロードに失敗しました");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const deleteImage = async () => {
+    const ok = window.confirm("画像を削除しますか？");
+    if (!ok) return;
+
+    try {
+      setUploading(true);
+      setError("");
+
+      await deleteVariantImage(variant.id);
+
+      // 親に「画像が消えた」ことを通知（即時反映）
+      onImageUploaded?.(variant.id, null);
+      setImageFile(null);
+    } catch (e) {
+      console.error(e);
+      setError(e?.response?.data?.message || "画像削除に失敗しました");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <div
-      className="variant-modal-overlay"
-      onClick={() => {
-        if (!saving) onClose?.();
-      }}
-    >
-      <div
-        className="variant-modal-box p-3 rounded shadow bg-white"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <h3 className="h5 mb-0">バリエーション編集</h3>
+    <BaseModal
+      open={open}
+      onClose={onClose}
+      title="バリエーション編集"
+      size="md"
+      busy={busy}
+      footer={
+        <>
+          <button
+            type="submit"
+            form="variant-edit-form"
+            className="btn btn-primary"
+            disabled={busy}
+          >
+            {saving ? "保存中..." : "保存"}
+          </button>
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-outline-secondary"
             onClick={onClose}
+            disabled={busy}
           >
-            ✕
+            キャンセル
           </button>
+        </>
+      }
+    >
+      <div className="mb-2 text-muted">
+        <div>
+          SKU: <span className="fw-semibold">{variant.skuCode}</span>
         </div>
+        <div>作品：{variant.itemName}</div>
+      </div>
 
-        <div className="mb-2 text-muted">
-          <div>
-            SKU:<span className="fw-semibold">{variant.skuCode}</span>
-          </div>
-          <div>作品：{variant.itemName}</div>
-        </div>
+      {error && <div className="alert alert-danger py-2">{error}</div>}
 
-        {error && <div className="alert alert-danger py-2">{error}</div>}
+      <form id="variant-edit-form" onSubmit={submit}>
+        <div className="mb-3">
+          <label className="form-label">画像</label>
 
-        <form onSubmit={submit}>
-          <div className="mb-3">
-            <label className="form-label">画像</label>
-            {variant.imageUrl && (
-              <div className="mb-2">
-                <img
-                  src={variant.imageUrl}
-                  alt=""
-                  onClick={() => onPreviewImage?.(variant)}
-                  title="クリックで拡大"
-                  style={{
-                    width: 120,
-                    height: 120,
-                    objectFit: "cover",
-                    borderRadius: 8,
-                    cursor: "zoom-in",
-                  }}
-                />
-              </div>
-            )}
-            <input
-              type="file"
-              className="form-control"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-              disabled={saving || uploading}
-            />
-            <div className="form-text">
-              画像を選んで「画像アップロード」を押してください
+          {variant.imageUrl && (
+            <div className="mb-2">
+              <img
+                src={variant.imageUrl}
+                alt=""
+                onClick={() => onPreviewImage?.(variant)}
+                title="クリックで拡大"
+                className="app-thumb-120"
+              />
             </div>
+          )}
 
+          <input
+            type="file"
+            className="form-control"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            disabled={busy}
+          />
+
+          <div className="form-text">
+            画像を選んで「画像アップロード」を押してください
+          </div>
+
+          <div className="d-flex gap-2 flex-wrap mt-2">
             <button
               type="button"
-              className="btn btn-outline-primary mt-2"
-              disabled={!imageFile || uploading || saving}
-              onClick={async () => {
-                try {
-                  setUploading(true);
-                  setError("");
-                  const res = await uploadVariantImage(variant.id, imageFile);
-                  const imageUrl = res.data?.imageUrl;
-
-                  if (typeof imageUrl === "string" && imageUrl.length > 0) {
-                    onImageUploaded?.(variant.id, imageUrl);
-                  }
-
-                  setImageFile(null);
-                } catch (e) {
-                  console.error(e);
-                  setError(
-                    e.response?.data?.message ||
-                      "画像アップロードに失敗しました",
-                  );
-                } finally {
-                  setUploading(false);
-                }
-              }}
+              className="btn btn-outline-primary"
+              disabled={!imageFile || busy}
+              onClick={uploadImage}
             >
               {uploading ? "アップロード中..." : "画像アップロード"}
             </button>
@@ -158,84 +181,55 @@ export default function VariantEditModal({
               <button
                 type="button"
                 className="btn btn-outline-danger btn-sm"
-                disabled={saving || uploading}
-                onClick={async () => {
-                  const ok = window.confirm("画像を削除しますか？");
-                  if (!ok) return;
-
-                  try {
-                    setUploading(true);
-                    setError("");
-                    await deleteVariantImage(variant.id);
-
-                    // 親に「画像が消えた」ことを通知（即時反映）
-                    onImageUploaded?.(variant.id, null);
-                    setImageFile(null);
-                  } catch (e) {
-                    console.error(e);
-                    setError(e.response?.data?.message || "画像を削除しました");
-                  } finally {
-                    setUploading(false);
-                  }
-                }}
+                disabled={busy}
+                onClick={deleteImage}
               >
                 画像を削除
               </button>
             )}
           </div>
+        </div>
 
-          <div className="mb-3">
-            <label className="form-label">ステータス</label>
-            <select
-              className="form-select"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-            >
-              <option value="ACTIVE">ACTIVE(販売中)</option>
-              <option value="INACTIVE">INACTIVE(停止)</option>
-            </select>
+        <div className="mb-3">
+          <label className="form-label">ステータス</label>
+          <select
+            className="form-select"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            disabled={busy}
+          >
+            <option value="ACTIVE">ACTIVE(販売中)</option>
+            <option value="INACTIVE">INACTIVE(停止)</option>
+          </select>
+        </div>
+
+        <div className="row g-2 mb-3">
+          <div className="col">
+            <label className="form-label">在庫しきい値</label>
+            <input
+              className="form-control"
+              type="number"
+              min="0"
+              value={stockAlertThreshold}
+              onChange={(e) => setStockAlertThreshold(e.target.value)}
+              disabled={busy}
+            />
+            <div className="form-text">この数以下で「在庫少」表示</div>
           </div>
 
-          <div className="row g-2 mb-3">
-            <div className="col">
-              <label className="form-label">在庫しきい値</label>
-              <input
-                className="form-control"
-                type="number"
-                min="0"
-                value={stockAlertThreshold}
-                onChange={(e) => setStockAlertThreshold(e.target.value)}
-              />
-              <div className="form-text">この数以下で「在庫少」表示</div>
-            </div>
-
-            <div className="col">
-              <label className="form-label">価格</label>
-              <input
-                className="form-control"
-                type="number"
-                min="0"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </div>
+          <div className="col">
+            <label className="form-label">価格</label>
+            <input
+              className="form-control"
+              type="number"
+              min="0"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              disabled={busy}
+            />
           </div>
-
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? "保存中..." : "保存"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={onClose}
-              disabled={saving}
-            >
-              キャンセル
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </BaseModal>
   );
 }
