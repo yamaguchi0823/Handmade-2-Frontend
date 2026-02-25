@@ -4,17 +4,17 @@ export default function BaseModal({
   open,
   title,
   size = "md", // sm | md | lg | xl
-  closeOnEsc = true,
   busy = false, // saving/loading中の閉じ防止に使える
+  closeOnOverlay = true,
+  closeOnEsc = true,
   onClose,
   headerRight, // 右上にボタンを差し込む用（任意）
-  children,
   footer, // footer領域を差し込む用（任意）
+  children,
 }) {
   // 背景スクロール防止
   useEffect(() => {
     if (!open) return;
-
     document.body.classList.add("modal-open");
     return () => document.body.classList.remove("modal-open");
   }, [open]);
@@ -22,11 +22,11 @@ export default function BaseModal({
   // ESCで閉じる
   useEffect(() => {
     if (!open || !closeOnEsc) return;
-
     const onKeyDown = (e) => {
       if (e.key === "Escape" && !busy) onClose?.();
     };
     window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, closeOnEsc, busy, onClose]);
 
   if (!open) return null;
@@ -44,8 +44,7 @@ export default function BaseModal({
     <div
       className="app-modal-overlay"
       onClick={() => {
-        if (!closeOnOverlay) return;
-        if (!busy) onClose?.();
+        if (closeOnOverlay && !busy) onClose?.();
       }}
     >
       <div
@@ -72,7 +71,7 @@ export default function BaseModal({
 
         <div className="app-modal-body">{children}</div>
 
-        {footer ? <div className="app-modal-footer">{footer}</div> : null}
+        {footer && <div className="app-modal-footer">{footer}</div>}
       </div>
     </div>
   );
