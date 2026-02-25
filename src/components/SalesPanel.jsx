@@ -61,14 +61,14 @@ export default function SalePanel({ onChanged }) {
         <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
-              <th style={{ width: 80 }}>ID</th>
-              <th style={{ width: 180 }}>販売日時</th>
-              <th style={{ width: 120 }}>点数</th>
-              <th style={{ width: 140 }}>合計</th>
+              <th className="th80">ID</th>
+              <th>販売日時</th>
+              <th className="th80">点数</th>
+              <th className="th100">合計</th>
               <th>チャネル</th>
               <th>利益</th>
               <th>メモ</th>
-              <th style={{ width: 120 }}>操作</th>
+              <th className="th80">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -88,11 +88,7 @@ export default function SalePanel({ onChanged }) {
                 >
                   {s.profit != null ? Number(s.profit).toLocaleString() : "-"}
                 </td>
-                <td
-                  className="text-truncate"
-                  style={{ maxWidth: 360 }}
-                  title={s.note ?? ""}
-                >
+                <td className="text-truncate" title={s.note ?? ""}>
                   {s.note ?? ""}
                 </td>
                 <td>
