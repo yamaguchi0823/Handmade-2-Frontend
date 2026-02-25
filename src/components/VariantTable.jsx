@@ -1,5 +1,6 @@
 // src/components/VariantTable.jsx
 import styles from "./VariantTable.module.css";
+
 export default function VariantTable({
   variants,
   onDelta,
@@ -12,16 +13,13 @@ export default function VariantTable({
   const isArray = Array.isArray(variants);
 
   const stockBadge = (v) => {
-    // v.stock_alert_threshold が来ている前提（来ていなくても壊れない）
     const threshold = Number(v.stockAlertThreshold ?? 0);
     const stock = Number(v.stock ?? 0);
 
-    if (stock === 0) {
+    if (stock === 0)
       return <span className="badge text-bg-secondary">在庫なし</span>;
-    }
-    if (threshold > 0 && stock <= threshold) {
+    if (threshold > 0 && stock <= threshold)
       return <span className="badge text-bg-warning">在庫少</span>;
-    }
     return <span className="badge text-bg-success">在庫あり</span>;
   };
 
@@ -60,6 +58,7 @@ export default function VariantTable({
               return (
                 <tr key={v.id} className={rowClass}>
                   <td>{v.id}</td>
+
                   <td>
                     <div className="d-flex align-items-center gap-2">
                       {v.imageUrl ? (
@@ -67,21 +66,22 @@ export default function VariantTable({
                           src={v.imageUrl}
                           alt=""
                           onClick={() => onPreviewImage?.(v)}
-                          className={styles.thumb}
+                          className="u-thumb-36"
                           title="クリックで拡大"
                         />
                       ) : (
-                        <div className={styles.thumbPlaceholder} />
+                        <div className="u-thumb-placeholder-36" />
                       )}
 
                       <span
-                        className={`text-truncate ${styles.itemName}`}
+                        className="u-truncate u-maxw-140"
                         title={v.itemName ?? ""}
                       >
                         {v.itemName ?? "-"}
                       </span>
                     </div>
                   </td>
+
                   <td className="text-nowrap">{v.skuCode}</td>
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>
@@ -99,6 +99,7 @@ export default function VariantTable({
                       </span>
                     </div>
                   </td>
+
                   <td>
                     <div className="d-flex align-items-center gap-2 flex-wrap">
                       <button
@@ -110,6 +111,7 @@ export default function VariantTable({
                       >
                         -
                       </button>
+
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-primary"
@@ -118,6 +120,7 @@ export default function VariantTable({
                       >
                         +
                       </button>
+
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-secondary"
@@ -144,6 +147,7 @@ export default function VariantTable({
                       >
                         履歴
                       </button>
+
                       {busy && (
                         <span
                           className="spinner-border spinner-border-sm"
@@ -159,6 +163,7 @@ export default function VariantTable({
                 </tr>
               );
             })}
+
           {isArray && variants.length === 0 && (
             <tr>
               <td colSpan={8} className="text-center text-muted py-4">
@@ -166,6 +171,7 @@ export default function VariantTable({
               </td>
             </tr>
           )}
+
           {!isArray && (
             <tr>
               <td colSpan={8} className="text-center text-muted py-4">

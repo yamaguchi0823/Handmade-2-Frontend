@@ -137,7 +137,7 @@ export default function InventoryPage() {
   );
 
   return (
-    <div className="overflow-x-auto">
+    <div>
       <ItemPanel />
       <hr className="my-4" />
 
