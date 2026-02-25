@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import api from "../api";
 
+import PageHeader from "../components/PageHeader";
 import VariantTable from "../components/VariantTable";
 import ItemPanel from "../components/ItemsPanel";
 import VariantCreateModal from "../components/VariantCreateModal";
@@ -28,7 +29,8 @@ export default function InventoryPage() {
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState("");
-  const [toastTimer, setToastTimer] = useState(null);
+
+  const toastTimerRef = useRef(null);
 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -36,16 +38,15 @@ export default function InventoryPage() {
 
   const showToast = (msg) => {
     setToast(msg);
-    if (toastTimer) clearTimeout(toastTimer);
-    const t = setTimeout(() => setToast(""), 3000);
-    setToastTimer(t);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(""), 3000);
   };
 
   // 一覧取得（共通処理）
   const loadVariants = async () => {
     try {
       setSearching(true);
-      setError(""); // 成功したら消えるように開始時にクリア
+      setError("");
 
       const res = await api.get("/variants", {
         params: {
@@ -54,10 +55,12 @@ export default function InventoryPage() {
           status: status || undefined,
         },
       });
-      setVariants(res.data); // 配列がくる
+
+      setVariants(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
       setError("一覧の取得に失敗しました");
+      setVariants([]);
     } finally {
       setSearching(false);
     }
@@ -65,11 +68,11 @@ export default function InventoryPage() {
 
   // 在庫増減
   const changeStock = async (variantId, delta) => {
-    if (updatingId === variantId) return; // 連打防止（次の「1」に繋がる）
+    if (updatingId === variantId) return;
 
     try {
       setUpdatingId(variantId);
-      setError(""); //開始時にクリア
+      setError("");
 
       const res = await api.post(
         `/variants/${variantId}/stock-movements/delta`,
@@ -81,26 +84,21 @@ export default function InventoryPage() {
 
       const newStock = res.data?.stock;
 
-      // ★一覧を全取り直しせず、その行だけ更新
       if (typeof newStock === "number") {
         setVariants((prev) =>
           prev.map((v) => (v.id === variantId ? { ...v, stock: newStock } : v)),
         );
       } else {
-        // 万一レスポンス形が違う場合だけ再取得
         await loadVariants();
       }
 
       showToast("在庫を更新しました");
     } catch (e) {
       console.error(e);
-
-      // Spring側が{message:"..."}を返している場合はそれを表示
       const msg =
         e?.response?.data?.message ||
         (e?.response?.status === 409 ? "在庫が不足しています" : "") ||
         "在庫更新に失敗しました";
-
       setError(msg);
     } finally {
       setUpdatingId(null);
@@ -115,7 +113,6 @@ export default function InventoryPage() {
       ),
     );
 
-    //編集モーダル側で表示している variant も更新しておくと気持ち良い
     setEditingVariant((prev) =>
       prev && prev.id === variantId
         ? { ...prev, imageUrl: imageUrl || null }
@@ -124,17 +121,13 @@ export default function InventoryPage() {
   };
 
   // 初回表示時
-  useEffect(
-    () => {
-      // 第1引数には実行させたい副作用《関数》を記述（戻り値はクリーンアップ関数、または何も返さない）
-      const init = async () => {
-        await loadVariants();
-      };
-      init();
-    },
-    // 第2引数には副作用関数の実行タイミングを制御する依存データを記述（[状態変数、または空の配列]）
-    [],
-  );
+  useEffect(() => {
+    loadVariants();
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div>
@@ -147,27 +140,28 @@ export default function InventoryPage() {
         </div>
       )}
 
-      <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-        <h2 className="h4 mb-0">在庫一覧</h2>
+      <PageHeader
+        title="在庫一覧"
+        actions={
+          <div className="d-flex gap-2">
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={() => setSaleOpen(true)}
+            >
+              +販売登録
+            </button>
 
-        <div className="d-flex gap-2">
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={() => setSaleOpen(true)}
-          >
-            +販売登録
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => setVariantModalOpen(true)}
-          >
-            +バリエ追加
-          </button>
-        </div>
-      </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setVariantModalOpen(true)}
+            >
+              +バリエ追加
+            </button>
+          </div>
+        }
+      />
 
       {error && (
         <div className="alert alert-danger py-2 mb-2" role="alert">
@@ -178,7 +172,7 @@ export default function InventoryPage() {
       <form
         className="row g-2 align-items-end mb-3"
         onSubmit={(e) => {
-          e.preventDefault(); // ページリロード禁止
+          e.preventDefault();
           loadVariants();
         }}
       >
@@ -192,6 +186,7 @@ export default function InventoryPage() {
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
+
         <div className="col-6 col-md-3">
           <label className="form-label">在庫</label>
           <select
@@ -205,6 +200,7 @@ export default function InventoryPage() {
             <option value="LOW_STOCK">在庫少</option>
           </select>
         </div>
+
         <div className="col-6 col-md-3">
           <label className="form-label">状態</label>
           <select
@@ -317,7 +313,7 @@ export default function InventoryPage() {
         open={variantModalOpen}
         onClose={() => setVariantModalOpen(false)}
         onCreated={() => {
-          loadVariants(); // 登録後に一覧更新
+          loadVariants();
           showToast("バリエーションを追加しました");
         }}
       />
@@ -327,7 +323,7 @@ export default function InventoryPage() {
         onClose={() => setSaleOpen(false)}
         variants={variants}
         onCreated={async () => {
-          await loadVariants(); // 在庫を更新
+          await loadVariants();
           showToast("販売を登録しました");
         }}
       />
