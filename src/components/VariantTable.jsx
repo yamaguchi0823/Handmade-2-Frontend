@@ -1,4 +1,5 @@
 // src/components/VariantTable.jsx
+import styles from "./VariantTable.module.css";
 export default function VariantTable({
   variants,
   onDelta,
@@ -29,20 +30,14 @@ export default function VariantTable({
       <table className="table table-bordered align-middle">
         <thead className="table-light">
           <tr>
-            <th style={{ width: 70 }}>ID</th>
-            <th style={{ width: 180 }}>作品名</th>
+            <th className={styles.thId}>ID</th>
+            <th className={styles.thName}>作品名</th>
             <th>SKU</th>
-            <th style={{ width: 110 }} className="text-end">
-              在庫
-            </th>
-            <th style={{ width: 110 }} className="text-end">
-              しきい値
-            </th>
-            <th style={{ width: 120 }} className="text-end">
-              価格
-            </th>
-            <th style={{ width: 120 }}>状態</th>
-            <th style={{ width: 170 }}>操作</th>
+            <th className={`text-end ${styles.thStock}`}>在庫</th>
+            <th className={`text-end ${styles.thThreshold}`}>しきい値</th>
+            <th className={`text-end ${styles.thPrice}`}>価格</th>
+            <th className={styles.thStatus}>状態</th>
+            <th className={styles.thActions}>操作</th>
           </tr>
         </thead>
 
@@ -72,35 +67,21 @@ export default function VariantTable({
                           src={v.imageUrl}
                           alt=""
                           onClick={() => onPreviewImage?.(v)}
-                          style={{
-                            width: 36,
-                            height: 36,
-                            objectFit: "cover",
-                            borderRadius: 6,
-                            cursor: "zoom-in",
-                          }}
+                          className={styles.thumb}
                           title="クリックで拡大"
                         />
                       ) : (
-                        <div style={{ width: 36, height: 36 }} />
+                        <div className={styles.thumbPlaceholder} />
                       )}
 
                       <span
-                        className="text-truncate"
-                        style={{ maxWidth: 140 }}
+                        className={`text-truncate ${styles.itemName}`}
                         title={v.itemName ?? ""}
                       >
                         {v.itemName ?? "-"}
                       </span>
                     </div>
                   </td>
-                  {/* <td
-                    className="text-truncate"
-                    style={{ maxWidth: 180 }}
-                    title={v.itemName ?? ""}
-                  >
-                    {v.itemName ?? "-"}
-                  </td> */}
                   <td className="text-nowrap">{v.skuCode}</td>
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>

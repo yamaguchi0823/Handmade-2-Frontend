@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import styles from "./SaleDetailModal.module.css";
 
 export default function SaleDetailModal({ open, sale, onClose }) {
   useEffect(() => {
@@ -15,11 +16,10 @@ export default function SaleDetailModal({ open, sale, onClose }) {
   return (
     <div className="variant-modal-overlay" onClick={onClose}>
       <div
-        className="variant-modal-box p-3 rounded shadow bg-white"
-        style={{ width: "min(900px, 100%)" }}
+        className={`variant-modal-box modal-lg p-3 rounded shadow bg-white`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="d-flex align-center justify-content-between mb-2">
+        <div className="d-flex align-items-center justify-content-between mb-2">
           <h3 className="h5 mb-0">販売詳細 #{sale.id}</h3>
           <button className="btn btn-outline-secondary" onClick={onClose}>
             ✕
@@ -39,18 +39,12 @@ export default function SaleDetailModal({ open, sale, onClose }) {
             <table className="table table-bordered align-middle">
               <thead className="table-light">
                 <tr>
-                  <th style={{ width: 80 }}>variant</th>
+                  <th className="styles.thVariant">variant</th>
                   <th>作品</th>
-                  <th style={{ width: 140 }}>SKU</th>
-                  <th style={{ width: 100 }} className="text-den">
-                    数量
-                  </th>
-                  <th style={{ width: 120 }} className="text-den">
-                    単価
-                  </th>
-                  <th style={{ width: 140 }} className="text-den">
-                    小計
-                  </th>
+                  <th className={styles.thSku}>SKU</th>
+                  <th className={`text-end ${styles.thQty}`}>数量</th>
+                  <th className={`text-end ${styles.thUnit}`}>単価</th>
+                  <th className={`text-end ${styles.thSub}`}>小計</th>
                 </tr>
               </thead>
               <tbody>

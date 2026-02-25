@@ -1,0 +1,43 @@
+/* src/components/VariantTable.module.css */
+
+.thId {
+  width: 70px;
+}
+.thName {
+  width: 180px;
+}
+.thStock {
+  width: 110px;
+}
+.thThreshold {
+  width: 110px;
+}
+.thPrice {
+  width: 120px;
+}
+.thStatus {
+  width: 120px;
+}
+.thActions {
+  width: 170px;
+}
+
+/* 画像サムネ */
+.thumb {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: zoom-in;
+}
+
+/* 画像がないときのダミー枠 */
+.thumbPlaceholder {
+  width: 36px;
+  height: 36px;
+}
+
+/* 作品名の省略表示幅 */
+.itemName {
+  max-width: 140px;
+}

@@ -31,7 +31,7 @@ export default function ItemPanel() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError("作家名は必須です");
+      setError("作品名は必須です");
       return;
     }
     try {
@@ -48,7 +48,7 @@ export default function ItemPanel() {
       await load(); // 作成後に再取得（理解優先）
     } catch (e) {
       console.error(e);
-      const msg = e?.response?.message || "作品の追加に失敗しました";
+      const msg = e?.response?.data?.message || "作品の追加に失敗しました";
       setError(msg);
     } finally {
       setSaving(false);
@@ -56,70 +56,105 @@ export default function ItemPanel() {
   };
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 12, marginBottom: 16 }}>
-      <h2>作品管理（Items）</h2>
-      {error && <div style={{ color: "red", marginBottom: 8 }}>{error}</div>}
+    <section className="card mb-3">
+      <div className="card-body">
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+          <h2>作品管理（Items）</h2>
 
-      {/* 追加フォーム */}
-      <form onSubmit={onSubmit} style={{ marginBottom: 12 }}>
-        <div style={{ marginBottom: 8 }}>
-          <label style={{ display: "inline-block", width: 80 }}>作品名</label>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="例：ポリゴン（単色）"
-            style={{ width: 260 }}
-          />
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-secondary"
+            onClick={load}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  aria-hidden="true"
+                />
+                読み込み中
+              </>
+            ) : (
+              "再読み込み"
+            )}
+          </button>
         </div>
+        {error && (
+          <div className="alert alert-danger py-2" role="alert">
+            {error}
+          </div>
+        )}
 
-        <div style={{ marginBottom: 8 }}>
-          <label style={{ display: "inline-block", width: 80 }}>説明</label>
-          <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="任意"
-            style={{ width: 420 }}
-          />
+        {/* 追加フォーム */}
+        <form onSubmit={onSubmit} className="row g-2 align-items-end mb-3">
+          <div className="col-12 col-mb-6">
+            <label className="form-label">作品名</label>
+            <input
+              className="form-control"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="例：ポリゴン（単色）"
+            />
+          </div>
+
+          <div className="col-12 col-mb-6">
+            <label className="form-label">説明</label>
+            <input
+              className="form-control"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="任意"
+            />
+          </div>
+
+          <div className="col-12 col-md d-grid">
+            <button type="submit" className="btn btn-primary" disabled={saving}>
+              {saving ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    aria-hidden="true"
+                  />
+                  追加中
+                </>
+              ) : (
+                "追加"
+              )}
+            </button>
+          </div>
+        </form>
+
+        {/* 一覧 */}
+        <div className="table-responsive">
+          <table className="table table-sm table-bordered align-middle mb-0">
+            <thead className="table-light">
+              <tr>
+                <th>ID</th>
+                <th>作品名</th>
+                <th>説明</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((it) => (
+                <tr key={it.id}>
+                  <td className="text-nowrap">{it.id}</td>
+                  <td>{it.name}</td>
+                  <td className="text-muted">{it.description ?? "-"}</td>
+                </tr>
+              ))}
+
+              {items.length === 0 && !loading && (
+                <tr>
+                  <td colSpan={3} className="text-center text-muted py-4">
+                    作品がありません（追加してください）
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-
-        <button type="submit" disabled={saving}>
-          {saving ? "追加中" : "追加"}
-        </button>
-      </form>
-
-      {/* 一覧 */}
-      <div style={{ marginBottom: 8 }}>
-        <button onClick={load} disabled={loading}>
-          {loading ? "読み込み中" : "再読み込み"}
-        </button>
       </div>
-
-      <table border="1" cellPadding="6" style={{ borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>作品名</th>
-            <th>説明</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((it) => (
-            <tr key={it.id}>
-              <td>{it.id}</td>
-              <td>{it.name}</td>
-              <td>{it.description ?? "-"}</td>
-            </tr>
-          ))}
-
-          {items.length === 0 && !loading && (
-            <tr>
-              <td colSpan={3} style={{ textAlign: "center" }}>
-                作品がありません（追加してください）
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    </section>
   );
 }
