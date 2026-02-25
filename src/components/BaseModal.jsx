@@ -61,7 +61,7 @@ export default function BaseModal({
               type="button"
               className="btn btn-sm btn-outline-secondary"
               onClick={onClose}
-              disable={busy}
+              disabled={busy}
               aria-label="close"
             >
               ✕
