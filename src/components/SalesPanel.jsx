@@ -2,6 +2,15 @@ import { useEffect, useState } from "react";
 import { fetchSales, fetchSaleDetail } from "../api";
 import SaleDetailModal from "./SaleDetailModal";
 
+function money(n) {
+  return Number(n ?? 0).toLocaleString();
+}
+function formatDateTime(v) {
+  if (!v) return "-";
+  const s = String(v).replace("T", " ");
+  return s.length >= 16 ? s.slice(0, 16) : s;
+}
+
 export default function SalesPanel({ onChanged }) {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -74,8 +83,8 @@ export default function SalesPanel({ onChanged }) {
           <tbody>
             {sales.map((s) => (
               <tr key={s.id}>
-                <td>{s.id}</td>
-                <td>{s.soldAt}</td>
+                <td className="text-nowrap">{s.id}</td>
+                <td className="text-nowrap">{formatDateTime(s.soldAt)}</td>
                 <td className="text-end">{s.totalQty}</td>
                 <td className="text-end">
                   {s.totalAmount != null
