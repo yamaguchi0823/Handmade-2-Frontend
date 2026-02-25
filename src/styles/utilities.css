@@ -2,7 +2,7 @@
 
 /* truncate */
 .u-truncate {
-  overflow: : hidden;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -17,7 +17,7 @@
   height: 36px;
   object-fit: cover;
   border-radius: 6px;
-  cursor:zoom-in;
+  cursor: zoom-in;
 }
 .u-thumb-placeholder-36 {
   width: 36px;
@@ -38,3 +38,24 @@
   height: 230px;
 }
 
+/* --- table column width helpers --- */
+.u-w-80 {
+  width: 80px;
+}
+.u-w-100 {
+  width: 100px;
+}
+.u-w-120 {
+  width: 120px;
+}
+.u-w-140 {
+  width: 140px;
+}
+.u-w-160 {
+  width: 160px;
+}
+
+/* ついで：メモ列の省略を安定させたいなら */
+.u-maxw-240 {
+  max-width: 240px;
+}
