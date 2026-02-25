@@ -65,6 +65,9 @@
 }
 
 /* 列幅（tableのthに当てる） */
+.th40 {
+  width: 40px;
+}
 .th80 {
   width: 80px;
 }
