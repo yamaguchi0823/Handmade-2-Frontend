@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChannelProfitPanel from "../components/ChannelProfitPanel";
+import PageHeader from "../components/PageHeader";
 
 export default function ProfitPage() {
   const [from, setFrom] = useState("");
@@ -22,41 +23,44 @@ export default function ProfitPage() {
 
   return (
     <div>
-      <h2 className="h4 mb-3">利益詳細</h2>
+      <PageHeader
+        title="利益詳細"
+        actions={
+          <form
+            className="row g-2 align-items-end"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setReloadKey((k) => k + 1);
+            }}
+          >
+            <div className="col-12 col-sm-auto">
+              <label className="form-label mb-1">From</label>
+              <input
+                type="date"
+                className="form-control"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+              />
+            </div>
 
-      <form
-        className="row g-2 align-items-end mb-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setReloadKey((k) => k + 1);
-        }}
-      >
-        <div className="col-12 col-sm">
-          <label className="form-label">From</label>
-          <input
-            type="date"
-            className="form-control"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-          />
-        </div>
+            <div className="col-12 col-sm-auto">
+              <label className="form-label mb-1">To</label>
+              <input
+                type="date"
+                className="form-control"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+              />
+            </div>
 
-        <div className="col-12 col-sm">
-          <label className="form-label">To</label>
-          <input
-            type="date"
-            className="form-control"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-          />
-        </div>
-
-        <div className="col-12 col-sm-auto d-grid">
-          <button type="submit" className="btn btn-primary">
-            集計
-          </button>
-        </div>
-      </form>
+            <div className="col-12 col-sm-auto d-grid">
+              <button type="submit" className="btn btn-primary">
+                集計
+              </button>
+            </div>
+          </form>
+        }
+      />
 
       <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} />
     </div>

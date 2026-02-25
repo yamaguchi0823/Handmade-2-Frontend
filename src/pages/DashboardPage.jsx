@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import ChannelProfitPanel from "../components/ChannelProfitPanel";
 import { fetchChannelProfit, fetchLowStockVariants } from "../api";
 import { useNavigate } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
 
 function ymd(d) {
   const y = d.getFullYear();
@@ -81,50 +81,50 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-        <h2 className="h4 mb-0">ダッシュボード</h2>
+      <PageHeader
+        title="ダッシュボード"
+        actions={
+          <form
+            className="row g-2 align-items-end"
+            onSubmit={(e) => {
+              e.preventDefault();
+              loadSummary();
+            }}
+          >
+            <div className="col-12 col-sm-auto">
+              <label className="form-label mb-1">From</label>
+              <input
+                type="date"
+                className="form-control"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                disabled={loading}
+              />
+            </div>
 
-        {/* 期間入力＋更新 */}
-        <form
-          className="row g-2 align-items-end"
-          onSubmit={(e) => {
-            e.preventDefault();
-            loadSummary();
-          }}
-        >
-          <div className="col-12 col-sm-auto">
-            <label className="form-label mb-1">From</label>
-            <input
-              type="date"
-              className="form-control"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              disabled={loading}
-            />
-          </div>
+            <div className="col-12 col-sm-auto">
+              <label className="form-label mb-1">To</label>
+              <input
+                type="date"
+                className="form-control"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                disabled={loading}
+              />
+            </div>
 
-          <div className="col-12 col-sm-auto">
-            <label className="form-label mb-1">To</label>
-            <input
-              type="date"
-              className="form-control"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              disabled={loading}
-            />
-          </div>
-
-          <div className="col-12 col-sm-auto d-grid">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
-              {loading ? "更新中" : "更新"}
-            </button>
-          </div>
-        </form>
-      </div>
+            <div className="col-12 col-sm-auto d-grid">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "更新中" : "更新"}
+              </button>
+            </div>
+          </form>
+        }
+      />
 
       {/* サマリーカード */}
       <div className="row g-2 mb-3">
@@ -183,7 +183,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ここに ChannelProfitPanel を置くなら（今の props に合わせて） */}
       {/* <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} /> */}
     </div>
   );
