@@ -127,7 +127,7 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               </div>
             </div>
 
-            <div style={{ width: "100%", height: 230 }}>
+            <div className="u-chart-h230">
               <ResponsiveContainer>
                 <BarChart
                   data={chartData}
