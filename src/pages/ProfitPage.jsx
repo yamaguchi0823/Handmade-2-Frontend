@@ -9,16 +9,14 @@ export default function ProfitPage() {
 
   const [searchParams] = useSearchParams();
 
-  // ダッシュボードから ?from=...&to=...できたら自動セット＆自動集計
+  // ダッシュボードから ?from=...&to=... で来たら自動セット＆自動集計
   useEffect(() => {
     const f = searchParams.get("from") || "";
     const t = searchParams.get("to") || "";
     setFrom(f);
     setTo(t);
 
-    if (f || t) {
-      setReloadKey((k) => k + 1); // 自動で集計
-    }
+    if (f || t) setReloadKey((k) => k + 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -26,8 +24,14 @@ export default function ProfitPage() {
     <div>
       <h2 className="h4 mb-3">利益詳細</h2>
 
-      <div className="row g-2 mb-3">
-        <div className="col">
+      <form
+        className="row g-2 align-items-end mb-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setReloadKey((k) => k + 1);
+        }}
+      >
+        <div className="col-12 col-sm">
           <label className="form-label">From</label>
           <input
             type="date"
@@ -37,7 +41,7 @@ export default function ProfitPage() {
           />
         </div>
 
-        <div className="col">
+        <div className="col-12 col-sm">
           <label className="form-label">To</label>
           <input
             type="date"
@@ -47,15 +51,13 @@ export default function ProfitPage() {
           />
         </div>
 
-        <div className="col d-flex align-item-end">
-          <button
-            className="btn btn-primary w-100"
-            onClick={() => setReloadKey((k) => k + 1)}
-          >
+        <div className="col-12 col-sm-auto d-grid">
+          <button type="submit" className="btn btn-primary">
             集計
           </button>
         </div>
-      </div>
+      </form>
+
       <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} />
     </div>
   );
