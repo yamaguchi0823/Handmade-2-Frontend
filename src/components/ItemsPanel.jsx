@@ -59,7 +59,7 @@ export default function ItemPanel() {
     <section className="card mb-3">
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-          <h2>作品管理（Items）</h2>
+          <h2 className="h5 mb-0">作品管理（Items）</h2>
 
           <button
             type="button"
@@ -88,7 +88,7 @@ export default function ItemPanel() {
 
         {/* 追加フォーム */}
         <form onSubmit={onSubmit} className="row g-2 align-items-end mb-3">
-          <div className="col-12 col-mb-6">
+          <div className="col-12 col-md-6">
             <label className="form-label">作品名</label>
             <input
               className="form-control"
@@ -98,7 +98,7 @@ export default function ItemPanel() {
             />
           </div>
 
-          <div className="col-12 col-mb-6">
+          <div className="col-12 col-md-6">
             <label className="form-label">説明</label>
             <input
               className="form-control"
