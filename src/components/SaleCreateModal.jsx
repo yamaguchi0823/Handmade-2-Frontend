@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createSale, fetchChannels } from "../api";
+import BaseModal from "./BaseModal";
 
 export default function SaleCreateModal({
   open,
@@ -16,26 +17,9 @@ export default function SaleCreateModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // open中は背景スクロール禁止
-  useEffect(() => {
-    if (!open) return;
-    document.body.classList.add("modal-open");
-    return () => document.body.classList.remove("modal-open");
-  }, [open]);
-
-  // 開いたときに初期化
-  useEffect(() => {
-    if (!open) return;
-    setVariantId("");
-    setQty("1");
-    setNote("");
-    setError("");
-    setSaving(false);
-  }, [open]);
-
   const list = Array.isArray(variants) ? variants : [];
 
-  // 開いたときにchannels一覧を取得
+  // 開いたときにchannels一覧を取得（初期化）
   useEffect(() => {
     if (!open) return;
 
@@ -80,8 +64,6 @@ export default function SaleCreateModal({
       return;
     }
 
-    // unitPriceは今は送らなくてもOK（サーバがDBから補完できる設計）
-    // でも表示上わかりやすいので、選択中のpriceを使って送ってもOK
     const selected = options.find((o) => o.id === vid);
     const unitPrice = selected ? Number(selected.price ?? 0) : 0;
 
@@ -111,112 +93,102 @@ export default function SaleCreateModal({
   };
 
   return (
-    <div
-      className="variant-modal-overlay"
-      onClick={() => {
-        if (!saving) onClose?.();
-      }}
-    >
-      <div
-        className="variant-modal-box modal-md p-3 rounded shadow bg-white"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="d-flex align-items-center justify-content-between mb-2">
-          <h3 className="h5 mb-0">販売登録</h3>
+    <BaseModal
+      open={open}
+      onClose={onClose}
+      title="販売登録"
+      size="md"
+      busy={saving}
+      footer={
+        <>
+          <button
+            type="submit"
+            form="sale-create-form"
+            className="btn btn-primary"
+            disabled={saving}
+          >
+            {saving ? "登録中" : "登録"}
+          </button>
           <button
             type="button"
-            className="btn btn-sm btn-outline-secondary"
+            className="btn btn-outline-secondary"
             onClick={onClose}
             disabled={saving}
           >
-            ✕
+            キャンセル
           </button>
+        </>
+      }
+    >
+      {error && <div className="alert alert-danger py-2">{error}</div>}
+
+      <form onSubmit={submit}>
+        <div className="mb-3">
+          <label className="form-label">バリエーション</label>
+          <select
+            className="form-select"
+            value={variantId}
+            onChange={(e) => setVariantId(e.target.value)}
+            disabled={saving}
+          >
+            <option value="">選択してください</option>
+            {options.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {error && <div className="alert alert-danger py-2">{error}</div>}
+        <div className="mb-3">
+          <label className="form-label">チャネル</label>
+          <select
+            className="form-select"
+            value={channelId}
+            onChange={(e) => setChannelId(e.target.value)}
+            disabled={saving}
+          >
+            <option value="">（未選択）</option>
+            {channels.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+                （手数料：{Number(c.feeRate ?? 0)}% / 固定費：
+                {Number(c.fixedFee ?? 0)}）
+              </option>
+            ))}
+          </select>
+          <div className="form-text">
+            あとでチャネル別利益を出すために使います
+          </div>
+        </div>
 
-        <form onSubmit={submit}>
-          <div className="mb-3">
-            <label className="form-label">バリエーション</label>
-            <select
-              className="form-select"
-              value={variantId}
-              onChange={(e) => setVariantId(e.target.value)}
+        <div className="row g-2 mb-3">
+          <div className="col-6">
+            <label className="form-label">数量</label>
+            <input
+              className="form-control"
+              type="number"
+              step="1"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
               disabled={saving}
-            >
-              <option value="">選択してください</option>
-              {options.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
-
-          <div className="mb-3">
-            <label className="form-label">チャネル</label>
-            <select
-              className="form-select"
-              value={channelId}
-              onChange={(e) => setChannelId(e.target.value)}
+          <div className="col-6">
+            <label className="form-label">メモ</label>
+            <input
+              className="form-control"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
               disabled={saving}
-            >
-              <option value="">（未選択）</option>
-              {channels.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                  （手数料：{Number(c.feeRate ?? 0)}% / 固定費：
-                  {Number(c.fixedFee ?? 0)}）
-                </option>
-              ))}
-            </select>
-            <div className="form-text">
-              あとでチャネル別利益を出すために使います
-            </div>
+              placeholder="例：イベント/返品など"
+            />
           </div>
-
-          <div className="row g-2 mb-3">
-            <div className="col-6">
-              <label className="form-label">数量</label>
-              <input
-                className="form-control"
-                type="number"
-                step="1"
-                value={qty}
-                onChange={(e) => setQty(e.target.value)}
-                disabled={saving}
-              />
-            </div>
-            <div className="col-6">
-              <label className="form-label">メモ</label>
-              <input
-                className="form-control"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                disabled={saving}
-                placeholder="例：イベント/返品など"
-              />
-            </div>
-            <div className="form-text">
-              返品は「数量をマイナス」で入力できます（例：-1）
-            </div>
+          <div className="form-text">
+            返品は「数量をマイナス」で入力できます（例：-1）
           </div>
-
-          <div className="d-flex gap-2">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? "登録中" : "登録"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={onClose}
-              disabled={saving}
-            >
-              キャンセル
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </BaseModal>
   );
 }
