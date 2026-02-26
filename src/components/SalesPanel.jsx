@@ -70,12 +70,12 @@ export default function SalesPanel({ onChanged }) {
         <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
-              <th className="u-w-80">ID</th>
+              <th className="u-w-40">ID</th>
               <th>販売日時</th>
               <th className="u-w-80">点数</th>
-              <th className="u-w-100">合計</th>
+              <th className="u-w-100">合計売上</th>
+              <th className="u-w-100">利益</th>
               <th>チャネル</th>
-              <th>利益</th>
               <th>メモ</th>
               <th className="u-w-80">操作</th>
             </tr>
@@ -91,12 +91,12 @@ export default function SalesPanel({ onChanged }) {
                     ? Number(s.totalAmount).toLocaleString()
                     : "-"}
                 </td>
-                <td>{s.channelName ?? "-"}</td>
                 <td
                   className={`text-end ${Number(s.profit ?? 0) < 0 ? "text-danger" : ""}`}
                 >
                   {s.profit != null ? Number(s.profit).toLocaleString() : "-"}
                 </td>
+                <td>{s.channelName ?? "-"}</td>
                 <td className="u-maxw-240 text-truncate" title={s.note ?? ""}>
                   {s.note ?? ""}
                 </td>

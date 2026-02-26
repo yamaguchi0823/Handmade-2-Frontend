@@ -131,9 +131,6 @@ export default function InventoryPage() {
 
   return (
     <div>
-      <ItemPanel />
-      <hr className="my-4" />
-
       {toast && (
         <div className="alert alert-success py-2" role="alert">
           {toast}
@@ -248,6 +245,9 @@ export default function InventoryPage() {
           setAdjustOpen(true);
         }}
       />
+
+      <ItemPanel />
+      <hr className="my-4" />
 
       <VariantEditModal
         open={editOpen}

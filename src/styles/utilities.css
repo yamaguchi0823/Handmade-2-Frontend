@@ -80,6 +80,9 @@
 }
 
 /* --- table column width helpers --- */
+.u-w-40 {
+  width: 40px;
+}
 .u-w-80 {
   width: 80px;
 }

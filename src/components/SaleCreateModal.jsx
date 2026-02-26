@@ -104,6 +104,7 @@ export default function SaleCreateModal({
           <button
             type="submit"
             form="sale-create-form"
+            onSubmit={submit}
             className="btn btn-primary"
             disabled={saving}
           >

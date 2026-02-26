@@ -28,7 +28,7 @@ export default function VariantTable({
       <table className="table table-bordered align-middle">
         <thead className="table-light">
           <tr>
-            <th className={styles.thId}>ID</th>
+            {/* <th className={styles.thId}>ID</th> */}
             <th className={styles.thName}>作品名</th>
             <th>SKU</th>
             <th className={`text-end ${styles.thStock}`}>在庫</th>
@@ -57,7 +57,7 @@ export default function VariantTable({
 
               return (
                 <tr key={v.id} className={rowClass}>
-                  <td>{v.id}</td>
+                  {/* <td>{v.id}</td> */}
 
                   <td>
                     <div className="d-flex align-items-center gap-2">

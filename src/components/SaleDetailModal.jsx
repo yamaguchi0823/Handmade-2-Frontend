@@ -29,7 +29,7 @@ export default function SaleDetailModal({ open, sale, onClose }) {
         <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
-              <th className="th80">variant</th>
+              <th className="th80">ID</th>
               <th>作品</th>
               <th className="th120">SKU</th>
               <th className="text-end th80">数量</th>
@@ -41,7 +41,11 @@ export default function SaleDetailModal({ open, sale, onClose }) {
             {lines.map((l) => (
               <tr key={l.id}>
                 <td>{l.variantId}</td>
-                <td>{l.itemName ?? "-"}</td>
+                <td>
+                  {l.itemName ?? "-"}
+                  <br />
+                  {l.name}
+                </td>
                 <td className="text-nowrap">{l.skuCode ?? "-"}</td>
                 <td className="text-end">{l.qty}</td>
                 <td className="text-end">
