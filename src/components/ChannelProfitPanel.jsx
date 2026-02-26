@@ -134,11 +134,11 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
                   layout="vertical" // 横棒
                   margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray="4 3" />
                   {/* 数値軸 */}
                   <XAxis type="number" />
                   {/* チャネル名 */}
-                  <YAxis type="category" dataKey="name" width={150} />
+                  <YAxis type="category" dataKey="name" width={140} />
                   <Tooltip
                     content={({ active, payload, label }) => {
                       if (!active || !payload || payload.length === 0)
@@ -198,7 +198,7 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
         <table className="table table-bordered align-middle">
           <thead className="table-light">
             <tr>
-              <th>チャネル</th>
+              <th>販売チャネル</th>
               <th className="text-end">販売件数</th>
               <th className="text-end">売上</th>
               <th className="text-end">原価</th>
@@ -208,6 +208,36 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               <th className="text-end">利益率</th>
             </tr>
           </thead>
+          {/* 合計行 */}
+          {rows.length > 0 && (
+            <thead>
+              <tr className="table-dark">
+                <th>合計</th>
+                <th className="text-end">{money(total.salesCount)}</th>
+                <th className="text-end">{money(total.totalAmount)}</th>
+                <th className="text-end">{money(total.totalCost)}</th>
+                <th className="text-end">{money(total.feeAmount)}</th>
+                <th className="text-end">{money(total.fixedAmount)}</th>
+                <th
+                  className={`text-end ${
+                    Number(total.profit) < 0 ? "text-danger" : ""
+                  }`}
+                >
+                  {money(total.profit)}
+                </th>
+                <th
+                  className={`text-end ${Number(total.profit ?? 0) < 0 ? "text-danger" : ""}`}
+                >
+                  {(() => {
+                    const amt = Number(total.totalAmount ?? 0);
+                    const profit = Number(total.profit ?? 0);
+                    if (amt === 0) return "-";
+                    return `${((profit / amt) * 100).toFixed(1)}%`;
+                  })()}
+                </th>
+              </tr>
+            </thead>
+          )}
           <tbody>
             {rows.map((r) => (
               <tr key={r.channelId ?? "none"}>
@@ -247,37 +277,6 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               </tr>
             )}
           </tbody>
-
-          {/* 合計行 */}
-          {rows.length > 0 && (
-            <tfoot>
-              <tr className="table-light">
-                <th>合計</th>
-                <th className="text-end">{money(total.salesCount)}</th>
-                <th className="text-end">{money(total.totalAmount)}</th>
-                <th className="text-end">{money(total.totalCost)}</th>
-                <th className="text-end">{money(total.feeAmount)}</th>
-                <th className="text-end">{money(total.fixedAmount)}</th>
-                <th
-                  className={`text-end ${
-                    Number(total.profit) < 0 ? "text-danger" : ""
-                  }`}
-                >
-                  {money(total.profit)}
-                </th>
-                <th
-                  className={`text-end ${Number(total.profit ?? 0) < 0 ? "text-danger" : ""}`}
-                >
-                  {(() => {
-                    const amt = Number(total.totalAmount ?? 0);
-                    const profit = Number(total.profit ?? 0);
-                    if (amt === 0) return "-";
-                    return `${((profit / amt) * 100).toFixed(1)}%`;
-                  })()}
-                </th>
-              </tr>
-            </tfoot>
-          )}
         </table>
       </div>
 
