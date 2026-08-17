@@ -123,7 +123,7 @@ export default function SaleCreateModal({
     >
       {error && <div className="alert alert-danger py-2">{error}</div>}
 
-      <form onSubmit={submit}>
+      <form id="sale-create-form" onSubmit={submit}>
         <div className="mb-3">
           <label className="form-label">バリエーション</label>
           <select
