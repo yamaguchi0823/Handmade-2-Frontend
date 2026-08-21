@@ -59,7 +59,7 @@ export default function ItemPanel() {
     <section className="card mb-3">
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-          <h2 className="h5 mb-0">作品管理（Items）</h2>
+          <h2 className="h5 mb-0">作品一覧・登録</h2>
 
           <button
             type="button"

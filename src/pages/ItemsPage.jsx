@@ -1,3 +1,6 @@
+import PageHeader from "../components/PageHeader";
+import ItemPanel from "../components/ItemsPanel";
+
 export default function ItemsPage(){
     return(
         <div>
@@ -5,6 +8,7 @@ export default function ItemsPage(){
             <p className="text-secondary mb-0">
                 作品とバリエーションの登録・編集を行います。
             </p>
+            <ItemPanel />
         </div>
     );
 

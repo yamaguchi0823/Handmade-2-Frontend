@@ -3,7 +3,6 @@ import api from "../api";
 
 import PageHeader from "../components/PageHeader";
 import VariantTable from "../components/VariantTable";
-import ItemPanel from "../components/ItemsPanel";
 import VariantCreateModal from "../components/VariantCreateModal";
 import VariantEditModal from "../components/VariantEditModal";
 import StockAdjustModal from "../components/StockAdjustModal";
@@ -245,9 +244,6 @@ export default function InventoryPage() {
           setAdjustOpen(true);
         }}
       />
-
-      <ItemPanel />
-      <hr className="my-4" />
 
       <VariantEditModal
         open={editOpen}
