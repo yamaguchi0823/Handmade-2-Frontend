@@ -3,8 +3,6 @@ import api from "../api";
 
 import PageHeader from "../components/PageHeader";
 import VariantTable from "../components/VariantTable";
-import VariantCreateModal from "../components/VariantCreateModal";
-import VariantEditModal from "../components/VariantEditModal";
 import StockAdjustModal from "../components/StockAdjustModal";
 import StockHistoryModal from "../components/StockHistoryModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
@@ -13,9 +11,6 @@ import SaleCreateModal from "../components/SaleCreateModal";
 export default function InventoryPage() {
   const [variants, setVariants] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
-  const [variantModalOpen, setVariantModalOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [editingVariant, setEditingVariant] = useState(null);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjustVariant, setAdjustVariant] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -104,21 +99,6 @@ export default function InventoryPage() {
     }
   };
 
-  // 画像URLを更新
-  const setVariantImageUrl = (variantId, imageUrl) => {
-    setVariants((prev) =>
-      prev.map((v) =>
-        v.id === variantId ? { ...v, imageUrl: imageUrl || null } : v,
-      ),
-    );
-
-    setEditingVariant((prev) =>
-      prev && prev.id === variantId
-        ? { ...prev, imageUrl: imageUrl || null }
-        : prev,
-    );
-  };
-
   // 初回表示時
   useEffect(() => {
     loadVariants();
@@ -146,14 +126,6 @@ export default function InventoryPage() {
               onClick={() => setSaleOpen(true)}
             >
               +販売登録
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setVariantModalOpen(true)}
-            >
-              +バリエ追加
             </button>
           </div>
         }
@@ -225,10 +197,6 @@ export default function InventoryPage() {
         variants={variants}
         onDelta={changeStock}
         updatingId={updatingId}
-        onEdit={(v) => {
-          setEditingVariant(v);
-          setEditOpen(true);
-        }}
         onPreviewImage={(v) => {
           if (!v.imageUrl) return;
           setPreviewUrl(v.imageUrl);
@@ -242,29 +210,6 @@ export default function InventoryPage() {
         onAdjust={(v) => {
           setAdjustVariant(v);
           setAdjustOpen(true);
-        }}
-      />
-
-      <VariantEditModal
-        open={editOpen}
-        variant={editingVariant}
-        onClose={() => {
-          setEditOpen(false);
-          setEditingVariant(null);
-        }}
-        onUpdated={() => {
-          loadVariants();
-          showToast("更新しました");
-        }}
-        onImageUploaded={(variantId, imageUrl) => {
-          setVariantImageUrl(variantId, imageUrl);
-          showToast(imageUrl ? "画像を更新しました" : "画像を削除しました");
-        }}
-        onPreviewImage={(v) => {
-          if (!v?.imageUrl) return;
-          setPreviewUrl(v.imageUrl);
-          setPreviewTitle(`${v.itemName ?? ""} / ${v.skuCode ?? ""}`);
-          setPreviewOpen(true);
         }}
       />
 
@@ -302,15 +247,6 @@ export default function InventoryPage() {
         onClose={() => {
           setHistoryOpen(false);
           setHistoryVariant(null);
-        }}
-      />
-
-      <VariantCreateModal
-        open={variantModalOpen}
-        onClose={() => setVariantModalOpen(false)}
-        onCreated={() => {
-          loadVariants();
-          showToast("バリエーションを追加しました");
         }}
       />
 

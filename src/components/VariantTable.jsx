@@ -9,8 +9,11 @@ export default function VariantTable({
   onAdjust,
   onHistory,
   onPreviewImage,
+  mode = "inventory"
 }) {
   const isArray = Array.isArray(variants);
+  const isInventoryMode = mode === "inventory";
+  const isManagementMode = mode === "management";
 
   const stockBadge = (v) => {
     const threshold = Number(v.stockAlertThreshold ?? 0);
@@ -102,13 +105,14 @@ export default function VariantTable({
 
                   <td>
                     <div className="d-flex align-items-center gap-2 flex-wrap">
+                      {isInventoryMode && (<>
                       <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
                         onClick={() => onDelta(v.id, -1)}
                         disabled={busy || !canMinus}
                         title={!canMinus ? "在庫が0のため減らせません" : ""}
-                      >
+                        >
                         -
                       </button>
 
@@ -117,17 +121,8 @@ export default function VariantTable({
                         className="btn btn-sm btn-outline-primary"
                         onClick={() => onDelta(v.id, +1)}
                         disabled={busy}
-                      >
+                        >
                         +
-                      </button>
-
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-secondary"
-                        onClick={() => onEdit(v)}
-                        disabled={busy}
-                      >
-                        編集
                       </button>
 
                       <button
@@ -135,7 +130,7 @@ export default function VariantTable({
                         className="btn btn-sm btn-outline-warning"
                         onClick={() => onAdjust(v)}
                         disabled={busy}
-                      >
+                        >
                         棚卸
                       </button>
 
@@ -144,9 +139,22 @@ export default function VariantTable({
                         className="btn btn-sm btn-outline-info"
                         onClick={() => onHistory(v)}
                         disabled={busy}
-                      >
+                        >
                         履歴
                       </button>
+                        </>
+                      )}
+
+                      {isManagementMode && (
+                        <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary"
+                        onClick={() => onEdit(v)}
+                        disabled={busy}
+                        >
+                        編集
+                      </button>
+                      )}
 
                       {busy && (
                         <span
