@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { createItem, fetchItems } from "../api";
+import {
+  createItem,
+  deactivateItem,
+  fetchItems,
+  updateItem,
+ } from "../api";
 
 export default function ItemPanel() {
   const [items, setItems] = useState([]);
@@ -9,6 +14,12 @@ export default function ItemPanel() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [processingId, setProcessingId] = useState(null);
+  const [success, setSuccess] = useState("");
 
   const load = async () => {
     try {
@@ -55,6 +66,75 @@ export default function ItemPanel() {
     }
   };
 
+  const startEdit = (item) => {
+  setEditingId(item.id);
+  setEditName(item.name ?? "");
+  setEditDescription(item.description ?? "");
+  setError("");
+  setSuccess("");
+};
+
+const cancelEdit = () => {
+  setEditingId(null);
+  setEditName("");
+  setEditDescription("");
+};
+
+const saveEdit = async (itemId) => {
+  if (!editName.trim()) {
+    setError("作品名は必須です");
+    return;
+  }
+
+  try {
+    setProcessingId(itemId);
+    setError("");
+    setSuccess("");
+
+    await updateItem(itemId, {
+      name: editName.trim(),
+      description: editDescription.trim() || null,
+    });
+
+    cancelEdit();
+    await load();
+    setSuccess("作品を更新しました");
+  } catch (e) {
+    console.error(e);
+    setError(e?.response?.data?.message || "作品の更新に失敗しました");
+  } finally {
+    setProcessingId(null);
+  }
+};
+
+const deactivate = async (item) => {
+  const confirmed = window.confirm(
+    `「${item.name}」を無効化しますか？\n作品一覧には表示されなくなります。`,
+  );
+
+  if (!confirmed) return;
+
+  try {
+    setProcessingId(item.id);
+    setError("");
+    setSuccess("");
+
+    await deactivateItem(item.id);
+
+    if (editingId === item.id) {
+      cancelEdit();
+    }
+
+    await load();
+    setSuccess("作品を無効化しました");
+  } catch (e) {
+    console.error(e);
+    setError(e?.response?.data?.message || "作品の無効化に失敗しました");
+  } finally {
+    setProcessingId(null);
+  }
+};
+
   return (
     <section className="card mb-3">
       <div className="card-body">
@@ -83,6 +163,11 @@ export default function ItemPanel() {
         {error && (
           <div className="alert alert-danger py-2" role="alert">
             {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert alert-success py-2" role="alert">
+            {success}
           </div>
         )}
 
@@ -133,20 +218,100 @@ export default function ItemPanel() {
                 <th>ID</th>
                 <th>作品名</th>
                 <th>説明</th>
+                <th>操作</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((it) => (
-                <tr key={it.id}>
-                  <td className="text-nowrap">{it.id}</td>
-                  <td>{it.name}</td>
-                  <td className="text-muted">{it.description ?? "-"}</td>
-                </tr>
-              ))}
+              {items.map((item) => {
+                const editing = editingId === item.id;
+                const processing = processingId === item.id;
+
+                return (
+                  <tr key={item.id}>
+                    <td className="text-nowrap">{item.id}</td>
+
+                    <td>
+                      {editing ? (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          disabled={processing}
+                        />
+                      ) : (
+                        item.name
+                      )}
+                    </td>
+
+                    <td>
+                      {editing ? (
+                        <input
+                          type="text"
+                          className="form-control form-control-sm"
+                          value={editDescription}
+                          onChange={(e) => setEditDescription(e.target.value)}
+                          disabled={processing}
+                        />
+                      ) : (
+                        <span className="text-muted">
+                          {item.description ?? "-"}
+                        </span>
+                      )}
+                    </td>
+
+                    <td>
+                      <div className="d-flex gap-2 flex-wrap">
+                        {editing ? (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-primary"
+                              onClick={() => saveEdit(item.id)}
+                              disabled={processing}
+                            >
+                              {processing ? "保存中" : "保存"}
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={cancelEdit}
+                              disabled={processing}
+                            >
+                              キャンセル
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={() => startEdit(item)}
+                              disabled={processingId !== null}
+                            >
+                              編集
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={() => deactivate(item)}
+                              disabled={processingId !== null}
+                            >
+                              {processing ? "処理中" : "無効化"}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
 
               {items.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={3} className="text-center text-muted py-4">
+                  <td colSpan={4} className="text-center text-muted py-4">
                     作品がありません（追加してください）
                   </td>
                 </tr>

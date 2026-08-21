@@ -16,6 +16,14 @@ export function createItem(payload) {
   return api.post("/items", payload);
 }
 
+export function updateItem(itemId, payload){
+  return api.put(`/items/${itemId}`, payload);
+}
+
+export function deactivateItem(itemId){
+  return api.delete(`/items/${itemId}`);
+}
+
 export function createVariant(payload) {
   return api.post("/variants", payload);
 }
