@@ -24,6 +24,14 @@ export function deactivateItem(itemId){
   return api.delete(`/items/${itemId}`);
 }
 
+export function fetchInactiveItems() {
+  return api.get("/items/inactive");
+}
+
+export function reactiveItem(itemId) {
+  return api.put(`/items/${itemId}/reactive`);
+}
+
 export function createVariant(payload) {
   return api.post("/variants", payload);
 }
