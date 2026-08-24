@@ -10,6 +10,7 @@ export default function VariantEditModal({
   onImageUploaded,
   onPreviewImage,
 }) {
+  const [skuCode, setSkuCode] = useState("");
   const [status, setStatus] = useState("ACTIVE");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
   const [price, setPrice] = useState("0");
@@ -22,6 +23,8 @@ export default function VariantEditModal({
   // 開いたときに初期値リセット
   useEffect(() => {
     if (!open || !variant) return;
+
+    setSkuCode(variant.skuCode ?? "");
     setStatus(variant.status ?? "ACTIVE");
     setStockAlertThreshold(String(variant.stockAlertThreshold ?? 0));
     setPrice(String(variant.price ?? 0));
@@ -41,6 +44,7 @@ export default function VariantEditModal({
       setSaving(true);
 
       await updateVariant(variant.id, {
+        skuCode: skuCode.trim() || null,
         status,
         stockAlertThreshold: Number(stockAlertThreshold || 0),
         price: Number(price || 0),
@@ -131,15 +135,29 @@ export default function VariantEditModal({
       }
     >
       <div className="mb-2 text-muted">
-        <div>
-          SKU: <span className="fw-semibold">{variant.skuCode}</span>
-        </div>
         <div>作品：{variant.itemName}</div>
       </div>
 
       {error && <div className="alert alert-danger py-2">{error}</div>}
 
       <form id="variant-edit-form" onSubmit={submit}>
+        <div className="mb-3">
+          <label className="form-label">
+            SKU<span className="text-muted">（任意）</span>
+          </label>
+          <input
+            type="text"
+            className="form-control"
+            value={skuCode}
+            onChange={(e)=> setSkuCode(e.target.value)}
+            placeholder="例：EARRING-RED-S"
+            disabled={busy}
+            />
+            <div className="form-text">
+              未入力の場合はSKU無しで登録されます
+            </div>
+        </div>
+
         <div className="mb-3">
           <label className="form-label">画像</label>
 

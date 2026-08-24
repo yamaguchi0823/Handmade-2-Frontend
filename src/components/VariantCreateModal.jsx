@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { createVariant, fetchItems } from "../api";
+import {
+  createVariant,
+  fetchItems,
+  uploadVariantImage,
+} from "../api";
 import BaseModal from "./BaseModal";
 
 export default function VariantCreateModal({ open, onClose, onCreated }) {
@@ -10,23 +14,33 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
   const [stock, setStock] = useState("0");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
   const [price, setPrice] = useState("0");
+  const [imageFile, setImageFile] = useState(null);
 
   const [loadingItems, setLoadingItems] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [created, setCreated] = useState(false);
   const [error, setError] = useState("");
 
-  // open=trueになったタイミングでitemsを取得＆初期化
+  // モーダルを開くたびに入力値を初期化し、作品一覧を取得
   useEffect(() => {
     if (!open) return;
 
+    setSkuCode("");
+    setStock("0");
+    setStockAlertThreshold("0");
+    setPrice("0");
+    setImageFile(null);
     setError("");
     setSaving(false);
+    setCreated(false);
 
     const load = async () => {
       try {
         setLoadingItems(true);
+
         const res = await fetchItems();
         const list = Array.isArray(res.data) ? res.data : [];
+
         setItems(list);
 
         if (list.length > 0) {
@@ -55,26 +69,56 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
     e.preventDefault();
     setError("");
 
-    if (!itemId) return setError("作品を選択してください");
-    if (!skuCode.trim()) return setError("SKUは必須です");
+    if (!itemId) {
+      setError("作品を選択してください");
+      return;
+    }
 
     try {
       setSaving(true);
 
-      await createVariant({
+      const res = await createVariant({
         itemId: Number(itemId),
-        skuCode: skuCode.trim(),
+        skuCode: skuCode.trim() || null,
         stock: Number(stock || 0),
         stockAlertThreshold: Number(stockAlertThreshold || 0),
         price: Number(price || 0),
         status: "ACTIVE",
       });
 
-      onCreated?.();
+      const variantId = Number(res.data?.variantId);
+
+      if (!Number.isInteger(variantId) || variantId <= 0) {
+        throw new Error("作成されたバリエーションIDを取得できませんでした");
+      }
+
+      if (imageFile) {
+        try {
+          await uploadVariantImage(variantId, imageFile);
+        } catch (imageError) {
+          console.error(imageError);
+
+          setCreated(true);
+          setError(
+            "バリエーションは登録されましたが、画像のアップロードに失敗しました。編集画面から画像を登録してください。",
+          );
+
+          await onCreated?.();
+          return;
+        }
+      }
+
+      await onCreated?.();
       onClose?.();
     } catch (e) {
       console.error(e);
-      setError(e?.response?.data?.message || "バリエ登録に失敗しました");
+
+      const message =
+        e?.response?.data?.message ||
+        e?.message ||
+        "バリエーションの登録に失敗しました";
+
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -93,22 +137,27 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
             type="submit"
             form="variant-create-form"
             className="btn btn-primary"
-            disabled={busy}
+            disabled={busy || created}
           >
-            {saving ? "登録中" : "登録"}
+            {saving ? "登録中" : created ? "登録済み" : "登録"}
           </button>
+
           <button
             type="button"
             className="btn btn-outline-secondary"
             onClick={onClose}
             disabled={busy}
           >
-            キャンセル
+            {created ? "閉じる" : "キャンセル"}
           </button>
         </>
       }
     >
-      {error && <div className="alert alert-danger py-2">{error}</div>}
+      {error && (
+        <div className="alert alert-danger py-2" role="alert">
+          {error}
+        </div>
+      )}
 
       {loadingItems ? (
         <div className="d-flex align-items-center gap-2">
@@ -127,14 +176,14 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
               className="form-select"
               value={itemId}
               onChange={(e) => setItemId(e.target.value)}
-              disabled={busy}
+              disabled={busy || created}
             >
               {items.length === 0 ? (
                 <option value="">（作品がありません）</option>
               ) : (
-                items.map((it) => (
-                  <option key={it.id} value={it.id}>
-                    {it.name}(id:{it.id})
+                items.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}（ID: {item.id}）
                   </option>
                 ))
               )}
@@ -142,17 +191,41 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
           </div>
 
           <div className="mb-3">
-            <label className="form-label">SKU</label>
+            <label className="form-label">
+              SKU <span className="text-muted">（任意）</span>
+            </label>
             <input
+              type="text"
               value={skuCode}
               onChange={(e) => setSkuCode(e.target.value)}
               placeholder="例：EARRING-RED-S"
               className="form-control"
-              disabled={busy}
+              disabled={busy || created}
             />
+            <div className="form-text">
+              未入力の場合はSKUなしで登録されます
+            </div>
           </div>
 
-          <div className="mb-3 row g-2">
+          <div className="mb-3">
+            <label className="form-label">
+              画像 <span className="text-muted">（任意）</span>
+            </label>
+            <input
+              type="file"
+              className="form-control"
+              accept=".png,.jpg,.jpeg,.webp,.gif"
+              onChange={(e) =>
+                setImageFile(e.target.files?.[0] ?? null)
+              }
+              disabled={busy || created}
+            />
+            <div className="form-text">
+              PNG・JPG・JPEG・WebP・GIFに対応しています
+            </div>
+          </div>
+
+          <div className="row g-2 mb-3">
             <div className="col">
               <label className="form-label">初期在庫</label>
               <input
@@ -161,7 +234,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
                 onChange={(e) => setStock(e.target.value)}
                 min="0"
                 className="form-control"
-                disabled={busy}
+                disabled={busy || created}
               />
             </div>
 
@@ -170,11 +243,13 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
               <input
                 type="number"
                 value={stockAlertThreshold}
-                onChange={(e) => setStockAlertThreshold(e.target.value)}
+                onChange={(e) =>
+                  setStockAlertThreshold(e.target.value)
+                }
                 min="0"
                 className="form-control"
                 placeholder="例：3"
-                disabled={busy}
+                disabled={busy || created}
               />
             </div>
 
@@ -186,7 +261,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
                 onChange={(e) => setPrice(e.target.value)}
                 min="0"
                 className="form-control"
-                disabled={busy}
+                disabled={busy || created}
               />
             </div>
           </div>

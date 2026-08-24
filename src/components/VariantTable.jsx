@@ -85,7 +85,7 @@ export default function VariantTable({
                     </div>
                   </td>
 
-                  <td className="text-nowrap">{v.skuCode}</td>
+                  <td className="text-nowrap">{v.skuCode || "-"}</td>
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>
                   </td>
