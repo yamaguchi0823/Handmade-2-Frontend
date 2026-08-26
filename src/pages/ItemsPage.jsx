@@ -7,8 +7,11 @@ import VariantTable from "../components/VariantTable";
 import VariantCreateModal from "../components/VariantCreateModal";
 import VariantEditModal from "../components/VariantEditModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
+import { useFormStatus } from "react-dom";
 
 export default function ItemsPage(){
+    const [items, setItems] = useState([]);
+    const [expandedItemIds, setExpandedItemIds] = useState([]);
     const [variants, setVariants] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -52,18 +55,44 @@ export default function ItemsPage(){
         }
     };
 
+    const handleItemsLoaded = (list) => {
+        setItems(list);
+
+        setExpandedItemIds((prev) =>{
+            const validIds = prev.filter((id)=>
+                list.some((item) => item.id === id),
+            );
+
+            if (validIds.length > 0 || list.length === 0 ) {
+                return validIds;
+            }
+
+            // 初回は戦闘の作品だけ開く
+            return [list[0].id];
+        });
+    };
+
+    // 開閉処理
+    const toggleItem = (itemId) => {
+        setExpandedItemIds((prev)=>
+            prev.includes(itemId)
+                ? prev.filter((id)=> id !== itemId)
+                : [...prev, itemId],
+        );
+    };
+
     const setVariantImageUrl = (variantId, imageUrl) => {
         setVariants((prev) =>
             prev.map((variant)=>
                 variant.id === variantId
-                    ? {...variant, iamageUrl: imageUrl || null}
+                    ? {...variant, imageUrl: imageUrl || null}
                     : variant,
             ),
         );
 
         setEditingVariant((prev)=>
         prev && prev.id === variantId
-            ? { ...prev, imaggeUrl: imageUrl || null  }
+            ? { ...prev, imageUrl: imageUrl || null  }
             : prev,
     );
     };
@@ -81,7 +110,7 @@ export default function ItemsPage(){
     return(
         <div>
             {toast && (
-                <div className="aleat alert-succsess py-2" role="alert">
+                <div className="alert alert-success py-2" role="alert">
                     {toast}
                 </div>
             )}
@@ -102,11 +131,11 @@ export default function ItemsPage(){
             <p className="text-secondary mb-0">
                 作品とバリエーションの登録・編集を行います。
             </p>
-            <ItemPanel />
-            <hr className="my-4" />
+            <ItemPanel onItemsLoaded={handleItemsLoaded} />
 
+            <hr className="my-4" />
             <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
-                <h2 className="h5 mb-0">バリエーション一覧</h2>
+                <h2 className="h5 mb-0">作品別バリエーション</h2>
 
                 <button
                     type="button"
@@ -119,29 +148,96 @@ export default function ItemsPage(){
             </div>
 
             {error && (
-                <div className="aleart alert-danger py-2" role="alert">
+                <div className="alert alert-danger py-2" role="alert">
                     {error}
                 </div>
             )}
 
-            <VariantTable
-                variants={variants}
-                updatingId={null}
-                mode="management"
-                onEdit={(variant)=>{
-                    setEditingVariant(variant);
-                    setEditOpen(true);
-                }}
-                onPreviewImage={(variant)=>{
-                    if (!variant.imaggeUrl) return;
-
-                    setPreviewUrl(variant.imageUrl);
-                    setPreviewTitle(
-                        `${variant.itemName ?? ""} / ${variant.skuCode ?? ""}`,
+            <div className="d-grid gap-3">
+                {items.map((item) => {
+                    const itemVariants = variants.filter(
+                    (variant) => Number(variant.itemId) === Number(item.id),
                     );
-                    setPreviewOpen(true);
-                 }}
-            />
+
+                    const expanded = expandedItemIds.includes(item.id);
+
+                    return (
+                    <section key={item.id} className="card">
+                        <div className="card-header bg-white p-0">
+                        <button
+                            type="button"
+                            className="btn w-100 text-start border-0 rounded-0 p-3"
+                            onClick={() => toggleItem(item.id)}
+                            aria-expanded={expanded}
+                        >
+                            <div className="d-flex align-items-center justify-content-between gap-3">
+                            <div>
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                <span className="fw-semibold">{item.name}</span>
+
+                                <span className="badge text-bg-secondary">
+                                    {itemVariants.length}件
+                                </span>
+                                </div>
+
+                                {item.description && (
+                                <div className="small text-muted mt-1">
+                                    {item.description}
+                                </div>
+                                )}
+                            </div>
+
+                            <span className="text-secondary">
+                                {expanded ? "閉じる ▲" : "開く ▼"}
+                            </span>
+                            </div>
+                        </button>
+                        </div>
+
+                        {expanded && (
+                        <div className="card-body">
+                            {itemVariants.length > 0 ? (
+                            <VariantTable
+                                variants={itemVariants}
+                                updatingId={null}
+                                mode="management"
+                                showItemName={false}
+                                onEdit={(variant) => {
+                                setEditingVariant(variant);
+                                setEditOpen(true);
+                                }}
+                                onPreviewImage={(variant) => {
+                                if (!variant.imageUrl) return;
+
+                                setPreviewUrl(variant.imageUrl);
+                                setPreviewTitle(
+                                    `${variant.itemName ?? ""} / ${
+                                    variant.variantName ?? "名称未設定"
+                                    }`,
+                                );
+                                setPreviewOpen(true);
+                                }}
+                            />
+                            ) : (
+                            <div className="text-center text-muted py-4">
+                                この作品にはバリエーションがありません
+                            </div>
+                            )}
+                        </div>
+                        )}
+                    </section>
+                    );
+                })}
+
+                {items.length === 0 && !loading && (
+                    <div className="card">
+                    <div className="card-body text-center text-muted py-4">
+                        表示できる作品がありません
+                    </div>
+                    </div>
+                )}
+                </div>
+
 
             <VariantCreateModal
                 open={createOpen}
@@ -172,7 +268,7 @@ export default function ItemsPage(){
 
                     setPreviewUrl(variant.imageUrl);
                     setPreviewTitle(
-                        `${variant.itemName ?? ""} / ${variant.skuCode ?? ""}`,
+                        `${variant.itemName ?? ""} / ${variant.variantName ?? "名称未設定"}`,
                     );
                     setPreviewOpen(true);
                 }}

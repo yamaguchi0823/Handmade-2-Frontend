@@ -8,7 +8,7 @@ import {
   updateItem,
  } from "../api";
 
-export default function ItemPanel() {
+export default function ItemPanel({ onItemsLoaded }) {
   const [items, setItems] = useState([]);
   const [inactiveItems, setInactiveitems] = useState([]);
   const [showInactive, setShowInactive] = useState(false);
@@ -31,7 +31,11 @@ export default function ItemPanel() {
       setLoading(true);
       setError("");
       const res = await fetchItems();
-      setItems(res.data);
+      const list = Array.isArray(res.data) ? res.data : [];
+
+      setItems(list);
+      onItemsLoaded?.(list);
+
     } catch (e) {
       console.error(e);
       setError("作品一覧の取得に失敗しました");
