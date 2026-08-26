@@ -10,6 +10,7 @@ export default function VariantEditModal({
   onImageUploaded,
   onPreviewImage,
 }) {
+  const [variantName, setVariantName] = useState("");
   const [skuCode, setSkuCode] = useState("");
   const [status, setStatus] = useState("ACTIVE");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
@@ -24,6 +25,7 @@ export default function VariantEditModal({
   useEffect(() => {
     if (!open || !variant) return;
 
+    setVariantName(variant.variantName ?? "");
     setSkuCode(variant.skuCode ?? "");
     setStatus(variant.status ?? "ACTIVE");
     setStockAlertThreshold(String(variant.stockAlertThreshold ?? 0));
@@ -40,10 +42,16 @@ export default function VariantEditModal({
     e.preventDefault();
     setError("");
 
+    if (!variantName.trim()) {
+      setError("バリエーション名は必須です");
+      return;
+    }
+
     try {
       setSaving(true);
 
       await updateVariant(variant.id, {
+        variantName: variantName.trim(),
         skuCode: skuCode.trim() || null,
         status,
         stockAlertThreshold: Number(stockAlertThreshold || 0),
@@ -141,6 +149,20 @@ export default function VariantEditModal({
       {error && <div className="alert alert-danger py-2">{error}</div>}
 
       <form id="variant-edit-form" onSubmit={submit}>
+        <div className="mb-3">
+          <label className="form-label">バリエーション名</label>
+          <input
+            type="text"
+            className="form-control"
+            value={variantName}
+            onChange={(e) => setVariantName(e.target.value)}
+            placeholder="例：モルフォ蝶・サイズ-S"
+            disabled={busy}
+            />
+            <div className="formp-text">
+              色・形・タイプなど、バリエーションを識別できる名前
+            </div>
+        </div>
         <div className="mb-3">
           <label className="form-label">
             SKU<span className="text-muted">（任意）</span>

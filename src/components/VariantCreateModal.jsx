@@ -9,7 +9,7 @@ import BaseModal from "./BaseModal";
 export default function VariantCreateModal({ open, onClose, onCreated }) {
   const [items, setItems] = useState([]);
   const [itemId, setItemId] = useState("");
-
+  const [variantName, setVariantName] = useState("");
   const [skuCode, setSkuCode] = useState("");
   const [stock, setStock] = useState("0");
   const [stockAlertThreshold, setStockAlertThreshold] = useState("0");
@@ -25,6 +25,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
   useEffect(() => {
     if (!open) return;
 
+    setVariantName("");
     setSkuCode("");
     setStock("0");
     setStockAlertThreshold("0");
@@ -74,11 +75,17 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
       return;
     }
 
+    if (!variantName.trim) {
+      setError("バリエーション名は必須です");
+      return;
+    }
+
     try {
       setSaving(true);
 
       const res = await createVariant({
         itemId: Number(itemId),
+        variantName: variantName.trim(),
         skuCode: skuCode.trim() || null,
         stock: Number(stock || 0),
         stockAlertThreshold: Number(stockAlertThreshold || 0),
@@ -188,6 +195,21 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
                 ))
               )}
             </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="form-label">バリエーション名</label>
+            <input
+              type="text"
+              value={variantName}
+              onChange={(e)=>setVariantName(e.target.value)}
+              placeholder="例：モルフォ蝶・サイズ-S"
+              className="form-control"
+              disabled={busy || created}
+             />
+             <div className="form-text">
+              色・形・タイプなど、バリエーションを識別できる名前
+             </div>
           </div>
 
           <div className="mb-3">

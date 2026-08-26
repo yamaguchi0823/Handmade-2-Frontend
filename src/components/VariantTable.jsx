@@ -9,11 +9,13 @@ export default function VariantTable({
   onAdjust,
   onHistory,
   onPreviewImage,
-  mode = "inventory"
+  mode = "inventory",
+  showItemName = true,
 }) {
   const isArray = Array.isArray(variants);
   const isInventoryMode = mode === "inventory";
   const isManagementMode = mode === "management";
+  const columnCount = showItemName ? 9 : 8;
 
   const stockBadge = (v) => {
     const threshold = Number(v.stockAlertThreshold ?? 0);
@@ -32,7 +34,10 @@ export default function VariantTable({
         <thead className="table-light">
           <tr>
             {/* <th className={styles.thId}>ID</th> */}
-            <th className={styles.thName}>作品名</th>
+            {showItemName && (
+              <th className={styles.thName}>作品名</th>
+            )}
+            <th>バリエーション名</th>
             <th>SKU</th>
             <th className={`text-end ${styles.thStock}`}>在庫</th>
             <th className={`text-end ${styles.thThreshold}`}>しきい値</th>
@@ -61,6 +66,18 @@ export default function VariantTable({
               return (
                 <tr key={v.id} className={rowClass}>
                   {/* <td>{v.id}</td> */}
+                  {showItemName && (
+                    <td>
+                    <div className="d-flex align-items-center gap-2">
+                      <span
+                        className="u-truncate u-maxw-140"
+                        title={v.itemName ?? ""}
+                        >
+                        {v.itemName ?? "-"}
+                      </span>
+                    </div>
+                  </td>
+                  )}
 
                   <td>
                     <div className="d-flex align-items-center gap-2">
@@ -68,24 +85,25 @@ export default function VariantTable({
                         <img
                           src={v.imageUrl}
                           alt=""
-                          onClick={() => onPreviewImage?.(v)}
+                          onClick={()=> onPreviewImage?.(v)}
                           className="u-thumb-36"
                           title="クリックで拡大"
-                        />
+                         />
                       ) : (
                         <div className="u-thumb-placeholder-36" />
                       )}
 
                       <span
                         className="u-truncate u-maxw-140"
-                        title={v.itemName ?? ""}
+                        title={v.variantName ?? "名称未設定"}
                       >
-                        {v.itemName ?? "-"}
+                        {v.variantName ?? "名称未設定"}
                       </span>
                     </div>
                   </td>
 
                   <td className="text-nowrap">{v.skuCode || "-"}</td>
+
                   <td className="text-end">
                     <span className="fw-semibold">{v.stock}</span>
                   </td>
@@ -174,7 +192,7 @@ export default function VariantTable({
 
           {isArray && variants.length === 0 && (
             <tr>
-              <td colSpan={8} className="text-center text-muted py-4">
+              <td colSpan={columnCount} className="text-center text-muted py-4">
                 該当データがありません
               </td>
             </tr>
@@ -182,7 +200,7 @@ export default function VariantTable({
 
           {!isArray && (
             <tr>
-              <td colSpan={8} className="text-center text-muted py-4">
+              <td colSpan={columnCount} className="text-center text-muted py-4">
                 データ形式が不正です
               </td>
             </tr>
