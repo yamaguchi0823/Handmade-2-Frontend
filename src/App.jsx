@@ -5,65 +5,87 @@ import {
   NavLink,
   Navigate,
 } from "react-router-dom";
+
 import DashboardPage from "./pages/DashboardPage";
-import InventoryPage from "./pages/InventoryPage";
+import InventoryPage from "./pages/InventoryPage"
+import ItemsPage from "./pages/ItemsPage";
 import SalesPage from "./pages/SalesPage";
 import ProfitPage from "./pages/ProfitPage";
-import ItemsPage from "./pages/ItemsPage";
 
 export default function App() {
   const linkClass = ({ isActive }) =>
-    `nav-link ${isActive ? "active fw-semibold" : ""}`;
+    `app-nav-link${isActive ? " is-active" : ""}`;
 
   return (
     <BrowserRouter>
+      <a href="#main-content" className="skip-link">
+        本文へ移動
+      </a>
+
       <div className="app-shell">
         <header className="app-header">
-          <div className="app-container py-3">
-            <h1 className="h4 mb-2">Handmade-2</h1>
+          <div className="app-container app-header-inner">
+            <NavLink
+              to="/dashboard"
+              className="app-brand"
+              aria-label="Handmade-2 ダッシュボードへ"
+              >
+                Handmade-2
+              </NavLink>
 
-            <ul className="nav nav-pills gap-1">
-              <li className="nav-item">
-                <NavLink to="/dashboard" className={linkClass}>
-                  ダッシュボード
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/profit" className={linkClass}>
-                  利益詳細
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/items" className={linkClass}>
-                  作品管理
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/inventory" className={linkClass}>
-                  在庫
-                </NavLink>
-              </li>
-              <li className="nav-item">
-                <NavLink to="/sales" className={linkClass}>
-                  販売
-                </NavLink>
-              </li>
-            </ul>
+              <nav
+                className="app-nav"
+                aria-label="メインナビゲーション"
+              >
+                <ul className="app-nav-list">
+                  <li>
+                    <NavLink to="/dashboard" className={linkClass}>
+                      ダッシュボード
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/profit" className={linkClass}>
+                      利益詳細
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/items" className={linkClass}>
+                      作品管理
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/inventory" className={linkClass}>
+                      在庫
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/sales" className={linkClass}>
+                      販売
+                    </NavLink>
+                  </li>
+                </ul>
+              </nav>
           </div>
         </header>
-        <main className="app-main">
-          <div className="app-container py-3">
-            <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profit" element={<ProfitPage />} />
-              <Route path="/items" element={<ItemsPage />} />
-              <Route path="/inventory" element={<InventoryPage />} />
-              <Route path="/sales" element={<SalesPage />} />
-            </Routes>
-          </div>
+
+        <main
+          id="main-content"
+          className="app-main"
+          tabIndex="-1"
+          >
+            <div className="app-container app-main-container">
+              <Routes>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/profit" element={<ProfitPage />} />
+                <Route path="/items" element={<ItemsPage />} />
+                <Route path="/inventory" element={<InventoryPage />} />
+                <Route path="/sales" element={<SalesPage />} />
+              </Routes>
+            </div>
         </main>
       </div>
     </BrowserRouter>
-  );
+  )
+
 }
+

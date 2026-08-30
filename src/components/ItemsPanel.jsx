@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import {
-  createItem,
   deactivateItem,
   fetchInactiveItems,
   fetchItems,
@@ -8,16 +7,13 @@ import {
   updateItem,
  } from "../api";
 
-export default function ItemPanel({ onItemsLoaded }) {
+export default function ItemPanel({ onItemsLoaded, refreshKey }) {
   const [items, setItems] = useState([]);
   const [inactiveItems, setInactiveitems] = useState([]);
   const [showInactive, setShowInactive] = useState(false);
   const [loadingInactive, setLoadingInactive] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const [editingId, setEditingId] = useState(null);
@@ -71,34 +67,11 @@ export default function ItemPanel({ onItemsLoaded }) {
 
   useEffect(() => {
     load();
-  }, []);
+    // LoadとonItemsLoadedを依存配列へ追加すると、
+    // 現在の書き方では再実行が繰り返されるため除外
+    // eslint-disable-next-line react-hooks/ exhaustive-deps
+  }, [refreshKey]);
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (!name.trim()) {
-      setError("作品名は必須です");
-      return;
-    }
-    try {
-      setSaving(true);
-      setError("");
-
-      await createItem({
-        name: name.trim(),
-        description: description.trim() || null,
-      });
-
-      setName("");
-      setDescription("");
-      await load(); // 作成後に再取得（理解優先）
-    } catch (e) {
-      console.error(e);
-      const msg = e?.response?.data?.message || "作品の追加に失敗しました";
-      setError(msg);
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const startEdit = (item) => {
   setEditingId(item.id);
@@ -206,7 +179,7 @@ const reactive = async (item) => {
     <section className="card mb-3">
       <div className="card-body">
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-          <h2 className="h5 mb-0">作品一覧・登録</h2>
+          <h2 className="h5 mb-0">作品一覧</h2>
           <div className="d-flex gap-2 flex-wrap">
             <button
               type="button"
@@ -252,45 +225,6 @@ const reactive = async (item) => {
             {success}
           </div>
         )}
-
-        {/* 追加フォーム */}
-        <form onSubmit={onSubmit} className="row g-2 align-items-end mb-3">
-          <div className="col-12 col-md-6">
-            <label className="form-label">作品名</label>
-            <input
-              className="form-control"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="例：ポリゴン（単色）"
-            />
-          </div>
-
-          <div className="col-12 col-md-6">
-            <label className="form-label">説明</label>
-            <input
-              className="form-control"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="任意"
-            />
-          </div>
-
-          <div className="col-12 col-md d-grid">
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              {saving ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-2"
-                    aria-hidden="true"
-                  />
-                  追加中
-                </>
-              ) : (
-                "追加"
-              )}
-            </button>
-          </div>
-        </form>
 
         {/* 一覧 */}
         <div className="table-responsive">
