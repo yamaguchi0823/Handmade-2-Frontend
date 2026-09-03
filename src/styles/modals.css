@@ -4,23 +4,44 @@
    APP Modal System
 ========================= */
 
+/* モーダル表示中はページをスクロールさせない */
+body.modal-open {
+  overflow: hidden;
+}
+
 /* overlay */
 .app-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  z-index: 1050; /* bootstrap modal相当の高さ */
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
-  z-index: 1050; /* bootstrap modal相当の高さ */
+
+  padding: var(--space-3);
+  overflow-y:auto;
+
+  background: rgba(15, 23, 42, 0.58);
+  overscroll-behavior: contain;
 }
 /* box */
 .app-modal-box {
-  background: #fff;
+  display:flex;
+  flex-direction: column;
+
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+
   max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+
   overflow: hidden; /* header+body構造で中だけscrollさせる */
+  box-shadow: var(--shadow-md);
 }
+
 /* sizes */
 .app-modal-sm {
   width: min(560px, 100%);
@@ -37,23 +58,60 @@
 /* layout */
 .app-modal-header {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: var(--space-3);
+
+  padding-bottom: var(--space-3);
+  margin-bottom: var(--space-4);
+
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 .app-modal-title {
+  min-width: 0;
   max-width: 80%;
 }
 .app-modal-body {
-  overflow: auto;
-  max-height: calc(100vh - 160px);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 .app-modal-footer {
   display: flex;
+  flex: 0 0 auto;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+
+  padding-top: var(--space-3);
+  margin-top: var(--space-4);
+
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+@media (max-width: 575.98px) {
+  .app-modal-overlay {
+    align-items: flex-end;
+    padding: var(--space-2)
+  }
+
+  .app-modal-box {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: var(--radius-lg);
+  }
+
+  .app-modal-footer {
+    flex-direction: column;
+  }
+
+  .app-modal-foo
+  ter .btn {
+    width: 100%;
+  }
 }
 
 /* preview image */

@@ -1,4 +1,6 @@
-/* src/styles/utilities.css */
+/* =======================
+  Application layout
+========================= */
 
 .app-shell {
   min-height: 100vh;
@@ -6,100 +8,259 @@
   flex-direction: column;
 }
 
-/* ヘッダーは上に固定（スクロールしても落ち着く） */
-.app-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
-  position: sticky;
-  top: 0;
-  z-index: 1020;
-}
 .app-container {
   width: 100%;
-  margin: 0 auto;
-  padding-left: 12px;
-  padding-right: 12px;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 2rem);
 }
 
-/* いい感じに止める（お好みで微調整OK） */
-@media (min-width: 992px) {
-  /* lg */
-  .app-container {
-    max-width: 1100px;
-  }
-}
-
-@media (min-width: 1200px) {
-  /* xl */
-  .app-container {
-    max-width: 1200px;
-  }
-}
-
-/* 本文は残り領域。常に上から積む */
 .app-main {
   flex: 1;
 }
 
-/* truncate */
+.app-main-container {
+  padding-top: clamp(1.5rem, 4vw, 2.5rem);
+  padding-bottom: var(--space-12);
+}
+
+/* =======================
+  Skip Link
+========================== */
+
+.skip-link {
+  position: fixed;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 2000;
+  padding: var(--space-3) var(--space-4);
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  color: #ffffff;
+  transform: translateY(0);
+}
+
+/* =======================
+  Header and navigation
+========================== */
+
+.app-header {
+  position: sticky;
+  top:0;
+  z-index: 1020;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--color-border-subtle);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+}
+
+.app-header-inner {
+  min-height: 5rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 3rem);
+}
+
+.app-brand {
+  flex: 0 0 auto;
+  color: var(--color-text);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.add-brand:hover {
+  color: var(--color-primary);
+}
+
+.app-nav {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.app-nav-list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: max-content;
+  margin: 0;
+  padding:0;
+  list-style: none;
+}
+
+.app-nav-link {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--space-4);
+  color: var(--color-text-muted);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.app-nav-link:hover {
+  color: var(--color-text);
+  background: var(--color-surface-subtle);
+}
+/*
+  * 横スクロール領域内でも切れないよう、
+  * ナビゲーションだけフォーカス線を内側に表示する
+*/
+.app-nav-link:focus-visible {
+  color: var(--color-text);
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
+}
+
+.app-nav-link.is-active {
+  color:var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: inset 0 -3px 0 var(--color-primary);
+  font-weight: 700;
+}
+
+/* backdrop-filter非対応環境 */
+@supports not (backdrop-filter: blur(12px)){
+  .app-header {
+    background: var(--color-surface);
+  }
+}
+
+/* ==================
+  Responsive header
+==================== */
+
+@media (max-width: 767.98px) {
+  .app-header-inner {
+    min-height: auto;
+    align-items: stretch;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-2);
+  }
+
+  .app-brand {
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start
+  }
+
+  .app-nav {
+    margin-inline: calc(clamp(1rem, 3vw, 2rem) * -1);
+    padding-inline: clamp(1rem, 3vw, 2rem);
+  }
+
+  .app-nav-link {
+    min-height: 2.75rem;
+  }
+}
+
+/* ========================
+  Text utilities
+=========================== */
+
 .u-truncate {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* --- truncate helpers --- */
+
 .u-maxw-140 {
   max-width: 140px;
 }
 
-/* --- thumbs (inventory table etc.) --- */
-.u-thumb-36 {
-  width: 36px;
-  height: 36px;
-  object-fit: cover;
-  border-radius: 6px;
-  cursor: zoom-in;
-}
-.u-thumb-placeholder-36 {
-  width: 36px;
-  height: 36px;
+.u-maxw-240 {
+  max-width: 240px;;
 }
 
-.u-thumb-120 {
+/* ========================
+ Image utilities
+=========================== */
+
+.u-thumb-36,
+.u-thumb-placeholder-36 {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: var(--radius-md);
+}
+
+.u-thumb-36 {
+  display: block;
+  object-fit: cover;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.u-thumb-placeholder-36 {
+  background:
+  liner-gradient(
+    135deg,
+    var(--color-surface-subtle),
+    #e2e8f0
+  );
+  border: 1px solid var(--color-subtle);
+}
+
+.u-thumb-120,
+.app-thumb-120 {
   width: 120px;
   height: 120px;
+  display: block;
   object-fit: cover;
-  border-radius: 8px;
-  cursor: zoom-in;
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-surface-subtle);
+  border-radius: var(--radius-lg);
 }
 
-/* charts */
+/* ===================
+  Charts
+====================== */
+
 .u-chart-h230 {
   width: 100%;
   height: 230px;
 }
 
-/* --- table column width helpers --- */
-.u-w-40 {
-  width: 40px;
-}
-.u-w-80 {
-  width: 80px;
-}
-.u-w-100 {
-  width: 100px;
-}
-.u-w-120 {
-  width: 120px;
-}
-.u-w-140 {
-  width: 140px;
-}
-.u-w-160 {
-  width: 160px;
-}
+/* ===================
+  Width utilities
+====================== */
 
-/* ついで：メモ列の省略を安定させたいなら */
-.u-maxw-240 {
-  max-width: 240px;
+.u-w-40 { width: 40px; }
+.u-w-80 { width:80px; }
+.u-w-100 { width: 100px; }
+.u-w-120 { width: 120px; }
+.u-w-140 { width: 140px; }
+.u-w-160 { width: 160px; }
+
+/* ===================
+  forced color
+====================== */
+
+@media (forced-colors: active) {
+  .app-header,
+  .u-thumb-36,
+  .u-thumb-placeholder-36,
+  .u-thumb-120,
+  .app-placeholder-120 {
+    border: 1px solid CanvasText;
+  }
+  .app-nav-link.is-active {
+    outline: 2px solid CanvasText;
+  }
 }
