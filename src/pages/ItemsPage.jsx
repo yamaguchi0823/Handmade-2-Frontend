@@ -22,6 +22,7 @@ export default function ItemsPage() {
   const [itemError, setItemError] = useState("");
   const [variantError, setVariantError] = useState("");
   const [toast, setToast] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 作品登録・編集・無効化済み一覧
   const [itemCreateOpen, setItemCreateOpen] = useState(false);
@@ -168,6 +169,42 @@ export default function ItemsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ja-JP");
+
+  const filteredItems = items.filter((item) => {
+    if (!normalizedQuery) {
+        return true;
+    }
+
+    const itemText = [
+        item.name,
+        item.description,
+    ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("ja-JP");
+
+    const itemMatches = itemText.includes(normalizedQuery);
+
+    const variantMatches = variants.some((variant) => {
+        if (Number(variant.itemId) !== Number(item.id)) {
+            return false;
+        }
+
+        const variantText = [
+            variant.variantName,
+            variant.skuCode,
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .toLocaleLowerCase("ja-JP");
+
+        return variantText.includes(normalizedQuery);
+    });
+
+    return itemMatches || variantMatches;
+  });
+
   return (
     <div>
       {toast && (
@@ -237,6 +274,56 @@ export default function ItemsPage() {
           </div>
         </div>
 
+        <form
+            className="card mb-3"
+            role="search"
+            onSubmit={(e) => e.preventDefault()}
+        >
+            <div className="card-body">
+                <div className="row g-3 align-items-end">
+                    <div className="col-12 col-md">
+                        <label htmlFor="item-search" className="form-label">
+                            作品を検索
+                        </label>
+
+                        <input
+                            id="item-search"
+                            type="serarch"
+                            className="form-control"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="作品名・バリエーション・SKU"
+                            aria-describedby="item-search-help"
+                         />
+                         <div id="item-search-help" className="form-text">
+                            入力すると該当する作品だけを表示します。
+                         </div>
+                    </div>
+                    {searchQuery && (
+                        <div className="col-12 col-md-auto">
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary w-100"
+                                onClick={() => setSearchQuery("")}
+                            >
+                                検索をクリア
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <p
+                    className="small text-muted mt-3 mb-0"
+                    role="status"
+                    aria-live="polite"
+                >
+                    {normalizedQuery
+                    ? `${filteredItems.length}件の作品が見つかりました`
+                    : `${items.length}件の作品を表示しています`}
+                </p>
+            </div>
+            </form>
+
         {itemError && (
           <div className="alert alert-danger" role="alert">
             {itemError}
@@ -262,25 +349,26 @@ export default function ItemsPage() {
           </div>
         ) : (
           <div className="d-grid gap-3">
-            {items.map((item) => {
+            {filteredItems.map((item) => {
               const itemVariants = variants.filter(
                 (variant) =>
                   Number(variant.itemId) === Number(item.id),
               );
 
+
               const activeVariantCount = itemVariants.filter(
-                (variant) => variant.status === "ACTIVE",
-              ).length;
+                  (variant) => variant.status === "ACTIVE",
+                ).length;
 
-              const hasActiveVariants = activeVariantCount > 0;
-              const expanded = expandedItemIds.includes(item.id);
-              const processing = processingItemId === item.id;
+                const hasActiveVariants = activeVariantCount > 0;
+                const expanded = expandedItemIds.includes(item.id);
+                const processing = processingItemId === item.id;
 
-              const panelId = `item-variants-${item.id}`;
-              const deactivateHelpId = `item-deactivate-help-${item.id}`;
+                const panelId = `item-variants-${item.id}`;
+                const deactivateHelpId = `item-deactivate-help-${item.id}`;
 
-              return (
-                <article key={item.id} className="card">
+                return (
+                    <article key={item.id} className="card">
                   <div className="card-header bg-white p-3">
                     <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
                       <div className="flex-grow-1">
@@ -293,20 +381,20 @@ export default function ItemsPage() {
                         </div>
 
                         {item.description ? (
-                          <p className="small text-muted mt-2 mb-0">
+                            <p className="small text-muted mt-2 mb-0">
                             {item.description}
                           </p>
                         ) : (
-                          <p className="small text-muted mt-2 mb-0">
+                            <p className="small text-muted mt-2 mb-0">
                             説明は登録されていません
                           </p>
                         )}
 
                         {hasActiveVariants && (
-                          <p
+                            <p
                             id={deactivateHelpId}
                             className="small text-muted mt-2 mb-0"
-                          >
+                            >
                             販売中のバリエーションがあるため、
                             この作品は無効化できません。
                           </p>
@@ -318,11 +406,11 @@ export default function ItemsPage() {
                           type="button"
                           className="btn btn-sm btn-outline-secondary"
                           onClick={() => {
-                            setEditingItem(item);
-                            setItemEditOpen(true);
-                          }}
-                          disabled={processingItemId !== null}
-                        >
+                              setEditingItem(item);
+                              setItemEditOpen(true);
+                            }}
+                            disabled={processingItemId !== null}
+                            >
                           作品を編集
                         </button>
 
@@ -331,15 +419,15 @@ export default function ItemsPage() {
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => deactivate(item)}
                           disabled={
-                            processingItemId !== null ||
-                            hasActiveVariants
-                          }
-                          aria-describedby={
-                            hasActiveVariants
-                              ? deactivateHelpId
-                              : undefined
-                          }
-                        >
+                              processingItemId !== null ||
+                              hasActiveVariants
+                            }
+                            aria-describedby={
+                                hasActiveVariants
+                                ? deactivateHelpId
+                                : undefined
+                            }
+                            >
                           {processing ? "処理中..." : "無効化"}
                         </button>
 
@@ -349,7 +437,7 @@ export default function ItemsPage() {
                           onClick={() => toggleItem(item.id)}
                           aria-expanded={expanded}
                           aria-controls={panelId}
-                        >
+                          >
                           {expanded
                             ? "閉じる"
                             : "バリエーションを表示"}
@@ -363,32 +451,32 @@ export default function ItemsPage() {
                   </div>
 
                   {expanded && (
-                    <div id={panelId} className="card-body">
+                      <div id={panelId} className="card-body">
                       {itemVariants.length > 0 ? (
-                        <VariantTable
+                          <VariantTable
                           variants={itemVariants}
                           updatingId={null}
                           mode="management"
                           showItemName={false}
                           onEdit={(variant) => {
-                            setEditingVariant(variant);
-                            setVariantEditOpen(true);
-                          }}
-                          onPreviewImage={(variant) => {
-                            if (!variant.imageUrl) return;
+                              setEditingVariant(variant);
+                              setVariantEditOpen(true);
+                            }}
+                            onPreviewImage={(variant) => {
+                                if (!variant.imageUrl) return;
 
-                            setPreviewUrl(variant.imageUrl);
-                            setPreviewTitle(
-                              `${variant.itemName ?? ""} / ${
-                                variant.variantName ??
-                                "名称未設定"
-                              }`,
-                            );
-                            setPreviewOpen(true);
-                          }}
-                        />
-                      ) : (
-                        <div className="text-center text-muted py-4">
+                                setPreviewUrl(variant.imageUrl);
+                                setPreviewTitle(
+                                    `${variant.itemName ?? ""} / ${
+                                        variant.variantName ??
+                                        "名称未設定"
+                                    }`,
+                                );
+                                setPreviewOpen(true);
+                            }}
+                            />
+                        ) : (
+                            <div className="text-center text-muted py-4">
                           この作品にはバリエーションがありません
                         </div>
                       )}
@@ -397,6 +485,26 @@ export default function ItemsPage() {
                 </article>
               );
             })}
+
+            {items.length > 0 && filteredItems.length === 0 && (
+             <div className="card">
+                 <div className="card-body text-center py-5">
+                     <h3 className="h6">該当する作品がありません</h3>
+
+                     <p className="text-muted mb-3">
+                        キーワードを変えて、もう一度お試しください。
+                     </p>
+
+                     <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setSearchQuery("")}
+                     >
+                        検索条件をクリア
+                     </button>
+                 </div>
+             </div>
+           )}
 
             {items.length === 0 && !itemsLoading && (
               <div className="card">
