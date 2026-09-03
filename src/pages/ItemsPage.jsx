@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import api from "../api";
+import api, { deactivateItem, fetchItems } from "../api";
 
 import PageHeader from "../components/PageHeader";
-import ItemPanel from "../components/ItemsPanel";
 import ItemCreateModal from "../components/ItemCreateModal";
+import ItemEditModal from "../components/ItemEditModal";
+import InactiveItemsModal from "../components/InactiveItemsModal";
 import VariantTable from "../components/VariantTable";
 import VariantCreateModal from "../components/VariantCreateModal";
 import VariantEditModal from "../components/VariantEditModal";
@@ -14,17 +15,23 @@ export default function ItemsPage() {
   const [expandedItemIds, setExpandedItemIds] = useState([]);
   const [variants, setVariants] = useState([]);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [itemsLoading, setItemsLoading] = useState(false);
+  const [variantsLoading, setVariantsLoading] = useState(false);
+  const [processingItemId, setProcessingItemId] = useState(null);
+
+  const [itemError, setItemError] = useState("");
+  const [variantError, setVariantError] = useState("");
   const [toast, setToast] = useState("");
 
-  // 作品登録
+  // 作品登録・編集・無効化済み一覧
   const [itemCreateOpen, setItemCreateOpen] = useState(false);
-  const [itemsRefreshKey, setItemsRefreshKey] = useState(0);
+  const [itemEditOpen, setItemEditOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [inactiveItemsOpen, setInactiveItemsOpen] = useState(false);
 
   // バリエーション登録・編集
   const [variantCreateOpen, setVariantCreateOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [variantEditOpen, setVariantEditOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
 
   // 画像プレビュー
@@ -46,37 +53,55 @@ export default function ItemsPage() {
     }, 3000);
   };
 
+  const loadItems = async () => {
+    try {
+      setItemsLoading(true);
+      setItemError("");
+
+      const res = await fetchItems();
+      const list = Array.isArray(res.data) ? res.data : [];
+
+      setItems(list);
+
+      setExpandedItemIds((prev) => {
+        const validIds = prev.filter((id) =>
+          list.some((item) => item.id === id),
+        );
+
+        if (validIds.length > 0 || list.length === 0) {
+          return validIds;
+        }
+
+        // 初回は先頭の作品だけ開く
+        return [list[0].id];
+      });
+    } catch (e) {
+      console.error(e);
+      setItemError("作品一覧の取得に失敗しました");
+      setItems([]);
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
   const loadVariants = async () => {
     try {
-      setLoading(true);
-      setError("");
+      setVariantsLoading(true);
+      setVariantError("");
 
       const res = await api.get("/variants");
       setVariants(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
-      setError("バリエーションの取得に失敗しました");
+      setVariantError("バリエーションの取得に失敗しました");
       setVariants([]);
     } finally {
-      setLoading(false);
+      setVariantsLoading(false);
     }
   };
 
-  const handleItemsLoaded = (list) => {
-    setItems(list);
-
-    setExpandedItemIds((prev) => {
-      const validIds = prev.filter((id) =>
-        list.some((item) => item.id === id),
-      );
-
-      if (validIds.length > 0 || list.length === 0) {
-        return validIds;
-      }
-
-      // 初回は先頭の作品だけ開く
-      return [list[0].id];
-    });
+  const reloadAll = async () => {
+    await Promise.all([loadItems(), loadVariants()]);
   };
 
   const toggleItem = (itemId) => {
@@ -85,6 +110,32 @@ export default function ItemsPage() {
         ? prev.filter((id) => id !== itemId)
         : [...prev, itemId],
     );
+  };
+
+  const deactivate = async (item) => {
+    const confirmed = window.confirm(
+      `「${item.name}」を無効化しますか？\n作品一覧には表示されなくなります。`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setProcessingItemId(item.id);
+      setItemError("");
+
+      await deactivateItem(item.id);
+      await loadItems();
+
+      showToast("作品を無効化しました");
+    } catch (e) {
+      console.error(e);
+      setItemError(
+        e?.response?.data?.message ||
+          "作品の無効化に失敗しました",
+      );
+    } finally {
+      setProcessingItemId(null);
+    }
   };
 
   const setVariantImageUrl = (variantId, imageUrl) => {
@@ -104,6 +155,7 @@ export default function ItemsPage() {
   };
 
   useEffect(() => {
+    loadItems();
     loadVariants();
 
     return () => {
@@ -119,7 +171,7 @@ export default function ItemsPage() {
   return (
     <div>
       {toast && (
-        <div className="alert alert-success" role="alert">
+        <div className="alert alert-success" role="status">
           {toast}
         </div>
       )}
@@ -147,129 +199,258 @@ export default function ItemsPage() {
         }
       />
 
-      <p className="text-secondary mb-3">
+      <p className="text-secondary mb-4">
         作品とバリエーションの登録・編集を行います。
       </p>
 
-      <ItemPanel
-        onItemsLoaded={handleItemsLoaded}
-        refreshKey={itemsRefreshKey}
-      />
+      <section aria-labelledby="items-heading">
+        <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3">
+          <div>
+            <h2 id="items-heading" className="h5 mb-1">
+              作品一覧
+            </h2>
 
-      <hr className="my-4" />
+            <p className="small text-muted mb-0">
+              作品ごとにバリエーションを確認・管理できます。
+            </p>
+          </div>
 
-      <div className="d-flex align-items-center justify-content-between gap-2 mb-3">
-        <h2 className="h5 mb-0">作品別バリエーション</h2>
+          <div className="d-flex gap-2 flex-wrap">
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => setInactiveItemsOpen(true)}
+            >
+              無効化済み作品
+            </button>
 
-        <button
-          type="button"
-          className="btn btn-sm btn-outline-secondary"
-          onClick={loadVariants}
-          disabled={loading}
-        >
-          {loading ? "読み込み中" : "再読み込み"}
-        </button>
-      </div>
-
-      {error && (
-        <div className="alert alert-danger" role="alert">
-          {error}
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              onClick={reloadAll}
+              disabled={itemsLoading || variantsLoading}
+            >
+              {itemsLoading || variantsLoading
+                ? "読み込み中..."
+                : "再読み込み"}
+            </button>
+          </div>
         </div>
-      )}
 
-      <div className="d-grid gap-3">
-        {items.map((item) => {
-          const itemVariants = variants.filter(
-            (variant) => Number(variant.itemId) === Number(item.id),
-          );
+        {itemError && (
+          <div className="alert alert-danger" role="alert">
+            {itemError}
+          </div>
+        )}
 
-          const expanded = expandedItemIds.includes(item.id);
-          const panelId = `item-variants-${item.id}`;
+        {variantError && (
+          <div className="alert alert-danger" role="alert">
+            {variantError}
+          </div>
+        )}
 
-          return (
-            <section key={item.id} className="card">
-              <div className="card-header bg-white p-0">
-                <button
-                  type="button"
-                  className="btn w-100 text-start border-0 rounded-0 p-3"
-                  onClick={() => toggleItem(item.id)}
-                  aria-expanded={expanded}
-                  aria-controls={panelId}
-                >
-                  <div className="d-flex align-items-center justify-content-between gap-3">
-                    <div>
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
-                        <span className="fw-semibold">{item.name}</span>
+        {itemsLoading && items.length === 0 ? (
+          <div
+            className="d-flex align-items-center justify-content-center gap-2 py-5"
+            role="status"
+          >
+            <span
+              className="spinner-border spinner-border-sm"
+              aria-hidden="true"
+            />
+            <span>作品を読み込んでいます</span>
+          </div>
+        ) : (
+          <div className="d-grid gap-3">
+            {items.map((item) => {
+              const itemVariants = variants.filter(
+                (variant) =>
+                  Number(variant.itemId) === Number(item.id),
+              );
 
-                        <span className="badge text-bg-secondary">
-                          {itemVariants.length}件
-                        </span>
+              const activeVariantCount = itemVariants.filter(
+                (variant) => variant.status === "ACTIVE",
+              ).length;
+
+              const hasActiveVariants = activeVariantCount > 0;
+              const expanded = expandedItemIds.includes(item.id);
+              const processing = processingItemId === item.id;
+
+              const panelId = `item-variants-${item.id}`;
+              const deactivateHelpId = `item-deactivate-help-${item.id}`;
+
+              return (
+                <article key={item.id} className="card">
+                  <div className="card-header bg-white p-3">
+                    <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                      <div className="flex-grow-1">
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <h3 className="h6 mb-0">{item.name}</h3>
+
+                          <span className="badge text-bg-secondary">
+                            {itemVariants.length}件
+                          </span>
+                        </div>
+
+                        {item.description ? (
+                          <p className="small text-muted mt-2 mb-0">
+                            {item.description}
+                          </p>
+                        ) : (
+                          <p className="small text-muted mt-2 mb-0">
+                            説明は登録されていません
+                          </p>
+                        )}
+
+                        {hasActiveVariants && (
+                          <p
+                            id={deactivateHelpId}
+                            className="small text-muted mt-2 mb-0"
+                          >
+                            販売中のバリエーションがあるため、
+                            この作品は無効化できません。
+                          </p>
+                        )}
                       </div>
 
-                      {item.description && (
-                        <div className="small text-muted mt-1">
-                          {item.description}
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => {
+                            setEditingItem(item);
+                            setItemEditOpen(true);
+                          }}
+                          disabled={processingItemId !== null}
+                        >
+                          作品を編集
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => deactivate(item)}
+                          disabled={
+                            processingItemId !== null ||
+                            hasActiveVariants
+                          }
+                          aria-describedby={
+                            hasActiveVariants
+                              ? deactivateHelpId
+                              : undefined
+                          }
+                        >
+                          {processing ? "処理中..." : "無効化"}
+                        </button>
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => toggleItem(item.id)}
+                          aria-expanded={expanded}
+                          aria-controls={panelId}
+                        >
+                          {expanded
+                            ? "閉じる"
+                            : "バリエーションを表示"}
+
+                          <span className="ms-2" aria-hidden="true">
+                            {expanded ? "▲" : "▼"}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {expanded && (
+                    <div id={panelId} className="card-body">
+                      {itemVariants.length > 0 ? (
+                        <VariantTable
+                          variants={itemVariants}
+                          updatingId={null}
+                          mode="management"
+                          showItemName={false}
+                          onEdit={(variant) => {
+                            setEditingVariant(variant);
+                            setVariantEditOpen(true);
+                          }}
+                          onPreviewImage={(variant) => {
+                            if (!variant.imageUrl) return;
+
+                            setPreviewUrl(variant.imageUrl);
+                            setPreviewTitle(
+                              `${variant.itemName ?? ""} / ${
+                                variant.variantName ??
+                                "名称未設定"
+                              }`,
+                            );
+                            setPreviewOpen(true);
+                          }}
+                        />
+                      ) : (
+                        <div className="text-center text-muted py-4">
+                          この作品にはバリエーションがありません
                         </div>
                       )}
                     </div>
-
-                    <span className="text-secondary" aria-hidden="true">
-                      {expanded ? "閉じる ▲" : "開く ▼"}
-                    </span>
-                  </div>
-                </button>
-              </div>
-
-              {expanded && (
-                <div id={panelId} className="card-body">
-                  {itemVariants.length > 0 ? (
-                    <VariantTable
-                      variants={itemVariants}
-                      updatingId={null}
-                      mode="management"
-                      showItemName={false}
-                      onEdit={(variant) => {
-                        setEditingVariant(variant);
-                        setEditOpen(true);
-                      }}
-                      onPreviewImage={(variant) => {
-                        if (!variant.imageUrl) return;
-
-                        setPreviewUrl(variant.imageUrl);
-                        setPreviewTitle(
-                          `${variant.itemName ?? ""} / ${
-                            variant.variantName ?? "名称未設定"
-                          }`,
-                        );
-                        setPreviewOpen(true);
-                      }}
-                    />
-                  ) : (
-                    <div className="text-center text-muted py-4">
-                      この作品にはバリエーションがありません
-                    </div>
                   )}
-                </div>
-              )}
-            </section>
-          );
-        })}
+                </article>
+              );
+            })}
 
-        {items.length === 0 && !loading && (
-          <div className="card">
-            <div className="card-body text-center text-muted py-4">
-              表示できる作品がありません
-            </div>
+            {items.length === 0 && !itemsLoading && (
+              <div className="card">
+                <div className="card-body text-center py-5">
+                  <h3 className="h6">
+                    登録されている作品がありません
+                  </h3>
+
+                  <p className="text-muted mb-3">
+                    最初に作品を登録してください。
+                  </p>
+
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setItemCreateOpen(true)}
+                  >
+                    ＋ 作品を登録
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </section>
 
       <ItemCreateModal
         open={itemCreateOpen}
         onClose={() => setItemCreateOpen(false)}
-        onCreated={() => {
-          setItemsRefreshKey((prev) => prev + 1);
+        onCreated={async () => {
+          await loadItems();
           showToast("作品を登録しました");
+        }}
+      />
+
+      <ItemEditModal
+        open={itemEditOpen}
+        item={editingItem}
+        onClose={() => {
+          setItemEditOpen(false);
+          setEditingItem(null);
+        }}
+        onUpdated={async () => {
+          await loadItems();
+          showToast("作品情報を更新しました");
+        }}
+      />
+
+      <InactiveItemsModal
+        open={inactiveItemsOpen}
+        onClose={() => setInactiveItemsOpen(false)}
+        onReactivated={async () => {
+          await loadItems();
+          showToast("作品を再有効化しました");
         }}
       />
 
@@ -283,10 +464,10 @@ export default function ItemsPage() {
       />
 
       <VariantEditModal
-        open={editOpen}
+        open={variantEditOpen}
         variant={editingVariant}
         onClose={() => {
-          setEditOpen(false);
+          setVariantEditOpen(false);
           setEditingVariant(null);
         }}
         onUpdated={async () => {
