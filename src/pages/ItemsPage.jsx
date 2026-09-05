@@ -22,6 +22,7 @@ export default function ItemsPage() {
   const [variantError, setVariantError] = useState("");
   const [toast, setToast] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [itemFilter, setItemFilter] = useState("ALL");
 
   // 作品登録・編集・無効化済み一覧
   const [itemCreateOpen, setItemCreateOpen] = useState(false);
@@ -143,41 +144,77 @@ export default function ItemsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const normalizedQuery = searchQuery.trim().toLocaleLowerCase("ja-JP");
+const normalizedQuery = searchQuery
+  .trim()
+  .toLocaleLowerCase("ja-JP");
 
-  const filteredItems = items.filter((item) => {
-    if (!normalizedQuery) {
-        return true;
-    }
+const filteredItems = items.filter((item) => {
+  const itemVariants = variants.filter(
+    (variant) =>
+      Number(variant.itemId) === Number(item.id),
+  );
 
-    const itemText = [
-        item.name,
-        item.description,
-    ]
+  const itemText = [
+    item.name,
+    item.description,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLocaleLowerCase("ja-JP");
+
+  const itemMatches =
+    !normalizedQuery || itemText.includes(normalizedQuery);
+
+  const variantMatches =
+    !normalizedQuery ||
+    itemVariants.some((variant) => {
+      const variantText = [
+        variant.variantName,
+        variant.skuCode,
+      ]
         .filter(Boolean)
         .join(" ")
         .toLocaleLowerCase("ja-JP");
 
-    const itemMatches = itemText.includes(normalizedQuery);
-
-    const variantMatches = variants.some((variant) => {
-        if (Number(variant.itemId) !== Number(item.id)) {
-            return false;
-        }
-
-        const variantText = [
-            variant.variantName,
-            variant.skuCode,
-        ]
-        .filter(Boolean)
-        .join(" ")
-        .toLocaleLowerCase("ja-JP");
-
-        return variantText.includes(normalizedQuery);
+      return variantText.includes(normalizedQuery);
     });
 
-    return itemMatches || variantMatches;
-  });
+  if (!itemMatches && !variantMatches) {
+    return false;
+  }
+
+  switch (itemFilter) {
+    case "HAS_VARIANTS":
+      return itemVariants.length > 0;
+
+    case "NO_VARIANTS":
+      return itemVariants.length === 0;
+
+    case "HAS_ACTIVE_VARIANTS":
+      return itemVariants.some(
+        (variant) => variant.status === "ACTIVE",
+      );
+
+    case "HAS_OUT_OF_STOCK":
+      return itemVariants.some(
+        (variant) =>
+          variant.status === "ACTIVE" &&
+          Number(variant.stock) === 0,
+      );
+
+    default:
+      return true;
+  }
+});
+
+const hasSearchConditions =
+  searchQuery.trim() !== "" || itemFilter !== "ALL";
+
+const resetSearchConditions = () => {
+  setSearchQuery("");
+  setItemFilter("ALL");
+};
+
 
   return (
     <div>
@@ -240,12 +277,15 @@ export default function ItemsPage() {
 
         <section className="mb-4" aria-labelledby="item-search-title">
             <h2 id="item-search-title" className="visually-hidden">
-                作品を検索
+                作品を検索・絞り込み
             </h2>
 
-            <div className="d-flex flex-column flex-md-row align-items-md-end gap-2">
-                <div className="flex-grow-1">
-                    <label htmlFor="item-search" className="form-label fw-semibold">
+            <div className="row g-2 align-items-md-end">
+                <div className="col-12 col-lg">
+                    <label
+                        htmlFor="item-search"
+                        className="form-label fw-semibold"
+                    >
                         作品を検索
                     </label>
 
@@ -259,16 +299,41 @@ export default function ItemsPage() {
                         />
                 </div>
 
-                {searchQuery && (
-                    <button
-                        type="button"
-                        className="btn btn-outline-secondary"
-                        onClick={() => setSearchQuery("")}
+                <div className="cil-12 col-md-6 col-lg-3">
+                    <label
+                        htmlFor="item-filter"
+                        className="form-label fw-semibold"
                     >
-                        検索をクリア
-                    </button>
+                        作品の状態
+                    </label>
+
+                    <select
+                        id="item-filter"
+                        className="form-select"
+                        value={itemFilter}
+                        onChange={(e) => setItemFilter(e.target.value)}
+                        >
+                        <option value="ALL">すべて</option>
+                        <option value="HAS_VARIANTS">バリエーションあり</option>
+                        <option value="NO_VARIANTS">バリエーションなし</option>
+                        <option value="HAS_ACTIVE_VARIANTS">販売中</option>
+                        <option value="HAS_OUT_OF_STOCK">在庫切れあり</option>
+                    </select>
+                </div>
+
+                {hasSearchConditions && (
+                    <div className="col-12 col-md-auto">
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary w-100"
+                            onClick={resetSearchConditions}
+                        >
+                            条件をリセット
+                        </button>
+                    </div>
                 )}
             </div>
+
             <p
                 className="form-text mb-0 mt-2"
                 aria-live="polite"
@@ -427,13 +492,13 @@ export default function ItemsPage() {
                         キーワードを変えて、もう一度お試しください。
                      </p> */}
 
-                     {/* <button
+                     <button
                         type="button"
                         className="btn btn-outline-secondary"
-                        onClick={() => setSearchQuery("")}
+                        onClick={resetSearchConditions}
                      >
-                        検索条件をクリア
-                     </button> */}
+                        検索条件をリセット
+                     </button>
                  </div>
              </div>
            )}
