@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import api, { deactivateItem, fetchItems } from "../api";
+import api, { fetchItems } from "../api";
 
 import PageHeader from "../components/PageHeader";
 import ItemCreateModal from "../components/ItemCreateModal";
@@ -17,7 +17,6 @@ export default function ItemsPage() {
 
   const [itemsLoading, setItemsLoading] = useState(false);
   const [variantsLoading, setVariantsLoading] = useState(false);
-  const [processingItemId, setProcessingItemId] = useState(null);
 
   const [itemError, setItemError] = useState("");
   const [variantError, setVariantError] = useState("");
@@ -32,6 +31,7 @@ export default function ItemsPage() {
 
   // バリエーション登録・編集
   const [variantCreateOpen, setVariantCreateOpen] = useState(false);
+  const [creatingVariantItemId, setCreatingVariantItemId] = useState(null);
   const [variantEditOpen, setVariantEditOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
 
@@ -113,32 +113,6 @@ export default function ItemsPage() {
     );
   };
 
-  const deactivate = async (item) => {
-    const confirmed = window.confirm(
-      `「${item.name}」を無効化しますか？\n作品一覧には表示されなくなります。`,
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setProcessingItemId(item.id);
-      setItemError("");
-
-      await deactivateItem(item.id);
-      await loadItems();
-
-      showToast("作品を無効化しました");
-    } catch (e) {
-      console.error(e);
-      setItemError(
-        e?.response?.data?.message ||
-          "作品の無効化に失敗しました",
-      );
-    } finally {
-      setProcessingItemId(null);
-    }
-  };
-
   const setVariantImageUrl = (variantId, imageUrl) => {
     setVariants((prev) =>
       prev.map((variant) =>
@@ -216,15 +190,6 @@ export default function ItemsPage() {
       <PageHeader
         title="作品管理"
         actions={
-          <div className="d-flex gap-2 flex-wrap">
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={() => setVariantCreateOpen(true)}
-            >
-              ＋ バリエーション追加
-            </button>
-
             <button
               type="button"
               className="btn btn-primary"
@@ -232,7 +197,6 @@ export default function ItemsPage() {
             >
               ＋ 作品を登録
             </button>
-          </div>
         }
       />
 
@@ -274,55 +238,49 @@ export default function ItemsPage() {
           </div>
         </div>
 
-        <form
-            className="card mb-3"
-            role="search"
-            onSubmit={(e) => e.preventDefault()}
-        >
-            <div className="card-body">
-                <div className="row g-3 align-items-end">
-                    <div className="col-12 col-md">
-                        <label htmlFor="item-search" className="form-label">
-                            作品を検索
-                        </label>
+        <section className="mb-4" aria-labelledby="item-search-title">
+            <h2 id="item-search-title" className="visually-hidden">
+                作品を検索
+            </h2>
 
-                        <input
-                            id="item-search"
-                            type="serarch"
-                            className="form-control"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="作品名・バリエーション・SKU"
-                            aria-describedby="item-search-help"
-                         />
-                         <div id="item-search-help" className="form-text">
-                            入力すると該当する作品だけを表示します。
-                         </div>
-                    </div>
-                    {searchQuery && (
-                        <div className="col-12 col-md-auto">
-                            <button
-                                type="button"
-                                className="btn btn-outline-secondary w-100"
-                                onClick={() => setSearchQuery("")}
-                            >
-                                検索をクリア
-                            </button>
-                        </div>
-                    )}
+            <div className="d-flex flex-column flex-md-row align-items-md-end gap-2">
+                <div className="flex-grow-1">
+                    <label htmlFor="item-search" className="form-label fw-semibold">
+                        作品を検索
+                    </label>
+
+                    <input
+                        id="item-search"
+                        type="search"
+                        className="form-control"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="作品名・説明・バリエーション名・SKU"
+                        />
                 </div>
 
-                <p
-                    className="small text-muted mt-3 mb-0"
-                    role="status"
-                    aria-live="polite"
-                >
-                    {normalizedQuery
-                    ? `${filteredItems.length}件の作品が見つかりました`
-                    : `${items.length}件の作品を表示しています`}
-                </p>
+                {searchQuery && (
+                    <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => setSearchQuery("")}
+                    >
+                        検索をクリア
+                    </button>
+                )}
             </div>
-            </form>
+            <p
+                className="form-text mb-0 mt-2"
+                aria-live="polite"
+                aria-atomic="true"
+            >
+                {searchQuery.trim()
+                    ? `${filteredItems.length}件の作品が見つかりました`
+                    : `${filteredItems.length}件の作品を表示しています`
+                }
+            </p>
+        </section>
+
 
         {itemError && (
           <div className="alert alert-danger" role="alert">
@@ -355,17 +313,9 @@ export default function ItemsPage() {
                   Number(variant.itemId) === Number(item.id),
               );
 
-
-              const activeVariantCount = itemVariants.filter(
-                  (variant) => variant.status === "ACTIVE",
-                ).length;
-
-                const hasActiveVariants = activeVariantCount > 0;
                 const expanded = expandedItemIds.includes(item.id);
-                const processing = processingItemId === item.id;
 
                 const panelId = `item-variants-${item.id}`;
-                const deactivateHelpId = `item-deactivate-help-${item.id}`;
 
                 return (
                     <article key={item.id} className="card">
@@ -389,19 +339,19 @@ export default function ItemsPage() {
                             説明は登録されていません
                           </p>
                         )}
-
-                        {hasActiveVariants && (
-                            <p
-                            id={deactivateHelpId}
-                            className="small text-muted mt-2 mb-0"
-                            >
-                            販売中のバリエーションがあるため、
-                            この作品は無効化できません。
-                          </p>
-                        )}
                       </div>
 
                       <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <button
+                            type="button"
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => {
+                                setCreatingVariantItemId(item.id);
+                                setVariantCreateOpen(true);
+                            }}
+                        >
+                            + バリエーション
+                        </button>
                         <button
                           type="button"
                           className="btn btn-sm btn-outline-secondary"
@@ -409,26 +359,8 @@ export default function ItemsPage() {
                               setEditingItem(item);
                               setItemEditOpen(true);
                             }}
-                            disabled={processingItemId !== null}
                             >
                           作品を編集
-                        </button>
-
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => deactivate(item)}
-                          disabled={
-                              processingItemId !== null ||
-                              hasActiveVariants
-                            }
-                            aria-describedby={
-                                hasActiveVariants
-                                ? deactivateHelpId
-                                : undefined
-                            }
-                            >
-                          {processing ? "処理中..." : "無効化"}
                         </button>
 
                         <button
@@ -491,17 +423,17 @@ export default function ItemsPage() {
                  <div className="card-body text-center py-5">
                      <h3 className="h6">該当する作品がありません</h3>
 
-                     <p className="text-muted mb-3">
+                     {/* <p className="text-muted mb-3">
                         キーワードを変えて、もう一度お試しください。
-                     </p>
+                     </p> */}
 
-                     <button
+                     {/* <button
                         type="button"
                         className="btn btn-outline-secondary"
                         onClick={() => setSearchQuery("")}
                      >
                         検索条件をクリア
-                     </button>
+                     </button> */}
                  </div>
              </div>
            )}
@@ -543,6 +475,11 @@ export default function ItemsPage() {
       <ItemEditModal
         open={itemEditOpen}
         item={editingItem}
+        hasActiveVariants={variants.some(
+            (variant) =>
+                Number(variant.itemId) === Number(editingItem?.id) &&
+                variant.status === "ACTIVE",
+        )}
         onClose={() => {
           setItemEditOpen(false);
           setEditingItem(null);
@@ -550,6 +487,10 @@ export default function ItemsPage() {
         onUpdated={async () => {
           await loadItems();
           showToast("作品情報を更新しました");
+        }}
+        onDeactivated={async () => {
+            await loadItems();
+            showToast("作品を無効化しました");
         }}
       />
 
@@ -564,9 +505,22 @@ export default function ItemsPage() {
 
       <VariantCreateModal
         open={variantCreateOpen}
-        onClose={() => setVariantCreateOpen(false)}
+        initialItemId={creatingVariantItemId}
+        onClose={() => {
+            setVariantCreateOpen(false);
+            setCreatingVariantItemId(null);
+        }}
         onCreated={async () => {
           await loadVariants();
+
+          if (creatingVariantItemId !== null) {
+            setExpandedItemIds((prev) =>
+                prev.includes(creatingVariantItemId)
+                    ? prev
+                    : [...prev, creatingVariantItemId]
+            );
+          }
+
           showToast("バリエーションを追加しました");
         }}
       />

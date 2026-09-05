@@ -6,7 +6,12 @@ import {
 } from "../api";
 import BaseModal from "./BaseModal";
 
-export default function VariantCreateModal({ open, onClose, onCreated }) {
+export default function VariantCreateModal({
+  open,
+  onClose,
+  onCreated,
+  initialItemId = null,
+}) {
   const [items, setItems] = useState([]);
   const [itemId, setItemId] = useState("");
   const [variantName, setVariantName] = useState("");
@@ -45,7 +50,15 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
         setItems(list);
 
         if (list.length > 0) {
-          setItemId(String(list[0].id));
+          const initialItemExisits = list.some(
+            (item) => Number(item.id) === Number(initialItemId),
+          );
+
+          const selectedItemId = initialItemExisits
+            ? initialItemExisits
+            : list[0].id;
+
+          setItemId(String(selectedItemId));
         } else {
           setItemId("");
         }
@@ -60,7 +73,7 @@ export default function VariantCreateModal({ open, onClose, onCreated }) {
     };
 
     load();
-  }, [open]);
+  }, [open, initialItemId]);
 
   if (!open) return null;
 
