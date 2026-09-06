@@ -75,6 +75,7 @@ export default function App() {
           >
             <div className="app-container app-main-container">
               <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/profit" element={<ProfitPage />} />
                 <Route path="/items" element={<ItemsPage />} />

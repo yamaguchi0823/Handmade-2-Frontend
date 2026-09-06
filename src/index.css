@@ -9,7 +9,7 @@ WCAG 2.1 AAを目標としたデザイントークン
   /* Typography */
   font-family:
     Inter,
-    "Noto Sans Jp",
+    "Noto Sans JP",
     "Hiragino Sans",
     "Yu Gothic UI",
     "Yu Gothic",
@@ -36,6 +36,7 @@ WCAG 2.1 AAを目標としたデザイントークン
 
   /* Brand and semantic colors（意味を持つ色） */
   --color-primary: #1d4ed8;
+  /* --color-primary:pink; */
   --color-primary-hover: #1e40af;
   --color-primary-soft: #eff6ff;
 
@@ -127,6 +128,21 @@ WCAG 2.1 AAを目標としたデザイントークン
   --bs-btn-active-border-color: var(--color-primary-hover);
   --bs-btn-disabled-color: #ffffff;
   --bs-btn-disabled-bg: var(--color-primary);
+  --bs-btn-disabled-border-color: var(--color-primary);
+}
+
+/* Primary outline */
+.btn-outline-primary {
+  --bs-btn-color: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-hover-color: #ffffff;
+  --bs-btn-hover-bg: var(--color-primary);
+  --bs-btn-hover-border-color: var(--color-primary);
+  --bs-btn-active-color: #ffffff;
+  --bs-btn-active-bg: var(--color-primary-hover);
+  --bs-btn-active-border-color: var(--color-primary-hover);
+  --bs-btn-disabled-color: var(--color-primary);
+  --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: var(--color-primary);
 }
 
@@ -381,14 +397,6 @@ WCAG 2.1 AAを目標としたデザイントークン
   background: #f8fafc !important;
   border-color: var(--color-border-subtle) !important;
 }
-
-/* 動きを抑える設定を利用している場合 */
-@media (prefers-reduced-motion: reduce) {
-  .table > tbody > tr {
-    transition: none;
-  }
-}
-
 
 /* Predictable sizing */
 *,
