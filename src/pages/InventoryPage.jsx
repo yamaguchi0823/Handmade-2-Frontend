@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import api from "../api";
 
 import PageHeader from "../components/PageHeader";
-import VariantTable from "../components/VariantTable";
+// import VariantTable from "../components/VariantTable";
 import StockAdjustModal from "../components/StockAdjustModal";
 import StockHistoryModal from "../components/StockHistoryModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
 import SaleCreateModal from "../components/SaleCreateModal";
+import InventoryVariantList from "../components/InventoryVariantList";
 
 export default function InventoryPage() {
   const [variants, setVariants] = useState([]);
@@ -149,7 +150,7 @@ export default function InventoryPage() {
           <input
             type="text"
             className="form-control"
-            placeholder="作品名/SKU"
+            placeholder="作品名・バリエーション名・SKU"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -193,14 +194,17 @@ export default function InventoryPage() {
         </div>
       </form>
 
-      <VariantTable
+      <InventoryVariantList
         variants={variants}
-        onDelta={changeStock}
         updatingId={updatingId}
+        onDelta={changeStock}
         onPreviewImage={(v) => {
           if (!v.imageUrl) return;
+
           setPreviewUrl(v.imageUrl);
-          setPreviewTitle(`${v.itemName ?? ""} / ${v.skuCode ?? ""}`);
+          setPreviewTitle(
+            `${v.itemName ?? ""} / ${v.variantName ?? ""}`,
+          );
           setPreviewOpen(true);
         }}
         onHistory={(v) => {
