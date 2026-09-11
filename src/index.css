@@ -49,6 +49,7 @@ WCAG 2.1 AAを目標としたデザイントークン
   --color-danger-hover: #8f1c13;
   --color-danger-soft: #fff0ee;
 
+
   --color-focus: #005fcc;
 
   /* Spacing */
@@ -78,6 +79,7 @@ WCAG 2.1 AAを目標としたデザイントークン
 
   /* Layout */
   --content-max-width: 1280px;
+
 }
 
 /* ==========================

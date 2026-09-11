@@ -5,7 +5,7 @@ import PageHeader from "../components/PageHeader";
 import ItemCreateModal from "../components/ItemCreateModal";
 import ItemEditModal from "../components/ItemEditModal";
 import InactiveItemsModal from "../components/InactiveItemsModal";
-import VariantTable from "../components/VariantTable";
+import ManagementVariantList from "../components/ManagementVariantList";
 import VariantCreateModal from "../components/VariantCreateModal";
 import VariantEditModal from "../components/VariantEditModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
@@ -42,6 +42,12 @@ export default function ItemsPage() {
   const [previewTitle, setPreviewTitle] = useState("");
 
   const toastTimerRef = useRef(null);
+
+  const mobileActionsRef = useRef(null);
+
+  const closeMobileActions = () => {
+    mobileActionsRef.current?.removeAttribute("opne");
+  };
 
   const showToast = (message) => {
     setToast(message);
@@ -144,9 +150,59 @@ export default function ItemsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-const normalizedQuery = searchQuery
+const normalizedSearchQuery = searchQuery
   .trim()
   .toLocaleLowerCase("ja-JP");
+
+const includesSearchQuery = (value) =>
+  String(value ?? "")
+    .toLowerCase()
+    .includes(normalizedSearchQuery);
+
+const itemMachesSearchQuery = (item) =>
+  !normalizedSearchQuery ||
+  includesSearchQuery(item.name) ||
+  includesSearchQuery(item.description);
+
+const variantMatchesSearchQuery = (variant) =>
+  !normalizedSearchQuery ||
+  includesSearchQuery(variant.variantName) ||
+  includesSearchQuery(variant.skuCode);
+
+const matchesVariantFilter = (variant) => {
+  const stock = Number(variant.stock ?? 0);
+  const threshold = Number(
+    variant.stockAlertThreshold ?? 0,
+  );
+
+  switch (itemFilter) {
+    case "HAS_ACTIVE_VARIANTS":
+      return variant.status === "ACTIVE";
+
+    case "HAS_LOW_STOCK":
+      return (
+        variant.status === "ACTIVE" &&
+        threshold > 0 &&
+        stock > 0 &&
+        stock <= threshold
+      );
+
+    case "HAS_OUT_OF_STOCK":
+      return (
+        variant.status === "ACTIVE" &&
+        stock === 0
+      );
+
+      default:
+        return true;
+  }
+};
+
+const filtersVariantRows = [
+  "HAS_ACTIVE_VARIANTS",
+  "HAS_LOW_STOCK",
+  "HAS_OUT_OF_STOCK",
+].includes(itemFilter);
 
 const filteredItems = items.filter((item) => {
   const itemVariants = variants.filter(
@@ -163,10 +219,10 @@ const filteredItems = items.filter((item) => {
     .toLocaleLowerCase("ja-JP");
 
   const itemMatches =
-    !normalizedQuery || itemText.includes(normalizedQuery);
+    !normalizedSearchQuery || itemText.includes(normalizedSearchQuery);
 
   const variantMatches =
-    !normalizedQuery ||
+    !normalizedSearchQuery ||
     itemVariants.some((variant) => {
       const variantText = [
         variant.variantName,
@@ -176,7 +232,7 @@ const filteredItems = items.filter((item) => {
         .join(" ")
         .toLocaleLowerCase("ja-JP");
 
-      return variantText.includes(normalizedQuery);
+      return variantText.includes(normalizedSearchQuery);
     });
 
   if (!itemMatches && !variantMatches) {
@@ -191,16 +247,9 @@ const filteredItems = items.filter((item) => {
       return itemVariants.length === 0;
 
     case "HAS_ACTIVE_VARIANTS":
-      return itemVariants.some(
-        (variant) => variant.status === "ACTIVE",
-      );
-
+    case "HAS_LOW_STOCK":
     case "HAS_OUT_OF_STOCK":
-      return itemVariants.some(
-        (variant) =>
-          variant.status === "ACTIVE" &&
-          Number(variant.stock) === 0,
-      );
+      return itemVariants.some(matchesVariantFilter);
 
     default:
       return true;
@@ -225,57 +274,130 @@ const resetSearchConditions = () => {
       )}
 
       <PageHeader
-        title="作品管理"
-        actions={
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => setItemCreateOpen(true)}
-            >
-              ＋ 作品を登録
-            </button>
-        }
-      />
+  title="作品管理"
+  actions={
+    <div className="item-page-actions">
+      {/* PC版 */}
+      <div className="item-page-actions-desktop">
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => setItemCreateOpen(true)}
+        >
+          ＋ 作品を登録
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => setInactiveItemsOpen(true)}
+        >
+          無効化済み作品
+        </button>
+
+        <button
+          type="button"
+          className="btn btn-primary item-reload-button"
+          onClick={reloadAll}
+          disabled={itemsLoading || variantsLoading}
+          aria-label="作品とバリエーションを再読み込み"
+          title="再読み込み"
+        >
+          <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M21 12a9 9 0 0 0-15-6.7L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 15 6.7l3-2.7" />
+          <path d="M21 21v-5h-5" />
+        </svg>
+          {(itemsLoading || variantsLoading) && (
+            <span className="visually-hidden">
+              読み込み中
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* スマホ版 */}
+      <details
+  ref={mobileActionsRef}
+  className="item-page-actions-mobile"
+  onBlur={() => {
+    requestAnimationFrame(() => {
+      const menu = mobileActionsRef.current;
+
+      if (menu && !menu.contains(document.activeElement)) {
+        menu.removeAttribute("open");
+      }
+    });
+  }}
+>
+        <summary aria-label="作品管理メニューを開く">
+          <span aria-hidden="true">•••</span>
+        </summary>
+
+        <div className="item-page-actions-menu">
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => {
+              closeMobileActions();
+              setItemCreateOpen(true);
+            }}
+          >
+            ＋ 作品を登録
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => {
+              closeMobileActions();
+              setInactiveItemsOpen(true);
+            }}
+          >
+            無効化済み作品
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={async () => {
+              closeMobileActions();
+              await reloadAll();
+            }}
+            disabled={itemsLoading || variantsLoading}
+          >
+            {itemsLoading || variantsLoading
+              ? "読み込み中..."
+              : "再読み込み"}
+          </button>
+        </div>
+      </details>
+    </div>
+  }
+/>
 
       <p className="text-secondary mb-4">
         作品とバリエーションの登録・編集を行います。
       </p>
 
-      <section aria-labelledby="items-heading">
-        <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3">
-          <div>
-            <h2 id="items-heading" className="h5 mb-1">
-              作品一覧
-            </h2>
+      <section aria-label="作品一覧">
 
-            <p className="small text-muted mb-0">
-              作品ごとにバリエーションを確認・管理できます。
-            </p>
-          </div>
-
-          <div className="d-flex gap-2 flex-wrap">
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary"
-              onClick={() => setInactiveItemsOpen(true)}
-            >
-              無効化済み作品
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary"
-              onClick={reloadAll}
-              disabled={itemsLoading || variantsLoading}
-            >
-              {itemsLoading || variantsLoading
-                ? "読み込み中..."
-                : "再読み込み"}
-            </button>
-          </div>
-        </div>
-
-        <section className="mb-4" aria-labelledby="item-search-title">
+        <section
+          className="item-search-panel mb-4"
+          aria-labelledby="item-search-title"
+        >
             <h2 id="item-search-title" className="visually-hidden">
                 作品を検索・絞り込み
             </h2>
@@ -283,6 +405,7 @@ const resetSearchConditions = () => {
             <div className="row g-2 align-items-md-end">
                 <div className="col-12 col-lg">
                     <label
+
                         htmlFor="item-search"
                         className="form-label fw-semibold"
                     >
@@ -314,10 +437,12 @@ const resetSearchConditions = () => {
                         onChange={(e) => setItemFilter(e.target.value)}
                         >
                         <option value="ALL">すべて</option>
-                        <option value="HAS_VARIANTS">バリエーションあり</option>
-                        <option value="NO_VARIANTS">バリエーションなし</option>
-                        <option value="HAS_ACTIVE_VARIANTS">販売中</option>
-                        <option value="HAS_OUT_OF_STOCK">在庫切れあり</option>
+                        <option value="HAS_VARIANTS">バリエーション登録ありの作品</option>
+                        <option value="NO_VARIANTS">バリエーション登録なしの作品</option>
+                        <option value="HAS_ACTIVE_VARIANTS">
+                          販売中のバリエーション</option>
+                        <option value="HAS_LOW_STOCK">在庫：少 のバリエーション</option>
+                        <option value="HAS_OUT_OF_STOCK">在庫：なし のバリエーション</option>
                     </select>
                 </div>
 
@@ -325,7 +450,8 @@ const resetSearchConditions = () => {
                     <div className="col-12 col-md-auto">
                         <button
                             type="button"
-                            className="btn btn-outline-secondary w-100"
+                            className="btn btn-secondary mt-1
+                            "
                             onClick={resetSearchConditions}
                         >
                             条件をリセット
@@ -340,8 +466,8 @@ const resetSearchConditions = () => {
                 aria-atomic="true"
             >
                 {searchQuery.trim()
-                    ? `${filteredItems.length}件の作品が見つかりました`
-                    : `${filteredItems.length}件の作品を表示しています`
+                    ? `${filteredItems.length}種の作品が見つかりました`
+                    : `${filteredItems.length}種の作品を表示しています`
                 }
             </p>
         </section>
@@ -378,100 +504,165 @@ const resetSearchConditions = () => {
                   Number(variant.itemId) === Number(item.id),
               );
 
+              const itemMatchesQuery = itemMachesSearchQuery(item);
+
+              const searchMatchesVariants =
+                !normalizedSearchQuery || itemMatchesQuery
+                  ? itemVariants
+                  : itemVariants.filter(variantMatchesSearchQuery);
+
+              const displayedVariants = filtersVariantRows
+                ? searchMatchesVariants.filter(matchesVariantFilter)
+                : searchMatchesVariants;
+
+              const variantCountLabel =
+                normalizedSearchQuery || filtersVariantRows
+                ? `${displayedVariants.length} / ${itemVariants.length}件`
+                : `${itemVariants.length}件`
                 const expanded = expandedItemIds.includes(item.id);
 
                 const panelId = `item-variants-${item.id}`;
 
                 return (
-                    <article key={item.id} className="card">
-                  <div className="card-header bg-white p-3">
-                    <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-                      <div className="flex-grow-1">
-                        <div className="d-flex align-items-center gap-2 flex-wrap">
-                          <h3 className="h6 mb-0">{item.name}</h3>
-
-                          <span className="badge text-bg-secondary">
-                            {itemVariants.length}件
-                          </span>
-                        </div>
-
-                        {item.description ? (
-                            <p className="small text-muted mt-2 mb-0">
-                            {item.description}
-                          </p>
-                        ) : (
-                            <p className="small text-muted mt-2 mb-0">
-                            説明は登録されていません
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
-                        <button
-                            type="button"
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => {
-                                setCreatingVariantItemId(item.id);
-                                setVariantCreateOpen(true);
-                            }}
+                    <article
+                      key={item.id}
+                      className="card item-management-card"
+                    >
+                  <div className="item-card-header">
+                    <div className="item-card-heading">
+                      <div className="item-card-title-group">
+                        <svg
+                          className="item-card-icon"
+                          viewBox="0 0 24 24"
+                          width="20"
+                          height="20"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
                         >
-                            + バリエーション
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => {
-                              setEditingItem(item);
-                              setItemEditOpen(true);
-                            }}
-                            >
-                          作品を編集
-                        </button>
+                          <path d="m21 8-9 5-9-5" />
+                          <path d="m3 8 9-5 9 5v8l-9 5-9-5Z" />
+                          <path d="M12 13v8" />
+                        </svg>
 
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => toggleItem(item.id)}
-                          aria-expanded={expanded}
-                          aria-controls={panelId}
-                          >
-                          {expanded
-                            ? "閉じる"
-                            : "バリエーションを表示"}
-
-                          <span className="ms-2" aria-hidden="true">
-                            {expanded ? "▲" : "▼"}
-                          </span>
-                        </button>
+                        <h3
+                          className="item-card-title"
+                          title={item.name}
+                        >
+                          {item.name}
+                        </h3>
                       </div>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-secondary item-edit-button"
+                        onClick={() => {
+                          setEditingItem(item);
+                          setItemEditOpen(true);
+                        }}
+                        aria-label={`${item.name}の作品情報を編集`}
+                      >
+                        <svg
+                          className="item-edit-icon"
+                          viewBox="0 0 24 24"
+                          width="18"
+                          height="18"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                          focusable="false"
+                        >
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                        </svg>
+
+                        {/* <span>作品編集</span> */}
+                      </button>
                     </div>
-                  </div>
+
+                    <p
+                      className="item-card-description"
+                      title={
+                        item.description ||
+                        "説明は登録されていません"
+                      }
+                    >
+                      {item.description ||
+                        ""
+                        // "説明は登録されていません"
+                        }
+                    </p>
+
+                    <div className="item-card-actions">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary item-variants-toggle"
+                        onClick={() => toggleItem(item.id)}
+                        aria-expanded={expanded}
+                        aria-controls={panelId}
+                      >
+                        <span
+                          className="item-toggle-icon"
+                          aria-hidden="true"
+                        >
+                          {expanded ? "▲" : "▼"}
+                        </span>
+
+                        <span>
+                          {expanded ? "閉じる" : "バリエーション"}
+                        </span>
+
+                        <span className="item-variant-count">
+                          {variantCountLabel}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-primary item-variant-add"
+                        onClick={() => {
+                          setCreatingVariantItemId(item.id);
+                          setVariantCreateOpen(true);
+                        }}
+                        aria-label={`${item.name}にバリエーションを追加`}
+                      >
+                        ＋ 追加
+                      </button>
+                    </div>
+</div>
 
                   {expanded && (
-                      <div id={panelId} className="card-body">
+                      <div
+                        id={panelId}
+                        className="card-body item-variants-panel"
+                      >
                       {itemVariants.length > 0 ? (
-                          <VariantTable
-                          variants={itemVariants}
-                          updatingId={null}
-                          mode="management"
-                          showItemName={false}
-                          onEdit={(variant) => {
+                          <ManagementVariantList
+                            variants={displayedVariants}
+                            updatingId={null}
+                            onEdit={(variant) => {
                               setEditingVariant(variant);
                               setVariantEditOpen(true);
                             }}
-                            onPreviewImage={(variant) => {
-                                if (!variant.imageUrl) return;
+                            onPreviewImage={(variant) =>{
+                              if (!variant.imageUrl) return;
 
-                                setPreviewUrl(variant.imageUrl);
-                                setPreviewTitle(
-                                    `${variant.itemName ?? ""} / ${
-                                        variant.variantName ??
-                                        "名称未設定"
-                                    }`,
-                                );
-                                setPreviewOpen(true);
+                              setPreviewUrl(variant.imageUrl);
+                              setPreviewTitle(
+                                `${variant.itemName ?? ""} / ${
+                                  variant.variantName ?? "名称未設定"
+                                }`
+                              );
+                              setPreviewOpen(true);
                             }}
-                            />
+                          />
                         ) : (
                             <div className="text-center text-muted py-4">
                           この作品にはバリエーションがありません

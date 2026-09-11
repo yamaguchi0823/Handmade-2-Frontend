@@ -135,6 +135,7 @@ export default function VariantCreateModal({
 
       const message =
         e?.response?.data?.message ||
+        
         e?.message ||
         "バリエーションの登録に失敗しました";
 
