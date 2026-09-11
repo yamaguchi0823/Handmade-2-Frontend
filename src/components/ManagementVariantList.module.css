@@ -1,0 +1,479 @@
+.desktopList {
+  --desktop-image-size: 84px;
+
+  display: block;
+}
+
+.mobileList {
+  display: none;
+}
+
+/* 共通画像 */
+
+.imageButton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-lg);
+  cursor: zoom-in;
+}
+
+.image,
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.image {
+  object-fit: cover;
+  background: var(--color-surface);
+}
+
+.imagePlaceholder {
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-surface-subtle),
+      #dce8f7
+    );
+}
+
+.imageButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* 共通バッジ */
+
+.stockBadge,
+.statusBadge,
+.thresholdBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.stockBadge {
+  min-width: 4.5rem;
+  padding: 0.32rem 0.55rem;
+  border: 1px solid #111111;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stockAvailable {
+  color: #111111;
+  background: #ffffff;
+}
+
+.stockLow {
+  color: #111111;
+  background: #ffe640;
+  border-color: #9a7200;
+}
+
+.stockOut {
+  color: #111111;
+  background: #e5e7eb;
+  border-color: #667085;
+}
+
+.thresholdBadge {
+  min-width: 4.5rem;
+  padding: 0.3rem 0.5rem;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.statusBadge {
+  min-width: 4.5rem;
+  min-height: 1.75rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid #111111;
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.statusActive {
+  color: #111111;
+  background: #ffffff;
+}
+
+.statusInactive {
+  color: #ffffff;
+  background: #111111;
+}
+
+/* PC版 */
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 7
+  50px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.table th {
+  padding: var(--space-3);
+  background: #f4f8ff;
+  border-bottom: 2px solid #7eafff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table th:first-child {
+  text-align: center;
+}
+
+.headerStack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.25;
+}
+
+.table td {
+  height: 124px;
+  padding: var(--space-4);
+  border-bottom: 1px dashed #93b4e8;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.imageColumn {
+  width: calc(var(--desktop-image-size) + 2rem);
+}
+.nameColumn {
+  width: auto;
+}
+.stockInfoColumn {
+  width: 6rem;
+}
+.stockNumberColumn {
+  width: 4rem;
+}
+.statusColumn {
+  width: 5.5rem;
+}
+.priceColumn {
+  width: 7.5rem;
+}
+.editColumn {
+  width: 4.75rem;
+}
+
+.imageCell {
+  text-align: center;
+}
+
+.imageCell .imageButton,
+.imageCell .imagePlaceholder {
+  width: var(--desktop-image-size);
+  height: var(--desktop-image-size);
+}
+
+.nameCell {
+  min-width: 0;
+  padding-left: var(--space-2);
+  padding-right: var(--space-5);
+}
+
+.variantName,
+.sku {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.variantName {
+  display: -webkit-box;
+  color: var(--color-text);
+  font-size: 1rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.sku {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.stockInfoCell {
+  text-align: center;
+}
+
+.stockInfoCell .stockBadge,
+.stockInfoCell .thresholdBadge {
+  margin-inline: auto;
+}
+
+.stockInfoCell .thresholdBadge {
+  margin-top: var(--space-2);
+}
+
+.stockNumber {
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.price {
+  font-size: 1.125rem;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.editCell {
+  text-align: center;
+}
+
+/* .table th:nth-child(3),
+.table th:nth-child(5) {
+  text-align: right;
+} */
+
+.desktopEditButton {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 2px solid #5792f5;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.desktopEditButton:hover:not(:disabled) {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.desktopEditButton:focus-visible,
+.mobileEditButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.desktopEditButton:disabled,
+.mobileEditButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.rowLow {
+  background: #fffbea;
+}
+
+.rowOut {
+  background: #f4f4f5;
+}
+
+/* スマホ版 */
+
+@media (max-width: 767.98px) {
+  .desktopList {
+    display: none;
+  }
+
+  .mobileList {
+    --mobile-image-size: 140px;
+
+    display: block;
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-md);
+  }
+
+  .mobileRow {
+    display: grid;
+    grid-template-columns:
+      var(--mobile-image-size)
+      minmax(0, 1fr);
+    grid-template-areas:
+      "image summary"
+      "status action";
+    gap: var(--space-3) var(--space-4);
+    padding: var(--space-5) var(--space-4);
+    border-bottom: 1px dashed #93b4e8;
+  }
+
+  .mobileRow:last-child {
+    border-bottom: 0;
+  }
+
+  .mobileImage {
+    grid-area: image;
+    width: var(--mobile-image-size);
+    height: var(--mobile-image-size);
+  }
+
+  .mobileSummary {
+    grid-area: summary;
+    min-width: 0;
+    height: var(--mobile-image-size);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobileName {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .mobileSku {
+    margin: var(--space-1) 0 0;
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileStock,
+  .mobilePrice {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .mobileStock {
+    margin-top: auto;
+  }
+
+  .mobilePrice {
+    margin-top: var(--space-2);
+  }
+
+  .mobileMetaLabel {
+    color: var(--color-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .mobileStock .stockBadge {
+    min-width: 0;
+    padding-inline: 0.45rem;
+  }
+
+  .mobileStock .thresholdBadge {
+    min-width: 0;
+    padding-inline: 0.4rem;
+  }
+
+  .mobileStockNumber {
+    margin-left: auto;
+    font-size: 1rem;
+  }
+
+  .mobilePrice strong {
+    margin-left: auto;
+    font-size: 1rem;
+  }
+
+  .mobileStatus {
+    grid-area: status;
+    display: flex;
+    align-items: center;
+  }
+
+  .mobileAction {
+    grid-area: action;
+    min-width: 0;
+  }
+
+  .mobileEditButton {
+    width: 100%;
+    min-height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: 0.5rem 0.75rem;
+    color: var(--color-primary);
+    background: var(--color-surface);
+    border: 2px solid #5792f5;
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .mobileList {
+    --mobile-image-size: 120px;
+  }
+
+  .mobileRow {
+    grid-template-columns:
+      var(--mobile-image-size)
+      minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .mobileName {
+    font-size: 0.9375rem;
+  }
+
+  .mobileStock,
+  .mobilePrice {
+    gap: var(--space-1);
+  }
+
+  .stockBadge,
+  .thresholdBadge {
+    font-size: 0.6875rem;
+  }
+
+  .mobileEditButton {
+    padding-inline: var(--space-2);
+  }
+}

@@ -1,23 +1,557 @@
 /* src/components/VariantTable.module.css */
 
-.thId {
-  width: 70px;
-}
 .thName {
   width: 180px;
 }
+
 .thStock {
   width: 110px;
 }
+
 .thThreshold {
   width: 110px;
 }
+
 .thPrice {
   width: 120px;
 }
+
 .thStatus {
   width: 120px;
 }
+
 .thActions {
   width: 250px;
+}
+
+.desktopTable {
+  display: block;
+}
+
+.mobileList {
+  display: none;
+}
+
+.imageButton,
+.mobileImageButton {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: zoom-in;
+}
+
+.imageButton:focus-visible,
+.mobileImageButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.actionList {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* =========================
+   Desktop management list
+========================= */
+
+.managementDesktop {
+  --variant-desktop-image-size: 84px;
+
+  display: block;
+}
+
+.managementTableWrap {
+  overflow-x: auto;
+}
+
+.managementTable {
+  width: 100%;
+  min-width: 760px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.managementTable th {
+  padding: var(--space-3);
+  background: #f4f8ff;
+  border-bottom: 2px solid #7eafff;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.managementTable td {
+  /* height: 136px; */
+  padding: var(--space-4);
+  border-bottom: 1px dashed #93b4e8;
+  vertical-align: middle;
+}
+
+.managementTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.managementImageColumn {
+  /* width: 136px; */
+  width: calc(var(--variant-desktop-image-size)*1.15);
+}
+
+.managementStatusColumn {
+  width: 130px;
+}
+
+.managementStockColumn {
+  width: 100px;
+  text-align: center !important;
+}
+
+.managementStockColumn span {
+  display: block;
+}
+
+.managementStockColumn span:last-child {
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.managementPriceColumn {
+  width: 130px;
+  text-align: center !important;
+}
+
+.managementEditColumn {
+  width: 82px;
+  text-align: center !important;
+}
+
+.managementImageButton {
+  display: block;
+  width: var(--variant-desktop-image-size);
+  height: var(--variant-desktop-image-size);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-lg);
+  cursor: zoom-in;
+}
+
+.managementImage,
+.managementPlaceholder {
+  width: var(--variant-desktop-image-size);
+  height: var(--variant-desktop-image-size);
+  display: block;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.managementImage {
+  object-fit: cover;
+  background: var(--color-surface);
+}
+
+.managementPlaceholder {
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-surface-subtle),
+      #dce8f7
+    );
+}
+
+.managementImageButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.managementNameArea {
+  min-width: 0;
+}
+
+.managementItemName,
+.managementVariantName,
+.managementSku {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.managementItemName {
+  margin-bottom: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.managementVariantName {
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.managementSku {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.managementBadges {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.managementBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  max-width: 100%;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.managementStock {
+  text-align: center;
+}
+
+.managementStock strong,
+.managementStock span {
+  display: block;
+}
+
+.managementStock strong {
+  font-size: 1rem;
+}
+
+.managementStock span {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.managementPrice {
+  display: block;
+  font-size: 1.125rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.managementEditButton {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 2px solid #5792f5;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.managementEditButton:hover:not(:disabled) {
+  color: #ffffff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.managementEditButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.managementEditButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.managementLowRow {
+  background: #fffbea;
+}
+
+.managementOutRow {
+  background: #f4f4f5;
+}
+
+/* 販売中：白地＋黒枠 */
+.statusActive {
+  color: #111111;
+  background: #ffffff;
+  border-color: #111111;
+}
+
+/* 停止中：黒地＋白文字 */
+.statusInactive {
+  color: #ffffff;
+  background: #111111;
+  border-color: #111111;
+}
+
+.stockAvailable {
+  color: #ffffff;
+  background: var(--color-primary);
+}
+
+.stockLow {
+  color: var(--color-warning);
+  background: #ffd55c;
+  border-color: #c69200;
+}
+
+.stockOut {
+  color: #ffffff;
+  background: #667085;
+}
+
+/* =========================
+   Mobile flat list
+========================= */
+
+@media (max-width: 767.98px) {
+  .desktopTable,
+  .managementDesktop {
+    display: none;
+  }
+
+  .mobileList {
+    --variant-mobile-image-size: 140px;
+
+    display: block;
+    padding: var(--space-4);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-md);
+  }
+
+  .mobileRow {
+    display: grid;
+    grid-template-columns:
+      var(--variant-mobile-image-size)
+      minmax(0, 1fr);
+    grid-template-areas:
+      "image summary"
+      "badges actions";
+    gap: var(--space-3) var(--space-4);
+    padding-block: var(--space-5);
+    border-bottom: 1px dashed #93b4e8;
+  }
+
+  .mobileRow:first-child {
+    padding-top: 0;
+  }
+
+  .mobileRow:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .mobileImageWrap {
+    grid-area: image;
+    width: var(--variant-mobile-image-size);
+    height: var(--variant-mobile-image-size);
+  }
+
+  .mobileImageButton {
+    width: var(--variant-mobile-image-size);
+    height: var(--variant-mobile-image-size);
+  }
+
+  .mobileImage,
+  .mobilePlaceholder {
+    width: var(--variant-mobile-image-size);
+    height: var(--variant-mobile-image-size);
+    display: block;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .mobileImage {
+    object-fit: cover;
+    background: var(--color-surface);
+  }
+
+  .mobilePlaceholder {
+    background:
+      linear-gradient(
+        135deg,
+        var(--color-surface-subtle),
+        #dce8f7
+      );
+  }
+
+  .mobileSummary {
+    grid-area: summary;
+    min-width: 0;
+    height: var(--variant-mobile-image-size);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobileItemName {
+    margin: 0 0 var(--space-1);
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileTitle {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    color: var(--color-text);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .mobileSku {
+    margin: var(--space-2) 0 0;
+    overflow: hidden;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileMeta {
+    margin-top: auto;
+  }
+
+  .mobilePrice,
+  .mobileThreshold {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.3;
+  }
+
+  .mobileThreshold {
+    margin-top: var(--space-1);
+  }
+
+  .mobilePrice span,
+  .mobileThreshold span {
+    color: var(--color-text-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+  }
+
+  .mobilePrice strong {
+    color: var(--color-text);
+    font-size: 1.0625rem;
+    font-weight: 800;
+  }
+
+  .mobileThreshold strong {
+    color: var(--color-text);
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .mobileBadges {
+    grid-area: badges;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .mobileBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+
+  .mobileActions {
+    grid-area: actions;
+    min-width: 0;
+  }
+
+  .mobileActions .actionList {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .mobileActions .actionList :global(.btn) {
+    min-height: 2.5rem;
+    padding: 0.45rem 0.625rem;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .mobileList {
+    --variant-mobile-image-size: 120px;
+
+    padding: var(--space-3);
+  }
+
+  .mobileRow {
+    gap: var(--space-3);
+    grid-template-areas:
+      "image summary"
+      "badges badges"
+      "actions actions";
+  }
+
+  /* .mobileImageWrap {
+    grid-area: image;
+  }
+
+  .mobileImage,
+  .mobilePlaceholder {
+    display: block;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  } */
+
+  .mobileTitle {
+    font-size: 0.9375rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .mobilePrice strong {
+    font-size: 1rem;
+  }
+
+  .mobileActions .actionList {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mobileActions .actionList :global(.btn) {
+    width: 100%;
+  }
 }

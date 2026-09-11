@@ -108,8 +108,7 @@ body.modal-open {
     flex-direction: column;
   }
 
-  .app-modal-foo
-  ter .btn {
+  .app-modal-footer .btn {
     width: 100%;
   }
 }
