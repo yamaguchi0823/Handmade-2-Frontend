@@ -1,0 +1,58 @@
+/* src/pages/InventoryPage.module.css */
+
+.searchPanel {
+    margin-bottom: var(--space-5);
+    padding: var(--space-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.searchFields {
+    display: grid;
+    grid-template-columns:
+        minmax(260px, 1.6fr)
+        minmax(160px, 0.7fr)
+        minmax(160px, 0.7fr);
+    align-items: end;
+    gap: var(--space-4);
+}
+
+.keywordField {
+    min-width:0;
+}
+
+.searchFooter {
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.resultCount {
+    margin: 0;
+    color:var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+@media (max-width: 767.98px){
+    .searchPanel {
+        padding: var(--space-4);
+    }
+
+    .searchFields {
+        grid-template-columns: 1fr;
+        gap: var(--space-4)
+    }
+
+    .searchFooter {
+        align-items:stretch;
+        flex-direction: column;
+    }
+
+    .searchFooter :global(.btn) {
+        width: 100%;
+    }
+}
