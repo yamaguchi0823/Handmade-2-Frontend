@@ -1,8 +1,8 @@
+import styles from "./InventoryPage.module.css"
 import { useEffect, useRef, useState } from "react";
 import api from "../api";
 
 import PageHeader from "../components/PageHeader";
-// import VariantTable from "../components/VariantTable";
 import StockAdjustModal from "../components/StockAdjustModal";
 import StockHistoryModal from "../components/StockHistoryModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
@@ -61,6 +61,13 @@ export default function InventoryPage() {
     }
   };
 
+  // 条件クリア
+  const clearFilters = () => {
+    setQ("");
+    setStockMode("ALL");
+    setStatus("");
+  };
+
   // 在庫増減
   const changeStock = async (variantId, delta) => {
     if (updatingId === variantId) return;
@@ -100,14 +107,27 @@ export default function InventoryPage() {
     }
   };
 
-  // 初回表示時
+  // 初回表示時：検索条件が変わったら自動的に取得
   useEffect(() => {
-    loadVariants();
+    const timerId = window.setTimeout(() => {
+      loadVariants();
+    }, 300);
+
     return () => {
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      window.clearTimeout(timerId);
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [q, stockMode, status]);
+
+  // 画面を離れるときにトーストのタイマーを解除
+  useEffect(()=>{
+    return () =>{
+      if (toastTimerRef.current){
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  },[]);
 
   return (
     <div>
@@ -138,61 +158,97 @@ export default function InventoryPage() {
         </div>
       )}
 
-      <form
-        className="row g-2 align-items-end mb-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          loadVariants();
-        }}
+      <section
+        className={styles.searchPanel}
+        aria-labelledby="inventory-search-title"
+        aria-busy={searching}
       >
-        <div className="col-12 col-md-4">
-          <label className="form-label">キーワード</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="作品名・バリエーション名・SKU"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
+        <div className={styles.searchFields}>
+          <div className={styles.keywordFields}>
+            <label
+              id="inventory-search-title"
+              htmlFor="inventory-keyword"
+              className="form-label"
+            >
+              在庫を検索
+            </label>
+
+            <input
+              id="inventory-keyword"
+              type="search"
+              className="form-control"
+              placeholder="作品名・説明・バリエーション名・SKU"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="inventory-stock-mode"
+              className="form-label"
+            >
+              在庫状況
+            </label>
+
+            <select
+              id="inventory-stock-mode"
+              value={stockMode}
+              onChange={(e) => setStockMode(e.target.value)}
+              className="form-select"
+            >
+              <option value="ALL">すべて</option>
+              <option value="IN_STOCK">在庫あり</option>
+              <option value="LOW_STOCK">在庫少</option>
+              <option value="OUT_OF_STOCK">在庫なし</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="inventory-status"
+              className="form-label"
+            >
+              販売状態
+            </label>
+
+            <select
+              id="inventory-status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="form-select"
+            >
+              <option value="">すべて</option>
+              <option value="ACTIVE">販売中</option>
+              <option value="INACTIVE">停止中</option>
+            </select>
+          </div>
         </div>
 
-        <div className="col-6 col-md-3">
-          <label className="form-label">在庫</label>
-          <select
-            value={stockMode}
-            onChange={(e) => setStockMode(e.target.value)}
-            className="form-select"
+        <div className={styles.searchFooter}>
+          <p
+            className={styles.resultCount}
+            role="status"
+            aria-live="polite"
           >
-            <option value="ALL">すべて</option>
-            <option value="IN_STOCK">在庫あり</option>
-            <option value="OUT_OF_STOCK">在庫なし</option>
-            <option value="LOW_STOCK">在庫少</option>
-          </select>
-        </div>
+            検索しています
+            {variants.length}件のバリエーションを表示しています
+          </p>
 
-        <div className="col-6 col-md-3">
-          <label className="form-label">状態</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="form-select"
-          >
-            <option value="">状態：すべて</option>
-            <option value="ACTIVE">ACTIVE（販売中）</option>
-            <option value="INACTIVE">INACTIVE（停止）</option>
-          </select>
-        </div>
-
-        <div className="col-12 col-md-2 d-grid">
           <button
-            type="submit"
-            disabled={searching}
-            className="btn btn-outline-primary"
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={clearFilters}
+            disabled={
+              q === "" &&
+              stockMode === "ALL" &&
+              status === ""
+            }
           >
-            {searching ? "検索中" : "検索"}
+            条件をクリア
           </button>
         </div>
-      </form>
+      </section>
 
       <InventoryVariantList
         variants={variants}
