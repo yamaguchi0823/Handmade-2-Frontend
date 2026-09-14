@@ -1,4 +1,5 @@
 // src/components/InventoryVariantList.jsx
+import { useState } from "react";
 import styles from "./InventoryVariantList.module.css";
 
 export default function InventoryVariantList({
@@ -9,6 +10,8 @@ export default function InventoryVariantList({
   onHistory,
   onPreviewImage,
 }) {
+  const [openActionsId, setOpenActionsId] = useState(null);
+
   const isArray = Array.isArray(variants);
 
   const getStockState = (variant) => {
@@ -18,23 +21,23 @@ export default function InventoryVariantList({
     if (stock === 0) {
       return {
         label: "在庫なし",
+        shortLabel: "なし",
         className: styles.stockOut,
-        rowClass: styles.outRow,
       };
     }
 
     if (threshold > 0 && stock <= threshold) {
       return {
         label: "在庫少",
+        shortLabel: "少",
         className: styles.stockLow,
-        rowClass: styles.lowRow,
       };
     }
 
     return {
       label: "在庫あり",
+      shortLabel: "あり",
       className: styles.stockAvailable,
-      rowClass: "",
     };
   };
 
@@ -43,12 +46,14 @@ export default function InventoryVariantList({
       return {
         label: "販売中",
         className: styles.statusActive,
+        rowClass: "",
       };
     }
 
     return {
       label: "停止中",
       className: styles.statusInactive,
+      rowClass: styles.inactiveRow,
     };
   };
 
@@ -90,103 +95,101 @@ export default function InventoryVariantList({
     );
   };
 
-  const renderStockBadges = (variant, mobile = false) => {
+  const renderStockBadge = (variant, short = false) => {
     const stockState = getStockState(variant);
+
+    return (
+      <span
+        className={`${styles.badge} ${stockState.className}`}
+      >
+        {short ? stockState.shortLabel : stockState.label}
+      </span>
+    );
+  };
+
+  const renderStatus = (variant) => {
     const statusState = getStatusState(variant);
 
     return (
-      <div
-        className={
-          mobile
-            ? styles.mobileBadges
-            : styles.desktopBadges
-        }
+      <span
+        className={`${styles.statusLabel} ${statusState.className}`}
       >
-        <span
-          className={`${styles.badge} ${stockState.className}`}
-        >
-          {stockState.label}
-        </span>
-
-        <span
-          className={`${styles.badge} ${statusState.className}`}
-        >
-          {statusState.label}
-        </span>
-      </div>
+        <span className={styles.statusDot} aria-hidden="true" />
+        {statusState.label}
+      </span>
     );
   };
 
-  const renderStockButtons = (variant, mobile = false) => {
-    const busy = updatingId === variant.id;
-    const stock = Number(variant.stock ?? 0);
-    const name = getVariantName(variant);
-
-    return (
-      <div
-        className={
-          mobile
-            ? styles.mobileStockActions
-            : styles.desktopStockActions
-        }
+  const renderThreshold = (variant) => (
+    <span
+      className={styles.threshold}
+      aria-label={`在庫しきい値 ${
+        variant.stockAlertThreshold ?? 0
+      }`}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        focusable="false"
       >
-        <button
-          type="button"
-          className={`btn btn-outline-danger ${styles.stockButton}`}
-          onClick={() => onDelta?.(variant.id, -1)}
-          disabled={busy || stock <= 0}
-          aria-label={`${name}の在庫を1減らす`}
-        >
-          −1
-        </button>
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+        <path d="M10 21h4" />
+      </svg>
 
-        <button
-          type="button"
-          className={`btn btn-outline-primary ${styles.stockButton}`}
-          onClick={() => onDelta?.(variant.id, 1)}
-          disabled={busy}
-          aria-label={`${name}の在庫を1増やす`}
-        >
-          ＋1
-        </button>
-      </div>
-    );
-  };
+      <span>{variant.stockAlertThreshold ?? 0}</span>
+    </span>
+  );
 
-  const renderOtherActions = (variant, mobile = false) => {
-    const busy = updatingId === variant.id;
-    const name = getVariantName(variant);
+  const renderAdjustIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M4 21v-7" />
+      <path d="M4 10V3" />
+      <path d="M12 21v-9" />
+      <path d="M12 8V3" />
+      <path d="M20 21v-5" />
+      <path d="M20 12V3" />
+      <path d="M1 14h6" />
+      <path d="M9 8h6" />
+      <path d="M17 16h6" />
+    </svg>
+  );
 
-    return (
-      <div
-        className={
-          mobile
-            ? styles.mobileOtherActions
-            : styles.desktopOtherActions
-        }
-      >
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => onAdjust?.(variant)}
-          disabled={busy}
-          aria-label={`${name}の棚卸を行う`}
-        >
-          棚卸
-        </button>
-
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => onHistory?.(variant)}
-          disabled={busy}
-          aria-label={`${name}の在庫履歴を表示`}
-        >
-          履歴
-        </button>
-      </div>
-    );
-  };
+  const renderHistoryIcon = () => (
+    <svg
+      viewBox="0 0 24 24"
+      width="22"
+      height="22"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+      <path d="M3 3v5h5" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
 
   if (!isArray) {
     return (
@@ -220,33 +223,44 @@ export default function InventoryVariantList({
               <col className={styles.stateColumn} />
               <col className={styles.stockColumn} />
               <col className={styles.changeColumn} />
-              <col className={styles.otherActionColumn} />
+              <col className={styles.adjustColumn} />
+              <col className={styles.historyColumn} />
             </colgroup>
 
             <thead>
               <tr>
-                <th scope="col">
-                  <span className="visually-hidden">画像</span>
+                <th scope="col" colSpan="2">
+                  作品・バリエーション
                 </th>
-                <th scope="col">作品・バリエーション</th>
-                <th scope="col">状態</th>
+                <th scope="col">
+                  <span>在庫状況</span>
+                  <span>販売状況</span>
+                </th>
                 <th scope="col" className={styles.numberHeading}>
                   在庫
                 </th>
-                <th scope="col">在庫を増減</th>
-                <th scope="col">その他</th>
+                <th scope="col" className={styles.centerHeading}>
+                  在庫を増減
+                </th>
+                <th scope="col" className={styles.centerHeading}>
+                  棚卸
+                </th>
+                <th scope="col" className={styles.centerHeading}>
+                  在庫履歴
+                </th>
               </tr>
             </thead>
 
             <tbody>
               {variants.map((variant) => {
-                const stockState = getStockState(variant);
                 const busy = updatingId === variant.id;
+                const stock = Number(variant.stock ?? 0);
+                const statusState = getStatusState(variant);
 
                 return (
                   <tr
                     key={variant.id}
-                    className={stockState.rowClass}
+                    className={statusState.rowClass}
                   >
                     <td>{renderImage(variant)}</td>
 
@@ -275,11 +289,15 @@ export default function InventoryVariantList({
                       </div>
                     </td>
 
-                    <td>{renderStockBadges(variant)}</td>
+                    <td>
+                      <div className={styles.desktopStates}>
+                        {renderStockBadge(variant)}
+                        {renderStatus(variant)}
+                      </div>
+                    </td>
 
                     <td className={styles.stockCell}>
-                      <strong>{variant.stock ?? 0}</strong>
-
+                      <strong>{stock}</strong>
                       <span>
                         しきい値：
                         {variant.stockAlertThreshold ?? 0}
@@ -287,25 +305,62 @@ export default function InventoryVariantList({
                     </td>
 
                     <td>
-                      {renderStockButtons(variant)}
-
-                      {busy && (
-                        <span
-                          className={styles.updating}
-                          role="status"
+                      <div className={styles.desktopStockActions}>
+                        <button
+                          type="button"
+                          className={`btn btn-outline-danger ${styles.stockButton}`}
+                          onClick={() => onDelta?.(variant.id, -1)}
+                          disabled={busy || stock <= 0}
+                          aria-label={`${getVariantName(
+                            variant,
+                          )}の在庫を1減らす`}
                         >
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            aria-hidden="true"
-                          />
-                          <span className="visually-hidden">
-                            在庫を更新中
-                          </span>
-                        </span>
-                      )}
+                          −1
+                        </button>
+
+                        <button
+                          type="button"
+                          className={`btn btn-outline-primary ${styles.stockButton}`}
+                          onClick={() => onDelta?.(variant.id, 1)}
+                          disabled={busy}
+                          aria-label={`${getVariantName(
+                            variant,
+                          )}の在庫を1増やす`}
+                        >
+                          ＋1
+                        </button>
+                      </div>
                     </td>
 
-                    <td>{renderOtherActions(variant)}</td>
+                    <td className={styles.iconCell}>
+                      <button
+                        type="button"
+                        className={styles.desktopIconButton}
+                        onClick={() => onAdjust?.(variant)}
+                        disabled={busy}
+                        aria-label={`${getVariantName(
+                          variant,
+                        )}の棚卸を行う`}
+                        title="棚卸"
+                      >
+                        {renderAdjustIcon()}
+                      </button>
+                    </td>
+
+                    <td className={styles.iconCell}>
+                      <button
+                        type="button"
+                        className={styles.desktopIconButton}
+                        onClick={() => onHistory?.(variant)}
+                        disabled={busy}
+                        aria-label={`${getVariantName(
+                          variant,
+                        )}の在庫履歴を表示`}
+                        title="在庫履歴"
+                      >
+                        {renderHistoryIcon()}
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
@@ -320,13 +375,16 @@ export default function InventoryVariantList({
         aria-label="在庫バリエーション一覧"
       >
         {variants.map((variant) => {
-          const stockState = getStockState(variant);
           const busy = updatingId === variant.id;
+          const stock = Number(variant.stock ?? 0);
+          const statusState = getStatusState(variant);
+          const actionsOpen = openActionsId === variant.id;
+          const actionsId = `inventory-actions-${variant.id}`;
 
           return (
             <article
               key={variant.id}
-              className={`${styles.mobileCard} ${stockState.rowClass}`}
+              className={`${styles.mobileCard} ${statusState.rowClass}`}
             >
               <div className={styles.mobileTop}>
                 <div className={styles.mobileImageWrap}>
@@ -347,32 +405,110 @@ export default function InventoryVariantList({
                   >
                     {getVariantName(variant)}
                   </h2>
-
-                  <p
-                    className={styles.mobileSku}
-                    title={variant.skuCode || "SKU未設定"}
-                  >
-                    {variant.skuCode || "SKU未設定"}
-                  </p>
-
-                  <div className={styles.mobileStock}>
-                    <span>現在庫</span>
-                    <strong>{variant.stock ?? 0}</strong>
-                  </div>
-
-                  <div className={styles.mobileThreshold}>
-                    <span>しきい値</span>
-                    <strong>
-                      {variant.stockAlertThreshold ?? 0}
-                    </strong>
-                  </div>
                 </div>
               </div>
 
-              {renderStockBadges(variant, true)}
+              <div className={styles.mobileMiddle}>
+                {renderStatus(variant)}
 
-              {renderStockButtons(variant, true)}
-              {renderOtherActions(variant, true)}
+                <p
+                  className={styles.mobileSku}
+                  title={variant.skuCode || "SKU未設定"}
+                >
+                  {variant.skuCode || "SKU未設定"}
+                </p>
+              </div>
+
+              <div className={styles.mobileBottom}>
+                <div className={styles.mobileStockInfo}>
+                  <span className={styles.stockLabel}>在庫</span>
+                  {renderStockBadge(variant, true)}
+                  {renderThreshold(variant)}
+                </div>
+
+                <strong
+                  className={styles.mobileStockNumber}
+                  aria-label={`現在庫 ${stock}`}
+                >
+                  {stock}
+                </strong>
+
+                <button
+                  type="button"
+                  className={styles.mobileMenuButton}
+                  onClick={() =>
+                    setOpenActionsId((currentId) =>
+                      currentId === variant.id
+                        ? null
+                        : variant.id,
+                    )
+                  }
+                  aria-expanded={actionsOpen}
+                  aria-controls={actionsId}
+                  aria-label={
+                    actionsOpen
+                      ? `${getVariantName(variant)}の在庫操作を閉じる`
+                      : `${getVariantName(variant)}の在庫操作を開く`
+                  }
+                >
+                  <span aria-hidden="true">
+                    {actionsOpen ? "×" : "•••"}
+                  </span>
+                </button>
+              </div>
+
+              {actionsOpen && (
+                <div
+                  id={actionsId}
+                  className={styles.mobileActionPanel}
+                >
+                  {/* 1. 在庫を増やす */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={() => onDelta?.(variant.id, 1)}
+                    disabled={busy}
+                    aria-label={`${getVariantName(variant)}の在庫を1増やす`}
+                  >
+                    ＋1
+                  </button>
+
+                  {/* 2. 在庫を減らす */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-danger"
+                    onClick={() => onDelta?.(variant.id, -1)}
+                    disabled={busy || stock <= 0}
+                    aria-label={`${getVariantName(variant)}の在庫を1減らす`}
+                  >
+                    −1
+                  </button>
+
+                  {/* 3. 棚卸 */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => onAdjust?.(variant)}
+                    disabled={busy}
+                    aria-label={`${getVariantName(variant)}の棚卸を行う`}
+                  >
+                    {renderAdjustIcon()}
+                    <span>棚卸</span>
+                  </button>
+
+                  {/* 4. 在庫履歴 */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() => onHistory?.(variant)}
+                    disabled={busy}
+                    aria-label={`${getVariantName(variant)}の在庫履歴を表示`}
+                  >
+                    {renderHistoryIcon()}
+                    <span>在庫履歴</span>
+                  </button>
+                </div>
+              )}
 
               {busy && (
                 <div className={styles.mobileUpdating} role="status">

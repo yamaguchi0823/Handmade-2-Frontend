@@ -1,6 +1,162 @@
 /* src/components/InventoryVariantList.module.css */
 
+/* =========================
+   Shared
+========================= */
+/* =========================
+  Component design tokens
+========================= */
+
+.desktopList,
+.mobileList {
+  /* 状態色 */
+  --inventory-inactive-bg: #f4f4f5;
+  --inventory-low-bg: #ffdf3f;
+  --inventory-low-text: #332700;
+  --inventory-low-border: #806600;
+  --inventory-out-bg: #d4d4d8;
+  --inventory-out-text: #111111;
+  --inventory-out-border: #52525b;
+  --inventory-active-dot: var(--color-primary);
+
+  /* 境界線 */
+  --inventory-header-line: #64a0ff;
+  --inventory-low-line: #9dc1f5;
+
+  /* 共通操作サイズ */
+  --inventory-control-min-height: 3rem;
+}
+
+.imageButton {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: zoom-in;
+}
+
+.imageButton:focus-visible,
+.desktopIconButton:focus-visible,
+.mobileMenuButton:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  padding: 0.3rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.stockAvailable {
+  color: #111111;
+  background: #ffffff;
+  border-color: #111111;
+}
+
+.stockLow {
+  color: var(--inventory-low-text);
+  background: var(--inventory-low-bg);
+  border-color: var(--inventory-low-border);
+}
+
+.stockOut {
+  color: var(--inventory-out-text);
+  background: var(--inventory-out-bg);
+  border-color: var(--inventory-out-border);
+}
+
+.statusLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.statusDot {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 0.75rem;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.statusActive {
+  color: #111111;
+}
+
+.statusActive .statusDot {
+    background: var(--inventory-active-dot);
+  }
+
+.statusInactive {
+  color: #111111;
+}
+
+.statusInactive .statusDot {
+    background: #111111;
+  }
+
+.inactiveRow {
+  background: var(--inventory-inactive-bg);
+}
+
+.threshold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.emptyState {
+  padding: var(--space-8);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+/* =========================
+   Desktop
+========================= */
+
 .desktopList {
+  /* 画像 */
+  --inventory-desktop-image-size: 84px;
+
+  /* 列幅 */
+  --inventory-image-column-width: 108px;
+  /* --inventory-state-column-width: 126px; */
+  --inventory-state-column-width: 100px;
+  --inventory-stock-column-width: 94px;
+  --inventory-change-column-width: 144px;
+  --inventory-icon-column-width: 64px;
+
+  /* アイコンボタン */
+  --inventory-desktop-icon-size: 2.75rem;
+
   display: block;
   overflow: hidden;
   background: var(--color-surface);
@@ -15,7 +171,7 @@
 
 .table {
   width: 100%;
-  min-width: 940px;
+  /* min-width: 1000px; */
   color: var(--color-text);
   background: var(--color-surface);
   border-collapse: collapse;
@@ -23,19 +179,27 @@
 }
 
 .table th {
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text-muted);
+  padding: var(--space-4);
+  color: var(--color-text);
   background: #f4f8ff;
-  border-bottom: 2px solid #7eafff;
+  border-bottom: 2px solid var(--inventory-header-line);
   font-size: 0.8125rem;
   font-weight: 700;
   text-align: left;
   vertical-align: middle;
 }
 
+.table th:first-child {
+  text-align: center;
+}
+
+.table th > span {
+  display: block;
+}
+
 .table td {
   padding: var(--space-4);
-  border-bottom: 1px dashed #a9c5ed;
+  border-bottom: 1px dashed var(--inventory-low-line);
   vertical-align: middle;
 }
 
@@ -43,8 +207,21 @@
   border-bottom: 0;
 }
 
+.table tbody tr {
+  transition: background-color 160ms ease;
+}
+
+.table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.table tbody tr.inactiveRow,
+.table tbody tr.inactiveRow:hover {
+  background: var(--inventory-inactive-bg);
+}
+
 .imageColumn {
-  width: 104px;
+  width: var(--inventory-image-column-width);
 }
 
 .nameColumn {
@@ -52,33 +229,38 @@
 }
 
 .stateColumn {
-  width: 130px;
+  width: var(--inventory-state-column-width);
 }
 
 .stockColumn {
-  width: 110px;
+  width: var(--inventory-stock-column-width);
 }
 
 .changeColumn {
-  width: 170px;
+  width: var(--inventory-change-column-width);
 }
 
-.otherActionColumn {
-  width: 170px;
+.adjustColumn,
+.historyColumn {
+  width: var(--inventory-icon-column-width);
 }
 
 .numberHeading {
   text-align: right !important;
 }
 
+.centerHeading {
+  text-align: center !important;
+}
+
 .desktopImage,
 .desktopPlaceholder {
-  width: 72px;
-  height: 72px;
+  width: var(--inventory-desktop-image-size);
+  height: var(--inventory-desktop-image-size);
   display: block;
   background: var(--color-surface-subtle);
   border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
 }
 
 .desktopImage {
@@ -92,20 +274,6 @@
       var(--color-surface-subtle),
       #dce8f7
     );
-}
-
-.imageButton {
-  display: block;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-md);
-  cursor: zoom-in;
-}
-
-.imageButton:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 3px;
 }
 
 .nameArea {
@@ -124,7 +292,7 @@
 .itemName {
   margin-bottom: var(--space-1);
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
 .variantName {
@@ -134,60 +302,16 @@
 }
 
 .sku {
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
 }
 
-.desktopBadges {
+.desktopStates {
   display: flex;
   align-items: flex-start;
   flex-direction: column;
-  gap: var(--space-1);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.75rem;
-  padding: 0.3rem 0.625rem;
-  border: 1px solid transparent;
-  border-radius: var(--radius-pill);
-  font-size: 0.75rem;
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.stockAvailable {
-  color: #ffffff;
-  background: #16794a;
-  border-color: #16794a;
-}
-
-.stockLow {
-  color: #362900;
-  background: #ffd95a;
-  border-color: #a77b00;
-}
-
-.stockOut {
-  color: #ffffff;
-  background: #667085;
-  border-color: #667085;
-}
-
-.statusActive {
-  color: #111111;
-  background: #ffffff;
-  border-color: #111111;
-}
-
-.statusInactive {
-  color: #ffffff;
-  background: #111111;
-  border-color: #111111;
+  gap: var(--space-3);
 }
 
 .stockCell {
@@ -198,58 +322,60 @@
 .stockCell strong {
   display: block;
   color: var(--color-text);
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: 1.2;
 }
 
 .stockCell span {
   display: block;
-  margin-top: var(--space-1);
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   white-space: nowrap;
 }
 
-.desktopStockActions,
-.desktopOtherActions {
+.desktopStockActions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .stockButton {
   min-width: 0;
-  min-height: 2.75rem;
+  min-height: var(--inventory-control-min-height);
   padding-inline: var(--space-2);
+  font-size: 1rem;
   font-weight: 800;
 }
 
-.desktopOtherActions :global(.btn) {
-  min-width: 0;
-  min-height: 2.75rem;
-  padding-inline: var(--space-2);
+.iconCell {
+  padding-inline: 0.25rem !important;
+  text-align: center;
 }
 
-.updating {
+.desktopIconButton {
+  width: var(--inventory-desktop-icon-size);
+  height: var(--inventory-desktop-icon-size);
   display: inline-flex;
-  margin-top: var(--space-2);
-}
-
-.lowRow {
-  background: #fffbea;
-}
-
-.outRow {
-  background: #f4f4f5;
-}
-
-.emptyState {
-  padding: var(--space-8);
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   color: var(--color-text-muted);
   background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  text-align: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.desktopIconButton:hover:not(:disabled) {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+
+.desktopIconButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* =========================
@@ -257,6 +383,11 @@
 ========================= */
 
 .mobileList {
+  /* 画面幅375px以上 */
+  --inventory-mobile-image-size: 96px;
+  --inventory-mobile-status-width: 96px;
+  --inventory-mobile-menu-size: 3rem;
+
   display: none;
 }
 
@@ -279,25 +410,23 @@
     box-shadow: var(--shadow-sm);
   }
 
-  .mobileCard.lowRow {
-    background: #fffbea;
-  }
-
-  .mobileCard.outRow {
-    background: #f4f4f5;
+  .mobileCard.inactiveRow {
+    background: var(--inventory-inactive-bg);
   }
 
   .mobileTop {
     display: grid;
-    grid-template-columns: 112px minmax(0, 1fr);
+    grid-template-columns:
+      var(--inventory-mobile-image-size)
+      minmax(0, 1fr);
     gap: var(--space-4);
   }
 
   .mobileImageWrap,
   .mobileImage,
   .mobilePlaceholder {
-    width: 112px;
-    height: 112px;
+    width: var(--inventory-mobile-image-size);
+    height: var(--inventory-mobile-image-size);
   }
 
   .mobileImage,
@@ -333,7 +462,7 @@
   }
 
   .mobileItemName {
-    margin: 0 0 var(--space-1);
+    margin: 0 0 var(--space-2);
     color: var(--color-text-muted);
     font-size: 0.75rem;
     white-space: nowrap;
@@ -342,76 +471,141 @@
   .mobileVariantName {
     display: -webkit-box;
     margin: 0;
+    overflow: hidden;
     color: var(--color-text);
     font-size: 1rem;
     font-weight: 800;
     line-height: 1.4;
     overflow-wrap: anywhere;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
+  }
+
+  .mobileMiddle {
+    display: grid;
+    grid-template-columns:
+      var(--inventory-mobile-status-width)
+      minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+  }
+
+  .mobileMiddle .statusLabel {
+    width: var(--inventory-mobile-status-width);
+    min-height: 2rem;
+    justify-content: center;
+    padding: 0.35rem 0.625rem;
+    border: 1px solid #111111;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+  }
+
+  .mobileMiddle .statusDot {
+    display: none;
+  }
+
+  .mobileMiddle .statusActive {
+    color: #111111;
+    background: #ffffff;
+    border-color: #111111;
+  }
+
+  .statusActive .statusDot {
+    background: var(--color-primary);
+  }
+
+  .mobileMiddle .statusActive .statusDot {
+    background: var(--color-primary);
+  }
+
+  .mobileMiddle .statusInactive {
+    color: #ffffff;
+    background: #111111;
+    border-color: #111111;
+  }
+
+  .mobileMiddle .statusInactive .statusDot {
+    background: #ffffff;
   }
 
   .mobileSku {
-    margin: var(--space-1) 0 var(--space-2);
+    margin: 0;
     color: var(--color-text-muted);
     font-size: 0.75rem;
     white-space: nowrap;
   }
 
-  .mobileStock,
-  .mobileThreshold {
+  .mobileBottom {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto
+      var(--inventory-mobile-menu-size);
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .mobileStockInfo {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
     gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .stockLabel {
+    color: var(--color-text);
+    font-size: 0.8125rem;
+    font-weight: 800;
+  }
+
+  .mobileStockNumber {
+    color: var(--color-text);
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
     font-variant-numeric: tabular-nums;
   }
 
-  .mobileStock span,
-  .mobileThreshold span {
-    color: var(--color-text-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
+  .mobileMenuButton {
+    width: var(--inventory-mobile-menu-size);
+    height: var(--inventory-mobile-menu-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: #ffffff;
+    background: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
   }
 
-  .mobileStock strong {
-    font-size: 1.25rem;
+  .mobileMenuButton:hover:not(:disabled) {
+    background: #174bc3;
+    border-color: #174bc3;
   }
 
-  .mobileThreshold {
-    margin-top: var(--space-1);
-  }
-
-  .mobileThreshold strong {
-    font-size: 0.875rem;
-  }
-
-  .mobileBadges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-top: var(--space-4);
-  }
-
-  .mobileStockActions,
-  .mobileOtherActions {
+  .mobileActionPanel {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-3);
-  }
-
-  .mobileStockActions {
     margin-top: var(--space-4);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border-subtle);
   }
 
-  .mobileOtherActions {
-    margin-top: var(--space-3);
-  }
-
-  .mobileStockActions :global(.btn),
-  .mobileOtherActions :global(.btn) {
-    width: 100%;
-    min-height: 3rem;
+  .mobileActionPanel :global(.btn) {
+    min-height: var(--inventory-control-min-height);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
     font-weight: 800;
   }
 
@@ -426,15 +620,44 @@
 }
 
 @media (max-width: 374.98px) {
-  .mobileTop {
-    grid-template-columns: 96px minmax(0, 1fr);
+  .mobileList {
+    --inventory-mobile-image-size: 84px;
+    --inventory-mobile-status-width: 84px;
+    --inventory-mobile-menu-size: 2.75rem;
+
+  }
+  .mobileTop,
+  .mobileMiddle {
     gap: var(--space-3);
   }
 
   .mobileImageWrap,
   .mobileImage,
   .mobilePlaceholder {
-    width: 96px;
-    height: 96px;
+    width: 84px;
+    height: 84px;
+  }
+
+  .mobileBottom {
+    gap: var(--space-3);
+  }
+
+  .mobileActionPanel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Windowsハイコントラストモード */
+@media (forced-colors: active) {
+  .badge,
+  .statusLabel,
+  .threshold,
+  .desktopIconButton,
+  .mobileMenuButton {
+    border: 1px solid CanvasText;
+  }
+
+  .inactiveRow {
+    border: 2px solid CanvasText;
   }
 }
