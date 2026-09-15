@@ -19,7 +19,6 @@ export default function ManagementVariantList({
         shortLabel: "なし",
         fullLabel: "在庫なし",
         badgeClass: styles.stockOut,
-        rowClass: styles.rowOut,
       };
     }
 
@@ -28,7 +27,6 @@ export default function ManagementVariantList({
         shortLabel: "少",
         fullLabel: "在庫少",
         badgeClass: styles.stockLow,
-        rowClass: styles.rowLow,
       };
     }
 
@@ -36,7 +34,6 @@ export default function ManagementVariantList({
       shortLabel: "あり",
       fullLabel: "在庫あり",
       badgeClass: styles.stockAvailable,
-      rowClass: "",
     };
   };
 
@@ -45,12 +42,17 @@ export default function ManagementVariantList({
       return {
         label: "販売中",
         className: styles.statusActive,
+        rowClass:"",
       };
     }
 
     return {
       label: "停止中",
       className: styles.statusInactive,
+      rowClass:
+        variant.status === "INACTIVE"
+          ? styles.rowInactive
+          : "",
     };
   };
 
@@ -232,7 +234,7 @@ export default function ManagementVariantList({
                 return (
                   <tr
                     key={variant.id}
-                    className={stockInfo.rowClass}
+                    className={statusInfo.rowClass}
                   >
                     <td className={styles.imageCell}>
                       {renderImage(variant)}
@@ -312,7 +314,7 @@ export default function ManagementVariantList({
           return (
             <article
               key={variant.id}
-              className={`${styles.mobileRow} ${stockInfo.rowClass}`}
+              className={`${styles.mobileRow} ${statusInfo.rowClass}`}
             >
               <div className={styles.mobileImage}>
                 {renderImage(variant)}

@@ -1,3 +1,19 @@
+/* =========================
+   Shared
+========================= */
+/* =========================
+  Component design tokens
+========================= */
+
+.desktopList,
+.mobileList {
+  --management-inactive-bg: #f4f4f5;
+}
+
+/* =========================
+   Desktop
+========================= */
+
 .desktopList {
   --desktop-image-size: 84px;
 
@@ -129,8 +145,7 @@
 
 .table {
   width: 100%;
-  min-width: 7
-  50px;
+  min-width: 750px;
   color: var(--color-text);
   background: var(--color-surface);
   border-collapse: collapse;
@@ -298,13 +313,10 @@
   opacity: 0.55;
 }
 
-.rowLow {
-  background: #fffbea;
+.rowInactive {
+  background: var(--management-inactive-bg);
 }
 
-.rowOut {
-  background: #f4f4f5;
-}
 
 /* スマホ版 */
 
@@ -318,7 +330,7 @@
 
     display: block;
     background: var(--color-primary-soft);
-    border-radius: var(--radius-md);
+    /* border-radius: var(--radius-md); */
   }
 
   .mobileRow {

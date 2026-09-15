@@ -365,8 +365,6 @@
 }
 
 .item-variants-panel {
-  /* padding-top: 0; */
-  /* background: var(--color-primary-soft); */
   border-top: 1px solid #bfdbfe;
 }
 
@@ -399,9 +397,7 @@
 
 @media (max-width: 767.98px) {
   .item-variants-panel {
-    /* background: var(--color-primary-soft); */
-    /* border-top: 1px solid #bfdbfe; */
-    padding-top: 1rem;
+    /* padding-top: 1rem; */
   }
 }
 
@@ -534,9 +530,5 @@
   .item-page-actions-menu .btn {
     width: 100%;
     text-align: left;
-  }
-
-  .item-search-panel {
-    padding: var(--space-4);
   }
 }

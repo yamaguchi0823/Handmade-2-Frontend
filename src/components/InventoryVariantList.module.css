@@ -60,19 +60,20 @@
 .stockAvailable {
   color: #111111;
   background: #ffffff;
-  border-color: #111111;
+  /* border-color: #111111; */
+  border-color: var(--inventory-out-border);
 }
 
 .stockLow {
   color: var(--inventory-low-text);
   background: var(--inventory-low-bg);
-  border-color: var(--inventory-low-border);
+  /* border-color: var(--inventory-low-border); */
 }
 
 .stockOut {
   color: var(--inventory-out-text);
   background: var(--inventory-out-bg);
-  border-color: var(--inventory-out-border);
+  /* border-color: var(--inventory-out-border); */
 }
 
 .statusLabel {
@@ -144,7 +145,7 @@
 
 .desktopList {
   /* 画像 */
-  --inventory-desktop-image-size: 84px;
+  --inventory-desktop-image-size: 74px;
 
   /* 列幅 */
   --inventory-image-column-width: 108px;
@@ -384,9 +385,9 @@
 
 .mobileList {
   /* 画面幅375px以上 */
-  --inventory-mobile-image-size: 96px;
-  --inventory-mobile-status-width: 96px;
-  --inventory-mobile-menu-size: 3rem;
+  --inventory-mobile-image-size: 76px;
+  --inventory-mobile-status-width: 76px;
+  --inventory-mobile-menu-size: 2.75rem;
 
   display: none;
 }

@@ -281,19 +281,20 @@ const resetSearchConditions = () => {
       <div className="item-page-actions-desktop">
         <button
           type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => setInactiveItemsOpen(true)}
+        >
+          無効化済み作品
+        </button>
+
+        <button
+          type="button"
           className="btn btn-primary"
           onClick={() => setItemCreateOpen(true)}
         >
           ＋ 作品を登録
         </button>
 
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => setInactiveItemsOpen(true)}
-        >
-          無効化済み作品
-        </button>
 
         <button
           type="button"
@@ -395,82 +396,97 @@ const resetSearchConditions = () => {
       <section aria-label="作品一覧">
 
         <section
-          className="item-search-panel mb-4"
-          aria-labelledby="item-search-title"
-        >
-            <h2 id="item-search-title" className="visually-hidden">
-                作品を検索・絞り込み
-            </h2>
+  className="app-search-panel"
+  aria-labelledby="item-search-title"
+>
+  <h2
+    id="item-search-title"
+    className="visually-hidden"
+  >
+    作品を検索・絞り込み
+  </h2>
 
-            <div className="row g-2 align-items-md-end">
-                <div className="col-12 col-lg">
-                    <label
+  <div className="app-search-fields app-search-fields--items">
+    <div className="app-search-field">
+      <label
+        htmlFor="item-search"
+        className="form-label fw-semibold"
+      >
+        作品を検索
+      </label>
 
-                        htmlFor="item-search"
-                        className="form-label fw-semibold"
-                    >
-                        作品を検索
-                    </label>
+      <input
+        id="item-search"
+        type="search"
+        className="form-control"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="作品名・説明・バリエーション名・SKU"
+      />
+    </div>
 
-                    <input
-                        id="item-search"
-                        type="search"
-                        className="form-control"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="作品名・説明・バリエーション名・SKU"
-                        />
-                </div>
+    <div className="app-search-field">
+      <label
+        htmlFor="item-filter"
+        className="form-label fw-semibold"
+      >
+        作品・バリエーションの状態
+      </label>
 
-                <div className="cil-12 col-md-6 col-lg-3">
-                    <label
-                        htmlFor="item-filter"
-                        className="form-label fw-semibold"
-                    >
-                        作品の状態
-                    </label>
+      <select
+        id="item-filter"
+        className="form-select"
+        value={itemFilter}
+        onChange={(e) => setItemFilter(e.target.value)}
+      >
+        <option value="ALL">すべて</option>
 
-                    <select
-                        id="item-filter"
-                        className="form-select"
-                        value={itemFilter}
-                        onChange={(e) => setItemFilter(e.target.value)}
-                        >
-                        <option value="ALL">すべて</option>
-                        <option value="HAS_VARIANTS">バリエーション登録ありの作品</option>
-                        <option value="NO_VARIANTS">バリエーション登録なしの作品</option>
-                        <option value="HAS_ACTIVE_VARIANTS">
-                          販売中のバリエーション</option>
-                        <option value="HAS_LOW_STOCK">在庫：少 のバリエーション</option>
-                        <option value="HAS_OUT_OF_STOCK">在庫：なし のバリエーション</option>
-                    </select>
-                </div>
+        <option value="HAS_VARIANTS">
+          バリエーション登録ありの作品
+        </option>
 
-                {hasSearchConditions && (
-                    <div className="col-12 col-md-auto">
-                        <button
-                            type="button"
-                            className="btn btn-secondary mt-1
-                            "
-                            onClick={resetSearchConditions}
-                        >
-                            条件をリセット
-                        </button>
-                    </div>
-                )}
-            </div>
+        <option value="NO_VARIANTS">
+          バリエーション登録なしの作品
+        </option>
 
-            <p
-                className="form-text mb-0 mt-2"
-                aria-live="polite"
-                aria-atomic="true"
-            >
-                {searchQuery.trim()
-                    ? `${filteredItems.length}種の作品が見つかりました`
-                    : `${filteredItems.length}種の作品を表示しています`
-                }
-            </p>
-        </section>
+        <option value="HAS_ACTIVE_VARIANTS">
+          販売中のバリエーション
+        </option>
+
+        <option value="HAS_LOW_STOCK">
+          在庫：少 のバリエーション
+        </option>
+
+        <option value="HAS_OUT_OF_STOCK">
+          在庫：なし のバリエーション
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div className="app-search-footer">
+    <p
+      className="app-search-result"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {searchQuery.trim() || itemFilter !== "ALL"
+        ? `${filteredItems.length}種の作品が見つかりました`
+        : `${filteredItems.length}種の作品を表示しています`}
+    </p>
+
+    {hasSearchConditions && (
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={resetSearchConditions}
+      >
+        条件をクリア
+      </button>
+    )}
+  </div>
+</section>
 
 
         {itemError && (
@@ -641,7 +657,7 @@ const resetSearchConditions = () => {
                   {expanded && (
                       <div
                         id={panelId}
-                        className="card-body item-variants-panel"
+                        className="item-variants-panel"
                       >
                       {itemVariants.length > 0 ? (
                           <ManagementVariantList

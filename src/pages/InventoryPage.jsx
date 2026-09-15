@@ -1,4 +1,3 @@
-import styles from "./InventoryPage.module.css"
 import { useEffect, useRef, useState } from "react";
 import api from "../api";
 
@@ -159,12 +158,12 @@ export default function InventoryPage() {
       )}
 
       <section
-        className={styles.searchPanel}
+        className="app-search-panel"
         aria-labelledby="inventory-search-title"
         aria-busy={searching}
       >
-        <div className={styles.searchFields}>
-          <div className={styles.keywordFields}>
+        <div className="app-search-fields app-search-fields--inventory">
+          <div className="app-search-field">
             <label
               id="inventory-search-title"
               htmlFor="inventory-keyword"
@@ -183,7 +182,7 @@ export default function InventoryPage() {
              />
           </div>
 
-          <div>
+          <div className="app-search-field">
             <label
               htmlFor="inventory-stock-mode"
               className="form-label"
@@ -204,7 +203,7 @@ export default function InventoryPage() {
             </select>
           </div>
 
-          <div>
+          <div className="app-search-field">
             <label
               htmlFor="inventory-status"
               className="form-label"
@@ -225,14 +224,16 @@ export default function InventoryPage() {
           </div>
         </div>
 
-        <div className={styles.searchFooter}>
+        <div className="app-search-footer">
           <p
-            className={styles.resultCount}
+            className="app-search-result"
             role="status"
             aria-live="polite"
           >
-            検索しています
-            {variants.length}件のバリエーションを表示しています
+            {searching
+              ? `検索しています`
+              : `${variants.length}件のバリエーションを表示しています`
+              }
           </p>
 
           <button
