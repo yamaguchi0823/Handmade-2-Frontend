@@ -22,7 +22,7 @@ export default function InventoryVariantList({
       return {
         label: "在庫なし",
         shortLabel: "なし",
-        className: styles.stockOut,
+        type: "out"
       };
     }
 
@@ -30,14 +30,14 @@ export default function InventoryVariantList({
       return {
         label: "在庫少",
         shortLabel: "少",
-        className: styles.stockLow,
+        type: "low"
       };
     }
 
     return {
       label: "在庫あり",
       shortLabel: "あり",
-      className: styles.stockAvailable,
+      type: "available"
     };
   };
 
@@ -45,15 +45,18 @@ export default function InventoryVariantList({
     if (variant.status === "ACTIVE") {
       return {
         label: "販売中",
-        className: styles.statusActive,
+        type: "active",
         rowClass: "",
       };
     }
 
     return {
       label: "停止中",
-      className: styles.statusInactive,
-      rowClass: styles.inactiveRow,
+      type: "inactive",
+      rowClass:
+        variant.status === "INACTIVE"
+          ? styles.inactiveRow
+          : "",
     };
   };
 
@@ -100,29 +103,38 @@ export default function InventoryVariantList({
 
     return (
       <span
-        className={`${styles.badge} ${stockState.className}`}
+        className={`app-stock-status app-stock-status--${stockState.type}`}
       >
         {short ? stockState.shortLabel : stockState.label}
       </span>
     );
   };
 
-  const renderStatus = (variant) => {
+  const renderStatus = (
+    variant,
+    presentation = "inline",
+  ) => {
     const statusState = getStatusState(variant);
 
     return (
       <span
-        className={`${styles.statusLabel} ${statusState.className}`}
+        className={`app-sales-status app-sales-status--${presentation} app-sales-status--${statusState.type}`}
       >
-        <span className={styles.statusDot} aria-hidden="true" />
+        {presentation === "inline" && (
+          <span
+            className="app-sales-status__dot"
+            aria-hidden="true"
+            />
+        )}
+
         {statusState.label}
-      </span>
+        </span>
     );
   };
 
   const renderThreshold = (variant) => (
     <span
-      className={styles.threshold}
+      className="app-threshold-indicator"
       aria-label={`在庫しきい値 ${
         variant.stockAlertThreshold ?? 0
       }`}
@@ -409,7 +421,7 @@ export default function InventoryVariantList({
               </div>
 
               <div className={styles.mobileMiddle}>
-                {renderStatus(variant)}
+                {renderStatus(variant,"badge")}
 
                 <p
                   className={styles.mobileSku}

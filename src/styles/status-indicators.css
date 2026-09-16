@@ -1,0 +1,158 @@
+/* src/styles/status-indicators.css */
+
+/* =========================
+   Shared status indicators
+========================= */
+
+:root {
+  --status-text: #111111;
+
+  --stock-available-bg: #ffffff;
+  --stock-available-border: #111111;
+
+  --stock-low-bg: #ffdf3f;
+  --stock-low-border: #806600;
+  --stock-low-text: #332700;
+
+  --stock-out-bg: #d4d4d8;
+  --stock-out-border: #52525b;
+  --stock-out-text: #111111;
+
+  --sales-active-dot: var(--color-primary);
+  --sales-active-bg: #ffffff;
+  --sales-inactive-bg: #111111;
+}
+
+/* =========================
+   Stock status
+========================= */
+
+.app-stock-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  padding: 0.3rem 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-stock-status--available {
+  color: var(--status-text);
+  background: var(--stock-available-bg);
+  border-color: var(--stock-available-border);
+}
+
+.app-stock-status--low {
+  color: var(--stock-low-text);
+  background: var(--stock-low-bg);
+  border-color: var(--stock-low-border);
+}
+
+.app-stock-status--out {
+  color: var(--stock-out-text);
+  background: var(--stock-out-bg);
+  border-color: var(--stock-out-border);
+}
+
+/* =========================
+   Sales status
+========================= */
+
+.app-sales-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 1.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* 作品管理などで使うピル型 */
+.app-sales-status--badge {
+  min-width: 4.5rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--status-text);
+  border-radius: var(--radius-pill);
+}
+
+.app-sales-status--badge.app-sales-status--active {
+  color: var(--status-text);
+  background: var(--sales-active-bg);
+}
+
+.app-sales-status--badge.app-sales-status--inactive {
+  color: #ffffff;
+  background: var(--sales-inactive-bg);
+  border-color: var(--sales-inactive-bg);
+}
+
+/* 在庫一覧PC版で使うドット型 */
+.app-sales-status--inline {
+  color: var(--status-text);
+}
+
+.app-sales-status__dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: 0 0 0.75rem;
+  background: currentColor;
+  border-radius: 50%;
+}
+
+.app-sales-status--inline.app-sales-status--active
+  .app-sales-status__dot {
+  background: var(--sales-active-dot);
+}
+
+.app-sales-status--inline.app-sales-status--inactive
+  .app-sales-status__dot {
+  background: var(--sales-inactive-bg);
+}
+
+/* =========================
+   Stock threshold
+========================= */
+
+.app-threshold-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.5rem;
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================
+   Forced colors
+========================= */
+
+@media (forced-colors: active) {
+  .app-stock-status,
+  .app-sales-status--badge,
+  .app-threshold-indicator {
+    color: CanvasText;
+    background: Canvas;
+    border: 1px solid CanvasText;
+  }
+
+  .app-sales-status__dot {
+    background: CanvasText;
+  }
+}

@@ -65,78 +65,6 @@
   outline-offset: 3px;
 }
 
-/* 共通バッジ */
-
-.stockBadge,
-.statusBadge,
-.thresholdBadge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-
-.stockBadge {
-  min-width: 4.5rem;
-  padding: 0.32rem 0.55rem;
-  border: 1px solid #111111;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.stockAvailable {
-  color: #111111;
-  background: #ffffff;
-}
-
-.stockLow {
-  color: #111111;
-  background: #ffe640;
-  border-color: #9a7200;
-}
-
-.stockOut {
-  color: #111111;
-  background: #e5e7eb;
-  border-color: #667085;
-}
-
-.thresholdBadge {
-  min-width: 4.5rem;
-  padding: 0.3rem 0.5rem;
-  color: var(--color-text);
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px dashed var(--color-border-subtle);
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.statusBadge {
-  min-width: 4.5rem;
-  min-height: 1.75rem;
-  padding: 0.3rem 0.65rem;
-  border: 1px solid #111111;
-  border-radius: var(--radius-pill);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.statusActive {
-  color: #111111;
-  background: #ffffff;
-}
-
-.statusInactive {
-  color: #ffffff;
-  background: #111111;
-}
-
 /* PC版 */
 
 .tableScroll {
@@ -160,10 +88,6 @@
   font-weight: 700;
   text-align: center;
   vertical-align: middle;
-}
-
-.table th:first-child {
-  text-align: center;
 }
 
 .headerStack {
@@ -250,12 +174,12 @@
   text-align: center;
 }
 
-.stockInfoCell .stockBadge,
-.stockInfoCell .thresholdBadge {
+.stockInfoCell :global(.app-stock-status),
+.stockInfoCell :global(.app-threshold-indicator) {
   margin-inline: auto;
 }
 
-.stockInfoCell .thresholdBadge {
+.stockInfoCell :global(.app-threshold-indicator) {
   margin-top: var(--space-2);
 }
 
@@ -275,11 +199,6 @@
 .editCell {
   text-align: center;
 }
-
-/* .table th:nth-child(3),
-.table th:nth-child(5) {
-  text-align: right;
-} */
 
 .desktopEditButton {
   width: 44px;
@@ -330,7 +249,6 @@
 
     display: block;
     background: var(--color-primary-soft);
-    /* border-radius: var(--radius-md); */
   }
 
   .mobileRow {
@@ -409,12 +327,12 @@
     font-weight: 700;
   }
 
-  .mobileStock .stockBadge {
+  .mobileStock :global(.app-stock-status) {
     min-width: 0;
     padding-inline: 0.45rem;
   }
 
-  .mobileStock .thresholdBadge {
+  .mobileStock :global(.app-threshold-indicator) {
     min-width: 0;
     padding-inline: 0.4rem;
   }
@@ -480,8 +398,8 @@
     gap: var(--space-1);
   }
 
-  .stockBadge,
-  .thresholdBadge {
+  .mobileStock :global(.app-stock-status),
+  .mobileStock :global(.app-threshold-indicator) {
     font-size: 0.6875rem;
   }
 

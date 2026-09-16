@@ -18,7 +18,7 @@ export default function ManagementVariantList({
       return {
         shortLabel: "なし",
         fullLabel: "在庫なし",
-        badgeClass: styles.stockOut,
+        type: "out",
       };
     }
 
@@ -26,14 +26,14 @@ export default function ManagementVariantList({
       return {
         shortLabel: "少",
         fullLabel: "在庫少",
-        badgeClass: styles.stockLow,
+        type: "low",
       };
     }
 
     return {
       shortLabel: "あり",
       fullLabel: "在庫あり",
-      badgeClass: styles.stockAvailable,
+      type: "available",
     };
   };
 
@@ -41,14 +41,14 @@ export default function ManagementVariantList({
     if (variant.status === "ACTIVE") {
       return {
         label: "販売中",
-        className: styles.statusActive,
+        type: "active",
         rowClass:"",
       };
     }
 
     return {
       label: "停止中",
-      className: styles.statusInactive,
+      type: "inactive",
       rowClass:
         variant.status === "INACTIVE"
           ? styles.rowInactive
@@ -92,7 +92,7 @@ export default function ManagementVariantList({
 
   const renderThreshold = (variant) => (
     <span
-      className={styles.thresholdBadge}
+      className="app-threshold-indicator"
       title={`在庫しきい値：${
         variant.stockAlertThreshold ?? 0
       }`}
@@ -264,9 +264,10 @@ export default function ManagementVariantList({
 
                     <td className={styles.stockInfoCell}>
                       <span
-                        className={`${styles.stockBadge} ${stockInfo.badgeClass}`}
+                        className={`app-stock-status app-stock-status--${stockInfo.type}`}
+                        aria-label={stockInfo.fullLabel}
                       >
-                        <span className="">
+                        <span aria-hidden="true">
                           在庫
                         </span>
                         {stockInfo.shortLabel}
@@ -281,7 +282,7 @@ export default function ManagementVariantList({
 
                     <td>
                       <span
-                        className={`${styles.statusBadge} ${statusInfo.className}`}
+                        className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
                       >
                         {statusInfo.label}
                       </span>
@@ -345,7 +346,8 @@ export default function ManagementVariantList({
                   </span>
 
                   <span
-                    className={`${styles.stockBadge} ${stockInfo.badgeClass}`}
+                    className={`app-stock-status app-stock-status--${stockInfo.type}`}
+                    aria-label={stockInfo.fullLabel}
                   >
                     <span className="visually-hidden">
                       在庫
@@ -373,7 +375,7 @@ export default function ManagementVariantList({
 
               <div className={styles.mobileStatus}>
                 <span
-                  className={`${styles.statusBadge} ${statusInfo.className}`}
+                  className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
                 >
                   {statusInfo.label}
                 </span>
