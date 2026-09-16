@@ -46,7 +46,7 @@ export default function ItemsPage() {
   const mobileActionsRef = useRef(null);
 
   const closeMobileActions = () => {
-    mobileActionsRef.current?.removeAttribute("opne");
+    mobileActionsRef.current?.removeAttribute("open");
   };
 
   const showToast = (message) => {
@@ -298,7 +298,7 @@ const resetSearchConditions = () => {
 
         <button
           type="button"
-          className="btn btn-primary item-reload-button"
+          className="app-icon-button app-icon-button--solid-primary"
           onClick={reloadAll}
           disabled={itemsLoading || variantsLoading}
           aria-label="作品とバリエーションを再読み込み"
@@ -575,15 +575,15 @@ const resetSearchConditions = () => {
 
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-secondary item-edit-button"
+                        className="app-icon-button app-icon-button--secondary"
                         onClick={() => {
                           setEditingItem(item);
                           setItemEditOpen(true);
                         }}
                         aria-label={`${item.name}の作品情報を編集`}
+                        title="作品情報を編集"
                       >
                         <svg
-                          className="item-edit-icon"
                           viewBox="0 0 24 24"
                           width="18"
                           height="18"

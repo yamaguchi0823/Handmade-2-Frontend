@@ -160,33 +160,11 @@
   text-align: center;
 }
 
-.desktopEditButton {
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  color: var(--color-primary);
-  background: var(--color-surface);
-  border: 2px solid #5792f5;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.desktopEditButton:hover:not(:disabled) {
-  color: #ffffff;
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.desktopEditButton:focus-visible,
 .mobileEditButton:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
 }
 
-.desktopEditButton:disabled,
 .mobileEditButton:disabled {
   cursor: not-allowed;
   opacity: 0.55;

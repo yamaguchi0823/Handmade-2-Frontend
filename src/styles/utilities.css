@@ -1,3 +1,5 @@
+/* src/styles/utilities.css */
+
 /* =======================
   Application layout
 ========================= */
@@ -299,18 +301,6 @@
   -webkit-line-clamp: 2;
 }
 
-.item-edit-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  flex: 0 0 auto;
-}
-
-.item-edit-icon {
-  flex: 0 0 auto;
-}
-
 .item-card-description {
   display: -webkit-box;
   margin: var(--space-1) 0 0;
@@ -377,10 +367,6 @@
     font-size: 1rem;
   }
 
-  .item-edit-button {
-    padding-inline: var(--space-3);
-  }
-
   .item-card-actions {
     align-items: stretch;
   }
@@ -431,14 +417,6 @@
 
 .item-page-actions-mobile {
   display: none;
-}
-
-.item-reload-button {
-  width: 2.75rem;
-  min-width: 2.75rem;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
 }
 
 /* =========================

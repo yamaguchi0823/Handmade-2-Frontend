@@ -339,7 +339,7 @@ export default function InventoryVariantList({
                     <td className={styles.iconCell}>
                       <button
                         type="button"
-                        className={styles.desktopIconButton}
+                        className="app-icon-button app-icon-button--secondary"
                         onClick={() => onAdjust?.(variant)}
                         disabled={busy}
                         aria-label={`${getVariantName(
@@ -354,7 +354,7 @@ export default function InventoryVariantList({
                     <td className={styles.iconCell}>
                       <button
                         type="button"
-                        className={styles.desktopIconButton}
+                        className="app-icon-button app-icon-button--secondary"
                         onClick={() => onHistory?.(variant)}
                         disabled={busy}
                         aria-label={`${getVariantName(

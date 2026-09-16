@@ -132,7 +132,7 @@ export default function ManagementVariantList({
         className={
           mobile
             ? styles.mobileEditButton
-            : styles.desktopEditButton
+            : "app-icon-button app-icon-button--primary"
         }
         onClick={() => onEdit?.(variant)}
         disabled={busy}
