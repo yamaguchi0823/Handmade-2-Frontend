@@ -21,16 +21,6 @@
   --inventory-control-min-height: 3rem;
 }
 
-.imageButton {
-  display: block;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-md);
-  cursor: zoom-in;
-}
-
-.imageButton:focus-visible,
 .desktopIconButton:focus-visible,
 .mobileMenuButton:focus-visible {
   outline: 3px solid var(--color-focus);
@@ -165,27 +155,11 @@
   text-align: center !important;
 }
 
-.desktopImage,
-.desktopPlaceholder {
+.table td:first-child :global(.app-variant-image-button),
+.table td:first-child :global(.app-variant-image),
+.table td:first-child :global(.app-variant-image-placeholder){
   width: var(--inventory-desktop-image-size);
   height: var(--inventory-desktop-image-size);
-  display: block;
-  background: var(--color-surface-subtle);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.desktopImage {
-  object-fit: cover;
-}
-
-.desktopPlaceholder {
-  background:
-    linear-gradient(
-      135deg,
-      var(--color-surface-subtle),
-      #dce8f7
-    );
 }
 
 .nameArea {
@@ -334,32 +308,16 @@
     gap: var(--space-4);
   }
 
-  .mobileImageWrap,
-  .mobileImage,
-  .mobilePlaceholder {
-    width: var(--inventory-mobile-image-size);
-    height: var(--inventory-mobile-image-size);
+  .mobileImageWrap {
+    width: var(--inventory-desktop-image-size);
+    height: var(--inventory-desktop-image-size);
   }
 
-  .mobileImage,
-  .mobilePlaceholder {
-    display: block;
-    background: var(--color-surface-subtle);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-lg);
-  }
-
-  .mobileImage {
-    object-fit: cover;
-  }
-
-  .mobilePlaceholder {
-    background:
-      linear-gradient(
-        135deg,
-        var(--color-surface-subtle),
-        #dce8f7
-      );
+  .mobileImageWrap :global(.app-variant-image-button),
+  .mobileImageWrap :global(.app-variant-image),
+  .mobileImageWrap :global(.app-variant-image-size) {
+    width: 100%;
+    height: 100%;
   }
 
   .mobileSummary {
@@ -508,13 +466,6 @@
   .mobileTop,
   .mobileMiddle {
     gap: var(--space-3);
-  }
-
-  .mobileImageWrap,
-  .mobileImage,
-  .mobilePlaceholder {
-    width: var(--inventory-mobile-image-size);
-    height: var(--inventory-mobile-image-size);
   }
 
   .mobileBottom {

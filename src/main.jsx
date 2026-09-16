@@ -6,6 +6,7 @@ import "./index.css";
 import "./styles/utilities.css";
 import "./styles/search-panels.css";
 import "./styles/status-indicators.css";
+import "./styles/variant-images.css";
 import "./styles/modals.css";
 import App from "./App.jsx";
 

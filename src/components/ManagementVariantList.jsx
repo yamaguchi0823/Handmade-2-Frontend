@@ -65,7 +65,7 @@ export default function ManagementVariantList({
     if (!variant.imageUrl) {
       return (
         <div
-          className={styles.imagePlaceholder}
+          className="app-variant-image-placeholder"
           role="img"
           aria-label="画像は登録されていません"
         />
@@ -75,7 +75,7 @@ export default function ManagementVariantList({
     return (
       <button
         type="button"
-        className={styles.imageButton}
+        className="app-variant-image-button"
         onClick={() => onPreviewImage?.(variant)}
         aria-label={`${
           variant.variantName ?? "バリエーション"
@@ -84,7 +84,7 @@ export default function ManagementVariantList({
         <img
           src={variant.imageUrl}
           alt=""
-          className={styles.image}
+          className="app-variant-image"
         />
       </button>
     );

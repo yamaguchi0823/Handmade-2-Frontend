@@ -63,19 +63,11 @@ export default function InventoryVariantList({
   const getVariantName = (variant) =>
     variant.variantName ?? "名称未設定";
 
-  const renderImage = (variant, mobile = false) => {
-    const imageClass = mobile
-      ? styles.mobileImage
-      : styles.desktopImage;
-
-    const placeholderClass = mobile
-      ? styles.mobilePlaceholder
-      : styles.desktopPlaceholder;
-
+  const renderImage = (variant) => {
     if (!variant.imageUrl) {
       return (
         <div
-          className={placeholderClass}
+          className="app-variant-image-placeholder"
           role="img"
           aria-label="画像は登録されていません"
         />
@@ -85,14 +77,14 @@ export default function InventoryVariantList({
     return (
       <button
         type="button"
-        className={styles.imageButton}
+        className="app-variant-image-button"
         onClick={() => onPreviewImage?.(variant)}
         aria-label={`${getVariantName(variant)}の画像を拡大`}
       >
         <img
           src={variant.imageUrl}
           alt=""
-          className={imageClass}
+          className="app-variant-image"
         />
       </button>
     );
@@ -400,7 +392,7 @@ export default function InventoryVariantList({
             >
               <div className={styles.mobileTop}>
                 <div className={styles.mobileImageWrap}>
-                  {renderImage(variant, true)}
+                  {renderImage(variant)}
                 </div>
 
                 <div className={styles.mobileSummary}>

@@ -24,47 +24,6 @@
   display: none;
 }
 
-/* 共通画像 */
-
-.imageButton {
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-lg);
-  cursor: zoom-in;
-}
-
-.image,
-.imagePlaceholder {
-  width: 100%;
-  height: 100%;
-  display: block;
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-}
-
-.image {
-  object-fit: cover;
-  background: var(--color-surface);
-}
-
-.imagePlaceholder {
-  background:
-    linear-gradient(
-      135deg,
-      var(--color-surface-subtle),
-      #dce8f7
-    );
-}
-
-.imageButton:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 3px;
-}
-
 /* PC版 */
 
 .tableScroll {
@@ -134,8 +93,9 @@
   text-align: center;
 }
 
-.imageCell .imageButton,
-.imageCell .imagePlaceholder {
+.imageCell :global(.app-variant-image-button),
+.imageCell :global(.app-variant-image),
+.imageCell :global(.app-variant-image-placeholder) {
   width: var(--desktop-image-size);
   height: var(--desktop-image-size);
 }
@@ -272,6 +232,13 @@
     grid-area: image;
     width: var(--mobile-image-size);
     height: var(--mobile-image-size);
+  }
+
+  .mobileImage :global(.app-variant-image-button),
+  .mobileImage :global(.app-variant-image),
+  .mobileImage :global(.app-variant-image-placeholder) {
+    width: 100%;
+    height: 100%;
   }
 
   .mobileSummary {
