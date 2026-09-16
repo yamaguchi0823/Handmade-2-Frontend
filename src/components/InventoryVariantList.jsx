@@ -197,16 +197,27 @@ export default function InventoryVariantList({
 
   if (!isArray) {
     return (
-      <div className={styles.emptyState} role="alert">
-        データ形式が不正です
+      <div className="app-empty-state app-empty-state--surface" role="alert">
+        <p className="app-empty-state__title">
+          データを表示できません
+        </p>
+        <p className="app-empty-state__description">
+          データ形式が正しくありません。
+        </p>
       </div>
     );
   }
 
   if (variants.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        条件に該当するバリエーションがありません
+      <div className="app-empty-state app-empty-state--surface">
+        <p className="app-empty-state__title">
+          条件に該当するバリエーションがありません
+        </p>
+
+        <p className="app-empty-state__description">
+          検索条件を変更してお試しください。
+        </p>
       </div>
     );
   }

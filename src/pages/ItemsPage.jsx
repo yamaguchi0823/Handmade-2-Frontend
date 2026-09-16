@@ -680,8 +680,17 @@ const resetSearchConditions = () => {
                             }}
                           />
                         ) : (
-                            <div className="text-center text-muted py-4">
-                          この作品にはバリエーションがありません
+                            <div
+                              className="app-empty-state app-empty-state--embedded"
+                              role="status"
+                              >
+                                <p className="app-empty-state__title">
+                                  この作品にはバリエーションがありません
+                                </p>
+
+                                <p className="app-empty-state__description">
+                                  「追加」から最初のバリエーションを登録できます。
+                                </p>
                         </div>
                       )}
                     </div>
@@ -691,14 +700,19 @@ const resetSearchConditions = () => {
             })}
 
             {items.length > 0 && filteredItems.length === 0 && (
-             <div className="card">
-                 <div className="card-body text-center py-5">
-                     <h3 className="h6">該当する作品がありません</h3>
+             <div
+              className="app-empty-state app-empty-state--surface"
+              role="status"
+              >
+                <h3 className="app-empty-state__title">
+                  該当する作品がありません
+                </h3>
 
-                     {/* <p className="text-muted mb-3">
-                        キーワードを変えて、もう一度お試しください。
-                     </p> */}
+                <p className="app-empty-state__description">
+                  キーワードや絞り込み条件を変更してお試しください。
+                </p>
 
+                <div className="app-empty-state__action">
                      <button
                         type="button"
                         className="btn btn-outline-secondary"
@@ -711,15 +725,19 @@ const resetSearchConditions = () => {
            )}
 
             {items.length === 0 && !itemsLoading && (
-              <div className="card">
-                <div className="card-body text-center py-5">
-                  <h3 className="h6">
-                    登録されている作品がありません
-                  </h3>
+              <div
+                className="app-empty-state app-empty-state--surface"
+                role="status"
+              >
+                <h3 className="app-empty-state__title">
+                  登録されている作品がありません
+                </h3>
 
-                  <p className="text-muted mb-3">
-                    最初に作品を登録してください。
-                  </p>
+                <p className="app-empty-state__description">
+                  最初の作品を登録すると、バリエーションや在庫を管理できます。
+                </p>
+
+                <div className="app-empty-state__action">
 
                   <button
                     type="button"

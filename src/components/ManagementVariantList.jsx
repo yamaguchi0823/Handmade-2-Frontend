@@ -175,16 +175,30 @@ export default function ManagementVariantList({
 
   if (!isArray) {
     return (
-      <div className="text-center text-muted py-4">
-        データ形式が不正です
+      <div
+        className="app-empty-state app-empty-state--embedded"
+        role="alert">
+          <p className="app-empty-state__title">
+            データを表示できません
+          </p>
+          <p className="app-empty-state__description">
+            バリエーションのデータ形式が正しくありません。
+          </p>
       </div>
     );
   }
 
   if (variants.length === 0) {
     return (
-      <div className="text-center text-muted py-4">
-        この作品にはバリエーションがありません
+      <div
+        className="app-empty-state app-empty-state--embedded"
+        role="status">
+          <p className="app-empty-state__title">
+            バリエーションがありません
+          </p>
+          <p>
+            この作品にはバリエーションが登録されていません。
+          </p>
       </div>
     );
   }

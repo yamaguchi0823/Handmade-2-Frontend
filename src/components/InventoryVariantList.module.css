@@ -30,15 +30,6 @@
   background: var(--inventory-inactive-bg);
 }
 
-.emptyState {
-  padding: var(--space-8);
-  color: var(--color-text-muted);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  text-align: center;
-}
-
 /* =========================
    Desktop
 ========================= */
