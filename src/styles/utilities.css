@@ -355,7 +355,7 @@
 }
 
 .item-variants-panel {
-  border-top: 1px solid #bfdbfe;
+  border-top: 1px solid var(--color-section-divider);
 }
 
 @media (max-width: 575.98px) {
@@ -378,12 +378,6 @@
 
   .item-variant-add {
     flex: 0 0 auto;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .item-variants-panel {
-    /* padding-top: 1rem; */
   }
 }
 
@@ -419,17 +413,6 @@
   display: none;
 }
 
-/* =========================
-   Item search panel
-========================= */
-
-.item-search-panel {
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
 
 /* =========================
    Item title

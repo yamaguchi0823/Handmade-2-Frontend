@@ -1,14 +1,10 @@
+/* src/components/ManagementVariantList.module.css */
 /* =========================
    Shared
 ========================= */
 /* =========================
   Component design tokens
 ========================= */
-
-.desktopList,
-.mobileList {
-  --management-inactive-bg: #f4f4f5;
-}
 
 /* =========================
    Desktop
@@ -41,8 +37,8 @@
 
 .table th {
   padding: var(--space-3);
-  background: #f4f8ff;
-  border-bottom: 2px solid #7eafff;
+  background: var(--color-table-header-bg);
+  border-bottom: 2px solid var(--color-table-header-line);
   font-size: 0.8125rem;
   font-weight: 700;
   text-align: center;
@@ -59,7 +55,7 @@
 .table td {
   height: 124px;
   padding: var(--space-4);
-  border-bottom: 1px dashed #93b4e8;
+  border-bottom: 1px dashed var(--color-row-divider);
   vertical-align: middle;
 }
 
@@ -171,7 +167,7 @@
 }
 
 .rowInactive {
-  background: var(--management-inactive-bg);
+  background: var(--color-inactive-bg);
 }
 
 

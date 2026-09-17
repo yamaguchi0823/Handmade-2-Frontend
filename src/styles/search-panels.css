@@ -1,3 +1,4 @@
+/* src/styles/search-panels.css */
 /*=============================
     Shared search panels
 ==============================*/
@@ -9,9 +10,6 @@
     border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
-
-
-
 }
 
 .app-search-fields {
@@ -64,7 +62,7 @@
         gap: var(--space-3);
     }
 
-    .appsearch-footer {
+    .app-search-footer {
         align-items: stretch;
         flex-direction: column;
     }

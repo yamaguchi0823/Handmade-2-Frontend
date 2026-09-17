@@ -9,15 +9,6 @@
 
 .desktopList,
 .mobileList {
-  /* 停止中の背景 */
-  --inventory-inactive-bg: #f4f4f5;
-  --inventory-active-dot: var(--color-primary);
-
-  /* 境界線 */
-  --inventory-header-line: #64a0ff;
-  --inventory-row-line: #9dc1f5;
-
-  /* 共通操作サイズ */
   --inventory-control-min-height: 3rem;
 }
 
@@ -27,7 +18,7 @@
 }
 
 .inactiveRow {
-  background: var(--inventory-inactive-bg);
+  background: var(--color-inactive-bg);
 }
 
 /* =========================
@@ -70,8 +61,8 @@
 .table th {
   padding: var(--space-4);
   color: var(--color-text);
-  background: #f4f8ff;
-  border-bottom: 2px solid var(--inventory-header-line);
+  background: var(--color-table-header-bg);
+  border-bottom: 2px solid var(--color-table-header-line);
   font-size: 0.8125rem;
   font-weight: 700;
   text-align: left;
@@ -88,7 +79,7 @@
 
 .table td {
   padding: var(--space-4);
-  border-bottom: 1px dashed var(--inventory-row-line);
+  border-bottom: 1px dashed var(--color-row-divider);
   vertical-align: middle;
 }
 
@@ -101,12 +92,12 @@
 }
 
 .table tbody tr:hover {
-  background: #f8fbff;
+  background: var(--color-row-hover);
 }
 
 .table tbody tr.inactiveRow,
 .table tbody tr.inactiveRow:hover {
-  background: var(--inventory-inactive-bg);
+  background: var(--color-inactive-bg);
 }
 
 .imageColumn {
@@ -259,7 +250,7 @@
   }
 
   .mobileCard.inactiveRow {
-    background: var(--inventory-inactive-bg);
+    background: var(--color-inactive-bg);
   }
 
   .mobileTop {
@@ -271,13 +262,13 @@
   }
 
   .mobileImageWrap {
-    width: var(--inventory-desktop-image-size);
-    height: var(--inventory-desktop-image-size);
+    width: var(--inventory-mobile-image-size);
+    height: var(--inventory-mobile-image-size);
   }
 
   .mobileImageWrap :global(.app-variant-image-button),
   .mobileImageWrap :global(.app-variant-image),
-  .mobileImageWrap :global(.app-variant-image-size) {
+  .mobileImageWrap :global(.app-variant-image-placeholder) {
     width: 100%;
     height: 100%;
   }
