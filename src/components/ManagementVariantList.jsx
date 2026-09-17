@@ -18,8 +18,7 @@ export default function ManagementVariantList({
       return {
         shortLabel: "なし",
         fullLabel: "在庫なし",
-        badgeClass: styles.stockOut,
-        rowClass: styles.rowOut,
+        type: "out",
       };
     }
 
@@ -27,16 +26,14 @@ export default function ManagementVariantList({
       return {
         shortLabel: "少",
         fullLabel: "在庫少",
-        badgeClass: styles.stockLow,
-        rowClass: styles.rowLow,
+        type: "low",
       };
     }
 
     return {
       shortLabel: "あり",
       fullLabel: "在庫あり",
-      badgeClass: styles.stockAvailable,
-      rowClass: "",
+      type: "available",
     };
   };
 
@@ -44,13 +41,18 @@ export default function ManagementVariantList({
     if (variant.status === "ACTIVE") {
       return {
         label: "販売中",
-        className: styles.statusActive,
+        type: "active",
+        rowClass:"",
       };
     }
 
     return {
       label: "停止中",
-      className: styles.statusInactive,
+      type: "inactive",
+      rowClass:
+        variant.status === "INACTIVE"
+          ? styles.rowInactive
+          : "",
     };
   };
 
@@ -63,7 +65,7 @@ export default function ManagementVariantList({
     if (!variant.imageUrl) {
       return (
         <div
-          className={styles.imagePlaceholder}
+          className="app-variant-image-placeholder"
           role="img"
           aria-label="画像は登録されていません"
         />
@@ -73,7 +75,7 @@ export default function ManagementVariantList({
     return (
       <button
         type="button"
-        className={styles.imageButton}
+        className="app-variant-image-button"
         onClick={() => onPreviewImage?.(variant)}
         aria-label={`${
           variant.variantName ?? "バリエーション"
@@ -82,7 +84,7 @@ export default function ManagementVariantList({
         <img
           src={variant.imageUrl}
           alt=""
-          className={styles.image}
+          className="app-variant-image"
         />
       </button>
     );
@@ -90,7 +92,7 @@ export default function ManagementVariantList({
 
   const renderThreshold = (variant) => (
     <span
-      className={styles.thresholdBadge}
+      className="app-threshold-indicator"
       title={`在庫しきい値：${
         variant.stockAlertThreshold ?? 0
       }`}
@@ -130,7 +132,7 @@ export default function ManagementVariantList({
         className={
           mobile
             ? styles.mobileEditButton
-            : styles.desktopEditButton
+            : "app-icon-button app-icon-button--primary"
         }
         onClick={() => onEdit?.(variant)}
         disabled={busy}
@@ -173,16 +175,30 @@ export default function ManagementVariantList({
 
   if (!isArray) {
     return (
-      <div className="text-center text-muted py-4">
-        データ形式が不正です
+      <div
+        className="app-empty-state app-empty-state--embedded"
+        role="alert">
+          <p className="app-empty-state__title">
+            データを表示できません
+          </p>
+          <p className="app-empty-state__description">
+            バリエーションのデータ形式が正しくありません。
+          </p>
       </div>
     );
   }
 
   if (variants.length === 0) {
     return (
-      <div className="text-center text-muted py-4">
-        この作品にはバリエーションがありません
+      <div
+        className="app-empty-state app-empty-state--embedded"
+        role="status">
+          <p className="app-empty-state__title">
+            バリエーションがありません
+          </p>
+          <p>
+            この作品にはバリエーションが登録されていません。
+          </p>
       </div>
     );
   }
@@ -232,7 +248,7 @@ export default function ManagementVariantList({
                 return (
                   <tr
                     key={variant.id}
-                    className={stockInfo.rowClass}
+                    className={statusInfo.rowClass}
                   >
                     <td className={styles.imageCell}>
                       {renderImage(variant)}
@@ -262,9 +278,10 @@ export default function ManagementVariantList({
 
                     <td className={styles.stockInfoCell}>
                       <span
-                        className={`${styles.stockBadge} ${stockInfo.badgeClass}`}
+                        className={`app-stock-status app-stock-status--${stockInfo.type}`}
+                        aria-label={stockInfo.fullLabel}
                       >
-                        <span className="">
+                        <span aria-hidden="true">
                           在庫
                         </span>
                         {stockInfo.shortLabel}
@@ -279,7 +296,7 @@ export default function ManagementVariantList({
 
                     <td>
                       <span
-                        className={`${styles.statusBadge} ${statusInfo.className}`}
+                        className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
                       >
                         {statusInfo.label}
                       </span>
@@ -312,7 +329,7 @@ export default function ManagementVariantList({
           return (
             <article
               key={variant.id}
-              className={`${styles.mobileRow} ${stockInfo.rowClass}`}
+              className={`${styles.mobileRow} ${statusInfo.rowClass}`}
             >
               <div className={styles.mobileImage}>
                 {renderImage(variant)}
@@ -343,7 +360,8 @@ export default function ManagementVariantList({
                   </span>
 
                   <span
-                    className={`${styles.stockBadge} ${stockInfo.badgeClass}`}
+                    className={`app-stock-status app-stock-status--${stockInfo.type}`}
+                    aria-label={stockInfo.fullLabel}
                   >
                     <span className="visually-hidden">
                       在庫
@@ -371,7 +389,7 @@ export default function ManagementVariantList({
 
               <div className={styles.mobileStatus}>
                 <span
-                  className={`${styles.statusBadge} ${statusInfo.className}`}
+                  className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
                 >
                   {statusInfo.label}
                 </span>

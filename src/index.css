@@ -1,3 +1,4 @@
+/* src/index.css */
 /* ===========================
 Handmade-2 Design Foundations
 WCAG 2.1 AAを目標としたデザイントークン
@@ -34,9 +35,16 @@ WCAG 2.1 AAを目標としたデザイントークン
   --color-border: #7a8699;
   --color-border-subtle: #d8dee8;
 
+  /* List and table surface */
+  --color-table-header-bg: #f4f8ff;
+  --color-table-header-line: #64a0ff;
+  --color-row-divider: #93b4e8;
+  --color-row-hover: #f8fbff;
+  --color-inactive-bg: #f4f4f5;
+  --color-section-divider: #bfdbfe;
+
   /* Brand and semantic colors（意味を持つ色） */
   --color-primary: #1d4ed8;
-  /* --color-primary:pink; */
   --color-primary-hover: #1e40af;
   --color-primary-soft: #eff6ff;
 
@@ -347,7 +355,8 @@ WCAG 2.1 AAを目標としたデザイントークン
 }
 
 .table > tbody > tr:hover > * {
-  --bs-table-bg-state: #f8fafc;
+  --bs-table-bg-state: var(--color-row-hover
+  );
 }
 
 /* 在庫少 */

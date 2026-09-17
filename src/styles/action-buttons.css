@@ -1,0 +1,86 @@
+/* src/styles/action-buttons.css */
+/* ======================
+    Shared action buttons
+======================== */
+
+.app-icon-button {
+    --app-icon-button-size: 2.75rem;
+
+    width: var(--app-icon-button-size);
+    height: var(--app-icon-button-size);
+    min-width: var(--app-icon-button-size);
+    display: inline-flex;
+    flex: 0 0 var(--app-icon-button-size);
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: var(--radius-md);
+    line-height: 1;
+    cursor: pointer;
+}
+
+.app-icon-button svg {
+    flex: 0 0 auto;
+}
+
+/* primary枠の編集ボタン */
+.app-icon-button--primary {
+    color: var(--color-primary);
+    background: var(--color-surface);
+    border: 2px solid #5792f5;
+}
+
+.app-icon-button--primary:hover:not(:disabled) {
+    color: #ffffff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+/* グレー枠の操作ボタン */
+.app-icon-button--secondary {
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+.app-icon-button--secondary:hover:not(:disabled) {
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+}
+
+/* primary背景の強調ボタン */
+.app-icon-button--solid-primary {
+    color: #ffffff;
+    background: var(--color-primary);
+    border: 1px solid var(--color-primary);
+}
+
+.app-icon-button--solid-primary:hover:not(:disabled) {
+    color: #ffffff;
+    background: #174bc3;
+    border-color: #174bc3;
+}
+
+.app-icon-button:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.app-icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* Windowsハイコントラストモード */
+@media (forced-colors: active) {
+    .app-icon-button {
+        color: ButtonText;
+        background: ButtonFace;
+        border: 1px solid ButtonText;
+    }
+
+    .app-icon-button:focus-visible {
+        outline-color: Highlight;
+    }
+}

@@ -46,7 +46,7 @@ export default function ItemsPage() {
   const mobileActionsRef = useRef(null);
 
   const closeMobileActions = () => {
-    mobileActionsRef.current?.removeAttribute("opne");
+    mobileActionsRef.current?.removeAttribute("open");
   };
 
   const showToast = (message) => {
@@ -268,7 +268,12 @@ const resetSearchConditions = () => {
   return (
     <div>
       {toast && (
-        <div className="alert alert-success" role="status">
+        <div
+          className="app-feedback app-feedback--success"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {toast}
         </div>
       )}
@@ -281,14 +286,6 @@ const resetSearchConditions = () => {
       <div className="item-page-actions-desktop">
         <button
           type="button"
-          className="btn btn-primary"
-          onClick={() => setItemCreateOpen(true)}
-        >
-          ＋ 作品を登録
-        </button>
-
-        <button
-          type="button"
           className="btn btn-outline-secondary"
           onClick={() => setInactiveItemsOpen(true)}
         >
@@ -297,7 +294,16 @@ const resetSearchConditions = () => {
 
         <button
           type="button"
-          className="btn btn-primary item-reload-button"
+          className="btn btn-primary"
+          onClick={() => setItemCreateOpen(true)}
+        >
+          ＋ 作品を登録
+        </button>
+
+
+        <button
+          type="button"
+          className="app-icon-button app-icon-button--solid-primary"
           onClick={reloadAll}
           disabled={itemsLoading || variantsLoading}
           aria-label="作品とバリエーションを再読み込み"
@@ -395,100 +401,122 @@ const resetSearchConditions = () => {
       <section aria-label="作品一覧">
 
         <section
-          className="item-search-panel mb-4"
-          aria-labelledby="item-search-title"
-        >
-            <h2 id="item-search-title" className="visually-hidden">
-                作品を検索・絞り込み
-            </h2>
+  className="app-search-panel"
+  aria-labelledby="item-search-title"
+>
+  <h2
+    id="item-search-title"
+    className="visually-hidden"
+  >
+    作品を検索・絞り込み
+  </h2>
 
-            <div className="row g-2 align-items-md-end">
-                <div className="col-12 col-lg">
-                    <label
+  <div className="app-search-fields app-search-fields--items">
+    <div className="app-search-field">
+      <label
+        htmlFor="item-search"
+        className="form-label fw-semibold"
+      >
+        作品を検索
+      </label>
 
-                        htmlFor="item-search"
-                        className="form-label fw-semibold"
-                    >
-                        作品を検索
-                    </label>
+      <input
+        id="item-search"
+        type="search"
+        className="form-control"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="作品名・説明・バリエーション名・SKU"
+      />
+    </div>
 
-                    <input
-                        id="item-search"
-                        type="search"
-                        className="form-control"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="作品名・説明・バリエーション名・SKU"
-                        />
-                </div>
+    <div className="app-search-field">
+      <label
+        htmlFor="item-filter"
+        className="form-label fw-semibold"
+      >
+        作品・バリエーションの状態
+      </label>
 
-                <div className="cil-12 col-md-6 col-lg-3">
-                    <label
-                        htmlFor="item-filter"
-                        className="form-label fw-semibold"
-                    >
-                        作品の状態
-                    </label>
+      <select
+        id="item-filter"
+        className="form-select"
+        value={itemFilter}
+        onChange={(e) => setItemFilter(e.target.value)}
+      >
+        <option value="ALL">すべて</option>
 
-                    <select
-                        id="item-filter"
-                        className="form-select"
-                        value={itemFilter}
-                        onChange={(e) => setItemFilter(e.target.value)}
-                        >
-                        <option value="ALL">すべて</option>
-                        <option value="HAS_VARIANTS">バリエーション登録ありの作品</option>
-                        <option value="NO_VARIANTS">バリエーション登録なしの作品</option>
-                        <option value="HAS_ACTIVE_VARIANTS">
-                          販売中のバリエーション</option>
-                        <option value="HAS_LOW_STOCK">在庫：少 のバリエーション</option>
-                        <option value="HAS_OUT_OF_STOCK">在庫：なし のバリエーション</option>
-                    </select>
-                </div>
+        <option value="HAS_VARIANTS">
+          バリエーション登録ありの作品
+        </option>
 
-                {hasSearchConditions && (
-                    <div className="col-12 col-md-auto">
-                        <button
-                            type="button"
-                            className="btn btn-secondary mt-1
-                            "
-                            onClick={resetSearchConditions}
-                        >
-                            条件をリセット
-                        </button>
-                    </div>
-                )}
-            </div>
+        <option value="NO_VARIANTS">
+          バリエーション登録なしの作品
+        </option>
 
-            <p
-                className="form-text mb-0 mt-2"
-                aria-live="polite"
-                aria-atomic="true"
-            >
-                {searchQuery.trim()
-                    ? `${filteredItems.length}種の作品が見つかりました`
-                    : `${filteredItems.length}種の作品を表示しています`
-                }
-            </p>
-        </section>
+        <option value="HAS_ACTIVE_VARIANTS">
+          販売中のバリエーション
+        </option>
+
+        <option value="HAS_LOW_STOCK">
+          在庫：少 のバリエーション
+        </option>
+
+        <option value="HAS_OUT_OF_STOCK">
+          在庫：なし のバリエーション
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div className="app-search-footer">
+    <p
+      className="app-search-result"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      {searchQuery.trim() || itemFilter !== "ALL"
+        ? `${filteredItems.length}種の作品が見つかりました`
+        : `${filteredItems.length}種の作品を表示しています`}
+    </p>
+
+    {hasSearchConditions && (
+      <button
+        type="button"
+        className="btn btn-outline-secondary"
+        onClick={resetSearchConditions}
+      >
+        条件をクリア
+      </button>
+    )}
+  </div>
+</section>
 
 
         {itemError && (
-          <div className="alert alert-danger" role="alert">
+          <div
+            className="app-feedback app-feedback--error"
+            role="alert"
+          >
             {itemError}
           </div>
         )}
 
         {variantError && (
-          <div className="alert alert-danger" role="alert">
+          <div
+            className="app-feedback app-feedback--error"
+            role="alert"
+            >
             {variantError}
           </div>
         )}
 
         {itemsLoading && items.length === 0 ? (
           <div
-            className="d-flex align-items-center justify-content-center gap-2 py-5"
+            className="app-loading-state"
             role="status"
+            aria-live="polite"
           >
             <span
               className="spinner-border spinner-border-sm"
@@ -559,15 +587,15 @@ const resetSearchConditions = () => {
 
                       <button
                         type="button"
-                        className="btn btn-sm btn-outline-secondary item-edit-button"
+                        className="app-icon-button app-icon-button--secondary"
                         onClick={() => {
                           setEditingItem(item);
                           setItemEditOpen(true);
                         }}
                         aria-label={`${item.name}の作品情報を編集`}
+                        title="作品情報を編集"
                       >
                         <svg
-                          className="item-edit-icon"
                           viewBox="0 0 24 24"
                           width="18"
                           height="18"
@@ -641,7 +669,7 @@ const resetSearchConditions = () => {
                   {expanded && (
                       <div
                         id={panelId}
-                        className="card-body item-variants-panel"
+                        className="item-variants-panel"
                       >
                       {itemVariants.length > 0 ? (
                           <ManagementVariantList
@@ -664,8 +692,17 @@ const resetSearchConditions = () => {
                             }}
                           />
                         ) : (
-                            <div className="text-center text-muted py-4">
-                          この作品にはバリエーションがありません
+                            <div
+                              className="app-empty-state app-empty-state--embedded"
+                              role="status"
+                              >
+                                <p className="app-empty-state__title">
+                                  この作品にはバリエーションがありません
+                                </p>
+
+                                <p className="app-empty-state__description">
+                                  「追加」から最初のバリエーションを登録できます。
+                                </p>
                         </div>
                       )}
                     </div>
@@ -675,14 +712,19 @@ const resetSearchConditions = () => {
             })}
 
             {items.length > 0 && filteredItems.length === 0 && (
-             <div className="card">
-                 <div className="card-body text-center py-5">
-                     <h3 className="h6">該当する作品がありません</h3>
+             <div
+              className="app-empty-state app-empty-state--surface"
+              role="status"
+              >
+                <h3 className="app-empty-state__title">
+                  該当する作品がありません
+                </h3>
 
-                     {/* <p className="text-muted mb-3">
-                        キーワードを変えて、もう一度お試しください。
-                     </p> */}
+                <p className="app-empty-state__description">
+                  キーワードや絞り込み条件を変更してお試しください。
+                </p>
 
+                <div className="app-empty-state__action">
                      <button
                         type="button"
                         className="btn btn-outline-secondary"
@@ -695,15 +737,19 @@ const resetSearchConditions = () => {
            )}
 
             {items.length === 0 && !itemsLoading && (
-              <div className="card">
-                <div className="card-body text-center py-5">
-                  <h3 className="h6">
-                    登録されている作品がありません
-                  </h3>
+              <div
+                className="app-empty-state app-empty-state--surface"
+                role="status"
+              >
+                <h3 className="app-empty-state__title">
+                  登録されている作品がありません
+                </h3>
 
-                  <p className="text-muted mb-3">
-                    最初に作品を登録してください。
-                  </p>
+                <p className="app-empty-state__description">
+                  最初の作品を登録すると、バリエーションや在庫を管理できます。
+                </p>
+
+                <div className="app-empty-state__action">
 
                   <button
                     type="button"

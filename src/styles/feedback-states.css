@@ -1,0 +1,72 @@
+/* src/styles/feedback-states.css */
+
+/* =========================
+    Feedback messages
+=========================== */
+
+.app-feedback {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.app-feedback--success {
+    color: #14532d;
+    background: #f0fdf4;
+    border-color: #86efac;
+}
+
+.app-feedback--error {
+    color: #7f1d1d;
+    background: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* =========================
+    Loading states
+=========================== */
+
+.app-loading-state {
+    min-height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--space-6);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.app-loading-state--compact {
+    min-height: auto;
+    padding: var(--space-4);
+}
+
+.app-loading-state .spinner-border {
+    flex: 0 0 auto;
+}
+
+/* 更新中などの短い状態表示 */
+.app-inlines-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+@media (forced-colors: active) {
+    .app-feedback {
+        color: CanvasText;
+        background: Canvas;
+        border-color: CanvasText;
+    }
+}

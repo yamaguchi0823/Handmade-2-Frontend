@@ -1,0 +1,53 @@
+/* scr/styles/variant-images.css */
+
+/* ======================
+    Shared variant images
+======================== */
+
+.app-variant-image-button {
+    display: block;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-lg);
+    cursor: zoom-in;
+}
+
+.app-variant-image-button:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+}
+
+.app-variant-image,
+.app-variant-image-placeholder {
+    display: block;
+    background: var(--color-surface-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+}
+
+.app-variant-image {
+    object-fit: cover;
+    background: var(--color-surface);
+}
+
+.app-variant-image-placeholder {
+    background:
+    liner-gradient(
+        135deg,
+        var(--color-surface-subtle),
+        #dce8f7
+    );
+}
+
+/* Windowsハイコントラストモード */
+@media (forced-colors: active) {
+    .app-variant-image,
+    .app-variant-image-placeholder {
+        border: 1px solid CanvasTaxt;
+    }
+
+    .app-variant-image-button:focus-visible {
+        outline-color: Highlight;
+    }
+}

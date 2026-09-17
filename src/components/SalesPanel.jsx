@@ -57,6 +57,7 @@ export default function SalesPanel({ onChanged }) {
       <div className="d-flex align-items-center justify-content-between mb-2">
         <h2 className="h4 mb-0">販売一覧</h2>
         <button
+          type="button"
           className="btn btn-outline-secondary"
           onClick={load}
           disabled={loading}
@@ -64,7 +65,15 @@ export default function SalesPanel({ onChanged }) {
           {loading ? "更新中" : "更新"}
         </button>
       </div>
-      {error && <div className="alert alert-danger py-2">{error}</div>}
+
+      {error && (
+        <div
+          className="app-feedback app-feedbak--error"
+          role="alert"
+        >
+          {error}
+        </div>
+      )}
 
       <div className="table-responsive">
         <table className="table table-bordered align-middle">
@@ -81,6 +90,25 @@ export default function SalesPanel({ onChanged }) {
             </tr>
           </thead>
           <tbody>
+
+            {loading && sales.length === 0 && (
+              <tr>
+                <td colSpan={8}>
+                  <div
+                    className="app-loading-state app-loading-state--compact"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <span
+                      className="spinner-border spinner-border-sm"
+                      aria-hidden="true"
+                    />
+                    <span>販売一覧を読み込んでいます</span>
+                  </div>
+                </td>
+              </tr>
+            )}
+
             {sales.map((s) => (
               <tr key={s.id}>
                 <td className="text-nowrap">{s.id}</td>
@@ -110,10 +138,18 @@ export default function SalesPanel({ onChanged }) {
                 </td>
               </tr>
             ))}
-            {sales.length === 0 && !loading && (
+            {sales.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={8} className="text-center text-muted py-4">
-                  販売データがありません
+                <td colSpan={8}>
+                  <div className="app-empty-state app-empty-state--embedded">
+                    <p className="app-empty-state__title">
+                      販売データがありません
+                    </p>
+
+                    <p className="app-empty-state__description">
+                      販売登録を行うと、こちらに履歴が表示されます。
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}

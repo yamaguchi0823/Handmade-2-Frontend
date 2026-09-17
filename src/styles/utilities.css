@@ -1,3 +1,5 @@
+/* src/styles/utilities.css */
+
 /* =======================
   Application layout
 ========================= */
@@ -299,18 +301,6 @@
   -webkit-line-clamp: 2;
 }
 
-.item-edit-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  flex: 0 0 auto;
-}
-
-.item-edit-icon {
-  flex: 0 0 auto;
-}
-
 .item-card-description {
   display: -webkit-box;
   margin: var(--space-1) 0 0;
@@ -365,9 +355,7 @@
 }
 
 .item-variants-panel {
-  /* padding-top: 0; */
-  /* background: var(--color-primary-soft); */
-  border-top: 1px solid #bfdbfe;
+  border-top: 1px solid var(--color-section-divider);
 }
 
 @media (max-width: 575.98px) {
@@ -377,10 +365,6 @@
 
   .item-card-title {
     font-size: 1rem;
-  }
-
-  .item-edit-button {
-    padding-inline: var(--space-3);
   }
 
   .item-card-actions {
@@ -394,14 +378,6 @@
 
   .item-variant-add {
     flex: 0 0 auto;
-  }
-}
-
-@media (max-width: 767.98px) {
-  .item-variants-panel {
-    /* background: var(--color-primary-soft); */
-    /* border-top: 1px solid #bfdbfe; */
-    padding-top: 1rem;
   }
 }
 
@@ -437,25 +413,6 @@
   display: none;
 }
 
-.item-reload-button {
-  width: 2.75rem;
-  min-width: 2.75rem;
-  padding: 0;
-  align-items: center;
-  justify-content: center;
-}
-
-/* =========================
-   Item search panel
-========================= */
-
-.item-search-panel {
-  padding: var(--space-5);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
 
 /* =========================
    Item title
@@ -534,9 +491,5 @@
   .item-page-actions-menu .btn {
     width: 100%;
     text-align: left;
-  }
-
-  .item-search-panel {
-    padding: var(--space-4);
   }
 }
