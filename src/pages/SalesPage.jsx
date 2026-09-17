@@ -8,6 +8,7 @@ export default function SalesPage() {
   const [saleOpen, setSaleOpen] = useState(false);
   const [variants, setVariants] = useState([]);
   const [toast, setToast] = useState("");
+  const [error, setError] = useState("");
 
   const toastTimerRef = useRef(null);
 
@@ -19,11 +20,16 @@ export default function SalesPage() {
 
   const loadVariants = async () => {
     try {
+      setError("");
+
       const res = await api.get("/variants");
       setVariants(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error(e);
       setVariants([]);
+      setError(
+        "販売登録に必要なバリエーションの取得に失敗しました",
+      );
     }
   };
 
@@ -49,7 +55,24 @@ export default function SalesPage() {
         }
       />
 
-      {toast && <div className="alert alert-success py-2">{toast}</div>}
+        {toast && (
+          <div
+            className="app-feedback app-feedback--success"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {toast}
+          </div>
+        )}
+
+        {error && (
+          <div
+            className="app-feedback app-feedback--error"
+          >
+            {error}
+          </div>
+        )}
 
       <SalesPanel />
 

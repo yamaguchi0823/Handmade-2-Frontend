@@ -268,7 +268,12 @@ const resetSearchConditions = () => {
   return (
     <div>
       {toast && (
-        <div className="alert alert-success" role="status">
+        <div
+          className="app-feedback app-feedback--success"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {toast}
         </div>
       )}
@@ -490,21 +495,28 @@ const resetSearchConditions = () => {
 
 
         {itemError && (
-          <div className="alert alert-danger" role="alert">
+          <div
+            className="app-feedback app-feedback--error"
+            role="alert"
+          >
             {itemError}
           </div>
         )}
 
         {variantError && (
-          <div className="alert alert-danger" role="alert">
+          <div
+            className="app-feedback app-feedback--error"
+            role="alert"
+            >
             {variantError}
           </div>
         )}
 
         {itemsLoading && items.length === 0 ? (
           <div
-            className="d-flex align-items-center justify-content-center gap-2 py-5"
+            className="app-loading-state"
             role="status"
+            aria-live="polite"
           >
             <span
               className="spinner-border spinner-border-sm"

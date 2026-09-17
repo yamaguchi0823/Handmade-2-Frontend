@@ -20,20 +20,25 @@ function money(n) {
 export default function ChannelProfitPanel({ from, to, reloadKey }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [metric, setMetric] = useState("profit"); // profit or totalAmont
 
   useEffect(() => {
     const load = async () => {
       try {
         setLoading(true);
+        setError("");
+
         const res = await fetchChannelProfit({
           from: from || undefined,
           to: to || undefined,
         });
+
         setRows(res.data ?? []);
       } catch (e) {
         console.error(e);
-        alert("集計取得に失敗しました");
+        setError("集計取得に失敗しました");
+        setRows([]);
       } finally {
         setLoading(false);
       }
@@ -82,11 +87,34 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
     <div className="mt-2">
       <div className="d-flex align-items-center justify-content-between mb-2">
         <h3 className="h5 mb-3">チャネル別利益</h3>
+
+        {loading && rows.length === 0 && (
+          <div
+            className="app-loading-state"
+            role="status"
+            aria-live="polite"
+          >
+            <span
+              className="spinner-border spinner-border-sm"
+              aria-hidden="true"
+            />
+            <span>集計データを読み込んでいます</span>
+          </div>
+        )}
+
         <div className="text-muted small">
           {from && to ? `${from}～${to}` : "期間：全期間"}
           {loading ? "（更新中）" : ""}
         </div>
       </div>
+
+      {error && (
+          <div
+            className="app-feedback app-feedback--error"
+          >
+            {error}
+          </div>
+        )}
 
       {/* 横棒グラフ（売上/利益 切替） */}
       {chartData.length > 0 && (
@@ -194,6 +222,7 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
         </div>
       )}
 
+      {(!loading || rows.length > 0) && !error && (
       <div className="table-responsive">
         <table className="table table-bordered align-middle">
           <thead className="table-light">
@@ -269,16 +298,26 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               </tr>
             ))}
 
-            {rows.length === 0 && (
+            {rows.length === 0 && !loading && !error && (
               <tr>
-                <td colSpan={8} className="text-center text-muted py-4">
-                  データがありません
+                <td colSpan={8}>
+                  <div className="app-empty-state app-empty-state--embedded">
+                    <p className="app-empty-state__title">
+                      データがありません
+                    </p>
+
+                    <p className="app-empty-state__description">
+                      指定した期間には販売データがありません。
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+      )}
+
 
       {/* さらに見やすい：下に1行で要約 */}
       {rows.length > 0 && (

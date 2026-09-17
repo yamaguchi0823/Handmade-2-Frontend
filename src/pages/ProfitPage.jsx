@@ -34,8 +34,15 @@ export default function ProfitPage() {
             }}
           >
             <div className="col-12 col-sm-auto">
-              <label className="form-label mb-1">From</label>
+              <label
+                htmlFor="profit-from"
+                className="form-label mb-1"
+              >
+                開始日
+              </label>
+
               <input
+                id="profit-from"
                 type="date"
                 className="form-control"
                 value={from}
@@ -44,8 +51,15 @@ export default function ProfitPage() {
             </div>
 
             <div className="col-12 col-sm-auto">
-              <label className="form-label mb-1">To</label>
+              <label
+                htmlFor="profit-to"
+                className="form-label mb-1"
+              >
+                  終了日
+              </label>
+
               <input
+                id="profit-to"
                 type="date"
                 className="form-control"
                 value={to}

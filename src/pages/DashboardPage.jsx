@@ -28,9 +28,9 @@ export default function DashboardPage() {
   const range = useMemo(() => monthRangeToday(), []);
   const [from, setFrom] = useState(range.from);
   const [to, setTo] = useState(range.to);
-  const [reloadKey, setReloadKey] = useState(0);
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [summary, setSummary] = useState({
     salesCount: 0,
     totalAmount: 0,
@@ -43,6 +43,7 @@ export default function DashboardPage() {
   const loadSummary = async () => {
     try {
       setLoading(true);
+      setError("");
 
       const res = await fetchChannelProfit({
         from: from || undefined,
@@ -64,11 +65,11 @@ export default function DashboardPage() {
       const lowStockCount = Array.isArray(res2.data) ? res2.data.length : 0;
 
       setSummary({ salesCount, totalAmount, profit, lowStockCount });
-      setReloadKey((k) => k + 1);
+
     } catch (e) {
       console.error(e);
       setSummary((prev) => ({ ...prev }));
-      alert("ダッシュボード集計の取得に失敗しました");
+      setError("ダッシュボード集計の取得に失敗しました");
     } finally {
       setLoading(false);
     }
@@ -92,8 +93,14 @@ export default function DashboardPage() {
             }}
           >
             <div className="col-12 col-sm-auto">
-              <label className="form-label mb-1">From</label>
+              <label
+                htmlFor="dashbord-from"
+                className="form-label mb-1"
+              >開始日
+              </label>
+
               <input
+                id="dashbord-from"
                 type="date"
                 className="form-control"
                 value={from}
@@ -103,8 +110,15 @@ export default function DashboardPage() {
             </div>
 
             <div className="col-12 col-sm-auto">
-              <label className="form-label mb-1">To</label>
+              <label
+                htmlFor="dashbord-to"
+                className="form-label mb-1"
+              >
+                終了日
+              </label>
+
               <input
+                id="dashbord-to"
                 type="date"
                 className="form-control"
                 value={to}
@@ -126,12 +140,21 @@ export default function DashboardPage() {
         }
       />
 
+      {error && (
+        <div
+          className="app-feedback app-feedback--error"
+          role="alert"
+        >
+          {error}
+        </div>
+      )}
+
       {/* サマリーカード */}
       <div className="row g-2 mb-3">
         <div className="col-12 col-md-3">
           <div className="card">
             <div className="card-body">
-              <div className="text-muted small">今月売上</div>
+              <div className="text-muted small">期間売上</div>
               <div className="fs-4 fw-semibold text-end">
                 {money(summary.totalAmount)}
               </div>
@@ -146,7 +169,7 @@ export default function DashboardPage() {
             onClick={() => navigate(`/profit?from=${from}&to=${to}`)}
           >
             <div className="card-body">
-              <div className="text-muted small">今月利益</div>
+              <div className="text-muted small">期間利益</div>
               <div
                 className={`fs-4 fw-semibold text-end ${
                   Number(summary.profit) < 0 ? "text-danger" : ""
@@ -161,7 +184,7 @@ export default function DashboardPage() {
         <div className="col-12 col-md-3">
           <div className="card">
             <div className="card-body">
-              <div className="text-muted small">今月販売件数</div>
+              <div className="text-muted small">期間販売件数</div>
               <div className="fs-4 fw-semibold text-end">
                 {Number(summary.salesCount).toLocaleString()} 件
               </div>
@@ -173,7 +196,7 @@ export default function DashboardPage() {
           <div className="card">
             <div className="card-body">
               <div className="text-muted small">
-                在庫少（現在※しきい値以下の件数）
+                在庫少（現在）
               </div>
               <div className="fs-4 fw-semibold text-end">
                 {Number(summary.lowStockCount).toLocaleString()} 件
@@ -183,7 +206,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} /> */}
     </div>
   );
 }

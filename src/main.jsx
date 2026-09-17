@@ -9,6 +9,7 @@ import "./styles/status-indicators.css";
 import "./styles/variant-images.css";
 import "./styles/action-buttons.css";
 import "./styles/empty-states.css";
+import "./styles/feedback-states.css";
 import "./styles/modals.css";
 import App from "./App.jsx";
 

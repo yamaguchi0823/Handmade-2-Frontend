@@ -131,7 +131,12 @@ export default function InventoryPage() {
   return (
     <div>
       {toast && (
-        <div className="alert alert-success py-2" role="alert">
+        <div
+          className="app-feedback app-feedback--success"
+          role="status"
+          aria-live="polite"
+          aria-atmic="true"
+        >
           {toast}
         </div>
       )}
@@ -152,7 +157,10 @@ export default function InventoryPage() {
       />
 
       {error && (
-        <div className="alert alert-danger py-2 mb-2" role="alert">
+        <div
+          className="app-feedback app-feedback--error"
+          role="alert"
+        >
           {error}
         </div>
       )}
