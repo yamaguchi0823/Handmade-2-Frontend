@@ -1,0 +1,141 @@
+/* src/pages/DashboardPage.module.css */
+
+/* =========================
+   Period form
+========================= */
+
+.periodForm {
+  display: grid;
+  grid-template-columns:
+    minmax(9rem, 1fr)
+    minmax(9rem, 1fr)
+    auto;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.periodField {
+  min-width: 0;
+}
+
+.periodField :global(.form-control) {
+  width: 100%;
+}
+
+.submitArea {
+  display: grid;
+}
+
+/* =========================
+   Summary cards
+========================= */
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.summaryCard {
+  min-width: 0;
+  min-height: 8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-5);
+}
+
+.summaryLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.summaryValue {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text);
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.negativeValue {
+  color: var(--color-danger);
+}
+
+/* 利益詳細へ移動できるカード */
+.summaryLink {
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.summaryLink:hover {
+  color: inherit;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.summaryLink:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.linkHint {
+  margin: var(--space-2) 0 0;
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 991.98px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .periodForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submitArea {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .periodForm,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .submitArea {
+    grid-column: auto;
+  }
+
+  .summaryCard {
+    min-height: 7rem;
+    padding: var(--space-4);
+  }
+}
+
+@media (forced-colors: active) {
+  .summaryLink:hover {
+    border-color: LinkText;
+  }
+}
