@@ -1,25 +1,74 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+
 import ChannelProfitPanel from "../components/ChannelProfitPanel";
 import PageHeader from "../components/PageHeader";
 
 export default function ProfitPage() {
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [reloadKey, setReloadKey] = useState(0);
+  const [searchParams, setSearchParams] =
+    useSearchParams();
 
-  const [searchParams] = useSearchParams();
+  const initialFrom =
+    searchParams.get("from") || "";
+  const initialTo =
+    searchParams.get("to") || "";
 
-  // ダッシュボードから ?from=...&to=... で来たら自動セット＆自動集計
-  useEffect(() => {
-    const f = searchParams.get("from") || "";
-    const t = searchParams.get("to") || "";
-    setFrom(f);
-    setTo(t);
+  // 入力欄に表示する日付
+  const [fromInput, setFromInput] =
+    useState(initialFrom);
+  const [toInput, setToInput] =
+    useState(initialTo);
 
-    if (f || t) setReloadKey((k) => k + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 実際の集計に使用する日付
+  const [appliedPeriod, setAppliedPeriod] =
+    useState({
+      from: initialFrom,
+      to: initialTo,
+    });
+
+  const [requestKey, setRequestKey] =
+    useState(0);
+  const [loading, setLoading] =
+    useState(false);
+  const [validationError, setValidationError] =
+    useState("");
+
+  const submitPeriod = () => {
+    if (
+      fromInput &&
+      toInput &&
+      fromInput > toInput
+    ) {
+      setValidationError(
+        "開始日は終了日以前の日付を選択してください",
+      );
+      return;
+    }
+
+    setValidationError("");
+
+    setAppliedPeriod({
+      from: fromInput,
+      to: toInput,
+    });
+
+    // 同じ期間でも「集計」を押せば再取得する
+    setRequestKey((current) => current + 1);
+
+    const nextParams = {};
+
+    if (fromInput) {
+      nextParams.from = fromInput;
+    }
+
+    if (toInput) {
+      nextParams.to = toInput;
+    }
+
+    setSearchParams(nextParams, {
+      replace: true,
+    });
+  };
 
   return (
     <div>
@@ -28,9 +77,11 @@ export default function ProfitPage() {
         actions={
           <form
             className="row g-2 align-items-end"
+            aria-label="利益の集計期間"
+            aria-busy={loading}
             onSubmit={(e) => {
               e.preventDefault();
-              setReloadKey((k) => k + 1);
+              submitPeriod();
             }}
           >
             <div className="col-12 col-sm-auto">
@@ -45,8 +96,11 @@ export default function ProfitPage() {
                 id="profit-from"
                 type="date"
                 className="form-control"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
+                value={fromInput}
+                onChange={(e) =>
+                  setFromInput(e.target.value)
+                }
+                disabled={loading}
               />
             </div>
 
@@ -55,28 +109,49 @@ export default function ProfitPage() {
                 htmlFor="profit-to"
                 className="form-label mb-1"
               >
-                  終了日
+                終了日
               </label>
 
               <input
                 id="profit-to"
                 type="date"
                 className="form-control"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
+                value={toInput}
+                onChange={(e) =>
+                  setToInput(e.target.value)
+                }
+                disabled={loading}
               />
             </div>
 
             <div className="col-12 col-sm-auto d-grid">
-              <button type="submit" className="btn btn-primary">
-                集計
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? "集計中..." : "集計"}
               </button>
             </div>
           </form>
         }
       />
 
-      <ChannelProfitPanel from={from} to={to} reloadKey={reloadKey} />
+      {validationError && (
+        <div
+          className="app-feedback app-feedback--error"
+          role="alert"
+        >
+          {validationError}
+        </div>
+      )}
+
+      <ChannelProfitPanel
+        from={appliedPeriod.from}
+        to={appliedPeriod.to}
+        requestKey={requestKey}
+        onLoadingChange={setLoading}
+      />
     </div>
   );
 }

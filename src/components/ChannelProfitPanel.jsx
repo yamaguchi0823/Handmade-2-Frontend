@@ -17,36 +17,59 @@ function money(n) {
 }
 
 // Dachboardから「期間」と「更新トリガー」をもらう
-export default function ChannelProfitPanel({ from, to, reloadKey }) {
+export default function ChannelProfitPanel({
+    from,
+    to,
+    requestKey,
+    onLoadingChange
+}) {
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [metric, setMetric] = useState("profit"); // profit or totalAmont
 
   useEffect(() => {
+    let cancelled = false;
+
     const load = async () => {
       try {
         setLoading(true);
         setError("");
+        onLoadingChange?.(true);
 
         const res = await fetchChannelProfit({
           from: from || undefined,
           to: to || undefined,
         });
 
-        setRows(res.data ?? []);
+        if (cancelled) return;
+
+        setRows(
+          Array.isArray(res.data)
+            ? res.data
+            : [],
+        );
       } catch (e) {
+        if (cancelled) return;
+
         console.error(e);
         setError("集計取得に失敗しました");
         setRows([]);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+          onLoadingChange?.(false);
+        }
       }
     };
 
     load();
-    // reloadKeyが変わった時だけ再取得する
-  }, [reloadKey, from, to]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [requestKey, from, to, onLoadingChange,]);
 
   // 合計（rowsが変わったら計算しなおす）
   const total = useMemo(() => {
@@ -88,29 +111,37 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
       <div className="d-flex align-items-center justify-content-between mb-2">
         <h3 className="h5 mb-3">チャネル別利益</h3>
 
+        <div className="text-muted small">
+          {from && to
+            ? `${from}～${to}`
+            : "期間：全期間"}
+
+          {loading && rows.length > 0
+            ? "（更新中）"
+            : ""}
+        </div>
+      </div>
+
         {loading && rows.length === 0 && (
           <div
             className="app-loading-state"
             role="status"
             aria-live="polite"
           >
+
             <span
               className="spinner-border spinner-border-sm"
               aria-hidden="true"
             />
+
             <span>集計データを読み込んでいます</span>
           </div>
         )}
 
-        <div className="text-muted small">
-          {from && to ? `${from}～${to}` : "期間：全期間"}
-          {loading ? "（更新中）" : ""}
-        </div>
-      </div>
-
       {error && (
           <div
             className="app-feedback app-feedback--error"
+            role="alert"
           >
             {error}
           </div>
@@ -130,7 +161,8 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               <div
                 className="btn-group"
                 role="group"
-                aria-label="metric switch"
+                aria-label="グラフに表示する指標
+                "
               >
                 <button
                   type="button"
@@ -156,11 +188,25 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
             </div>
 
             <div className="u-chart-h230">
-              <ResponsiveContainer>
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                minWidth={0}
+                minHeight={0}
+                initialDimension={{
+                  width: 1,
+                  height: 230,
+                }}
+              >
                 <BarChart
                   data={chartData}
                   layout="vertical" // 横棒
-                  margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+                  margin={{
+                    top: 10,
+                    right: 20,
+                    left: 20,
+                    bottom: 10
+                   }}
                 >
                   <CartesianGrid strokeDasharray="4 3" />
                   {/* 数値軸 */}
@@ -237,37 +283,39 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               <th className="text-end">利益率</th>
             </tr>
           </thead>
-          {/* 合計行 */}
-          {rows.length > 0 && (
-            <thead>
-              <tr className="table-dark">
-                <th>合計</th>
-                <th className="text-end">{money(total.salesCount)}</th>
-                <th className="text-end">{money(total.totalAmount)}</th>
-                <th className="text-end">{money(total.totalCost)}</th>
-                <th className="text-end">{money(total.feeAmount)}</th>
-                <th className="text-end">{money(total.fixedAmount)}</th>
-                <th
-                  className={`text-end ${
-                    Number(total.profit) < 0 ? "text-danger" : ""
-                  }`}
-                >
-                  {money(total.profit)}
-                </th>
-                <th
-                  className={`text-end ${Number(total.profit ?? 0) < 0 ? "text-danger" : ""}`}
-                >
-                  {(() => {
-                    const amt = Number(total.totalAmount ?? 0);
-                    const profit = Number(total.profit ?? 0);
-                    if (amt === 0) return "-";
-                    return `${((profit / amt) * 100).toFixed(1)}%`;
-                  })()}
-                </th>
-              </tr>
-            </thead>
-          )}
+
           <tbody>
+            {rows.length > 0 && (
+              <tr className="table-dark">
+                <th scope="row">合計</th>
+                <td className="text-end">{money(total.salesCount)}</td>
+                <td className="text-end">{money(total.totalAmount)}</td>
+                <td className="text-end">{money(total.totalCost)}</td>
+                <td className="text-end">{money(total.feeAmount)}</td>
+                <td className="text-end">{money(total.fixedAmount)}</td>
+                <td className={`text-end ${
+                  Number(total.profit) < 0
+                    ? "text-danger"
+                    : ""
+                }`}>
+                  {money(total.profit)}
+                </td>
+                <td className={`text-end ${
+                  Number(total.profit) < 0
+                    ? "text-danger"
+                    : ""
+                }`}>
+                  {total.totalAmount === 0
+                    ? "-"
+                    : `${(
+                      (Number(total.profit) /
+                        Number(total.totalAmount))*
+                        100
+                    ).toFixed(1)}%`}
+                </td>
+              </tr>
+            )}
+
             {rows.map((r) => (
               <tr key={r.channelId ?? "none"}>
                 <td>{r.channelName}</td>

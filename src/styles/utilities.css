@@ -256,6 +256,7 @@
 
 .u-chart-h230 {
   width: 100%;
+  min-width: 0;
   height: 230px;
 }
 
