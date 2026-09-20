@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 
 import {
   fetchChannelProfit,
@@ -7,32 +6,21 @@ import {
 } from "../api";
 
 import PageHeader from "../components/PageHeader";
+import ChannelProfitPanel from "../components/ChannelProfitPanel";
 import styles from "./DashboardPage.module.css";
 
 function ymd(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
-
   return `${year}-${month}-${day}`;
 }
 
 function monthRangeToday() {
   const now = new Date();
-  const from = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    1,
-  );
-  const to = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-  );
-
   return {
-    from: ymd(from),
-    to: ymd(to),
+    from: ymd(new Date(now.getFullYear(), now.getMonth(), 1)),
+    to: ymd(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
   };
 }
 
@@ -43,30 +31,42 @@ function money(value) {
   });
 }
 
+function countDays(from, to) {
+  if (!from || !to) return null;
+  const start = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+  return Math.floor((end - start) / 86400000) + 1;
+}
+
 export default function DashboardPage() {
-  const initialRange = useMemo(
-    () => monthRangeToday(),
-    [],
-  );
+  const initialRange = useMemo(() => monthRangeToday(), []);
 
   const [from, setFrom] = useState(initialRange.from);
   const [to, setTo] = useState(initialRange.to);
-
+  const [appliedRange, setAppliedRange] = useState(initialRange);
+  const [channelRows, setChannelRows] = useState([]);
+  const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [summary, setSummary] = useState({
-    salesCount: 0,
-    totalAmount: 0,
-    profit: 0,
-    lowStockCount: 0,
-  });
-
-  const loadSummary = async () => {
-    if (from && to && from > to) {
-      setError(
-        "開始日は終了日以前の日付を選択してください",
+  const summary = useMemo(() => {
+    const sum = (key) =>
+      channelRows.reduce(
+        (total, row) => total + Number(row?.[key] ?? 0),
+        0,
       );
+
+    return {
+      salesCount: sum("salesCount"),
+      totalAmount: sum("totalAmount"),
+      profit: sum("profit"),
+      lowStockCount,
+    };
+  }, [channelRows, lowStockCount]);
+
+  const loadDashboard = async (nextFrom = from, nextTo = to) => {
+    if (nextFrom && nextTo && nextFrom > nextTo) {
+      setError("開始日は終了日以前の日付を選択してください");
       return;
     }
 
@@ -74,240 +74,173 @@ export default function DashboardPage() {
       setLoading(true);
       setError("");
 
-      const [profitResponse, lowStockResponse] =
-        await Promise.all([
-          fetchChannelProfit({
-            from: from || undefined,
-            to: to || undefined,
-          }),
-          fetchLowStockVariants(),
-        ]);
+      const [profitResponse, lowStockResponse] = await Promise.all([
+        fetchChannelProfit({
+          from: nextFrom || undefined,
+          to: nextTo || undefined,
+        }),
+        fetchLowStockVariants(),
+      ]);
 
-      const rows = Array.isArray(profitResponse.data)
-        ? profitResponse.data
-        : [];
-
-      const lowStockRows = Array.isArray(
-        lowStockResponse.data,
-      )
-        ? lowStockResponse.data
-        : [];
-
-      const salesCount = rows.reduce(
-        (sum, row) =>
-          sum + Number(row.salesCount ?? 0),
-        0,
+      setChannelRows(
+        Array.isArray(profitResponse.data) ? profitResponse.data : [],
       );
-
-      const totalAmount = rows.reduce(
-        (sum, row) =>
-          sum + Number(row.totalAmount ?? 0),
-        0,
+      setLowStockCount(
+        Array.isArray(lowStockResponse.data)
+          ? lowStockResponse.data.length
+          : 0,
       );
-
-      const profit = rows.reduce(
-        (sum, row) =>
-          sum + Number(row.profit ?? 0),
-        0,
-      );
-
-      setSummary({
-        salesCount,
-        totalAmount,
-        profit,
-        lowStockCount: lowStockRows.length,
-      });
+      setAppliedRange({ from: nextFrom, to: nextTo });
     } catch (e) {
       console.error(e);
-      setError(
-        "ダッシュボード集計の取得に失敗しました",
-      );
+      setError("ダッシュボード集計の取得に失敗しました");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadSummary();
-
-    // 初回表示時のみ取得
+    loadDashboard(initialRange.from, initialRange.to);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const profitDetailUrl =
-    `/profit?from=${encodeURIComponent(from)}` +
-    `&to=${encodeURIComponent(to)}`;
+  const clearConditions = () => {
+    setFrom("");
+    setTo("");
+    loadDashboard("", "");
+  };
+
+  const dayCount = countDays(appliedRange.from, appliedRange.to);
+  const periodText =
+    appliedRange.from && appliedRange.to
+      ? `${appliedRange.from} ～ ${appliedRange.to}`
+      : appliedRange.from
+        ? `${appliedRange.from} 以降`
+        : appliedRange.to
+          ? `${appliedRange.to} 以前`
+          : "全期間";
 
   return (
-    <div>
-      <PageHeader
-        title="ダッシュボード"
-        actions={
-          <form
-            className={styles.periodForm}
-            aria-label="集計期間"
-            aria-busy={loading}
-            onSubmit={(e) => {
-              e.preventDefault();
-              loadSummary();
-            }}
-          >
-            <div className={styles.periodField}>
-              <label
-                htmlFor="dashboard-from"
-                className="form-label mb-1"
-              >
-                開始日
-              </label>
+    <div className={styles.dashboard}>
+      <PageHeader title="ダッシュボード" />
 
-              <input
-                id="dashboard-from"
-                type="date"
-                className="form-control"
-                value={from}
-                onChange={(e) =>
-                  setFrom(e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
+      <section className={styles.periodPanel} aria-labelledby="period-title">
+        <h2 id="period-title" className="visually-hidden">
+          集計期間
+        </h2>
 
-            <div className={styles.periodField}>
-              <label
-                htmlFor="dashboard-to"
-                className="form-label mb-1"
-              >
-                終了日
-              </label>
+        <form
+          className={styles.periodForm}
+          aria-busy={loading}
+          onSubmit={(e) => {
+            e.preventDefault();
+            loadDashboard();
+          }}
+        >
+          <div className={styles.periodField}>
+            <label htmlFor="dashboard-from" className="form-label">
+              開始日
+            </label>
+            <input
+              id="dashboard-from"
+              type="date"
+              className="form-control"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              disabled={loading}
+            />
+          </div>
 
-              <input
-                id="dashboard-to"
-                type="date"
-                className="form-control"
-                value={to}
-                onChange={(e) =>
-                  setTo(e.target.value)
-                }
-                disabled={loading}
-              />
-            </div>
+          <div className={styles.periodField}>
+            <label htmlFor="dashboard-to" className="form-label">
+              終了日
+            </label>
+            <input
+              id="dashboard-to"
+              type="date"
+              className="form-control"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              disabled={loading}
+            />
+          </div>
 
-            <div className={styles.submitArea}>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? "更新中..." : "更新"}
-              </button>
-            </div>
-          </form>
-        }
-      />
+          <div className={styles.periodActions}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? "集計中..." : "集計"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={clearConditions}
+              disabled={loading || (!from && !to)}
+            >
+              条件をクリア
+            </button>
+          </div>
+        </form>
+
+        <p className={styles.periodResult}>
+          {dayCount != null
+            ? `${dayCount}日間の集計を表示しています`
+            : `${periodText}の集計を表示しています`}
+        </p>
+      </section>
 
       {error && (
-        <div
-          className="app-feedback app-feedback--error"
-          role="alert"
-        >
+        <div className="app-feedback app-feedback--error" role="alert">
           {error}
         </div>
       )}
 
-      <div
-        className={styles.summaryGrid}
-        aria-busy={loading}
-      >
-        <section
-          className={`card ${styles.summaryCard}`}
-          aria-labelledby="dashboard-sales-label"
-        >
-          <h2
-            id="dashboard-sales-label"
-            className={styles.summaryLabel}
-          >
-            期間売上
-          </h2>
+      <section aria-labelledby="summary-title">
+        <div className={styles.sectionHeading}>
+          <h2 id="summary-title">サマリー</h2>
+          <p>{periodText}</p>
+        </div>
 
-          <p className={styles.summaryValue}>
-            {money(summary.totalAmount)}
-          </p>
-        </section>
+        <div className={styles.summaryGrid} aria-busy={loading}>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>売上</h3>
+            <p className={styles.summaryValue}>{money(summary.totalAmount)}</p>
+          </article>
 
-        <Link
-          to={profitDetailUrl}
-          className={`card ${styles.summaryCard} ${styles.summaryLink}`}
-          aria-label={`期間利益 ${money(
-            summary.profit,
-          )}。利益詳細を表示`}
-        >
-          <h2 className={styles.summaryLabel}>
-            期間利益
-          </h2>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>利益</h3>
+            <p
+              className={`${styles.summaryValue} ${
+                summary.profit < 0 ? styles.negativeValue : ""
+              }`}
+            >
+              {money(summary.profit)}
+            </p>
+          </article>
 
-          <p
-            className={`${styles.summaryValue} ${
-              Number(summary.profit) < 0
-                ? styles.negativeValue
-                : ""
-            }`}
-          >
-            {money(summary.profit)}
-          </p>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>販売件数</h3>
+            <p className={styles.summaryValue}>
+              {summary.salesCount.toLocaleString("ja-JP")}件
+            </p>
+          </article>
 
-          <p className={styles.linkHint}>
-            利益詳細を見る →
-          </p>
-        </Link>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>在庫少（現在）</h3>
+            <p className={styles.summaryValue}>
+              {summary.lowStockCount.toLocaleString("ja-JP")}件
+            </p>
+          </article>
+        </div>
+      </section>
 
-        <section
-          className={`card ${styles.summaryCard}`}
-          aria-labelledby="dashboard-count-label"
-        >
-          <h2
-            id="dashboard-count-label"
-            className={styles.summaryLabel}
-          >
-            期間販売件数
-          </h2>
+      <ChannelProfitPanel
+        rows={channelRows}
+        loading={loading}
+        from={appliedRange.from}
+        to={appliedRange.to}
+      />
 
-          <p className={styles.summaryValue}>
-            {Number(
-              summary.salesCount,
-            ).toLocaleString("ja-JP")}{" "}
-            件
-          </p>
-        </section>
-
-        <section
-          className={`card ${styles.summaryCard}`}
-          aria-labelledby="dashboard-stock-label"
-        >
-          <h2
-            id="dashboard-stock-label"
-            className={styles.summaryLabel}
-          >
-            在庫少（現在）
-          </h2>
-
-          <p className={styles.summaryValue}>
-            {Number(
-              summary.lowStockCount,
-            ).toLocaleString("ja-JP")}{" "}
-            件
-          </p>
-        </section>
-      </div>
-
-      <span
-        className="visually-hidden"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {loading
-          ? "ダッシュボードを更新しています"
-          : ""}
+      <span className="visually-hidden" role="status" aria-live="polite">
+        {loading ? "ダッシュボードを更新しています" : ""}
       </span>
     </div>
   );
