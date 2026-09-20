@@ -11,7 +11,7 @@ function formatDateTime(v) {
   return s.length >= 16 ? s.slice(0, 16) : s;
 }
 
-export default function SalesPanel({ onChanged }) {
+export default function SalesPanel({ refreshKey }) {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,10 +35,10 @@ export default function SalesPanel({ onChanged }) {
 
   useEffect(() => {
     load();
-  }, []);
-  useEffect(() => {
-    if (onChanged) load();
-  }, [onChanged]); // 必要なら後で削除OK
+
+    // loadはコンポーネント内の取得処理
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[refreshKey]);
 
   const openDetail = async (saleId) => {
     try {
@@ -68,7 +68,7 @@ export default function SalesPanel({ onChanged }) {
 
       {error && (
         <div
-          className="app-feedback app-feedbak--error"
+          className="app-feedback app-feedback--error"
           role="alert"
         >
           {error}
