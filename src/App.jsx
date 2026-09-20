@@ -10,7 +10,6 @@ import DashboardPage from "./pages/DashboardPage";
 import InventoryPage from "./pages/InventoryPage"
 import ItemsPage from "./pages/ItemsPage";
 import SalesPage from "./pages/SalesPage";
-import ProfitPage from "./pages/ProfitPage";
 
 export default function App() {
   const linkClass = ({ isActive }) =>
@@ -44,11 +43,6 @@ export default function App() {
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink to="/profit" className={linkClass}>
-                      利益詳細
-                    </NavLink>
-                  </li>
-                  <li>
                     <NavLink to="/items" className={linkClass}>
                       作品管理
                     </NavLink>
@@ -76,8 +70,8 @@ export default function App() {
             <div className="app-container app-main-container">
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/profit" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/profit" element={<ProfitPage />} />
                 <Route path="/items" element={<ItemsPage />} />
                 <Route path="/inventory" element={<InventoryPage />} />
                 <Route path="/sales" element={<SalesPage />} />
