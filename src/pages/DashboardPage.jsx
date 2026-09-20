@@ -1,74 +1,98 @@
 import { useEffect, useMemo, useState } from "react";
-import { fetchChannelProfit, fetchLowStockVariants } from "../api";
-import { useNavigate } from "react-router-dom";
-import PageHeader from "../components/PageHeader";
 
-function ymd(d) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+import {
+  fetchChannelProfit,
+  fetchLowStockVariants,
+} from "../api";
+
+import PageHeader from "../components/PageHeader";
+import ChannelProfitPanel from "../components/ChannelProfitPanel";
+import styles from "./DashboardPage.module.css";
+
+function ymd(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function monthRangeToday() {
   const now = new Date();
-  const from = new Date(now.getFullYear(), now.getMonth(), 1);
-  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return { from: ymd(from), to: ymd(to) };
+  return {
+    from: ymd(new Date(now.getFullYear(), now.getMonth(), 1)),
+    to: ymd(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
+  };
 }
 
-function money(n) {
-  return Number(n ?? 0).toLocaleString("ja-JP", {
+function money(value) {
+  return Number(value ?? 0).toLocaleString("ja-JP", {
     style: "currency",
     currency: "JPY",
   });
 }
 
-export default function DashboardPage() {
-  const range = useMemo(() => monthRangeToday(), []);
-  const [from, setFrom] = useState(range.from);
-  const [to, setTo] = useState(range.to);
+function countDays(from, to) {
+  if (!from || !to) return null;
+  const start = new Date(`${from}T00:00:00`);
+  const end = new Date(`${to}T00:00:00`);
+  return Math.floor((end - start) / 86400000) + 1;
+}
 
+export default function DashboardPage() {
+  const initialRange = useMemo(() => monthRangeToday(), []);
+
+  const [from, setFrom] = useState(initialRange.from);
+  const [to, setTo] = useState(initialRange.to);
+  const [appliedRange, setAppliedRange] = useState(initialRange);
+  const [channelRows, setChannelRows] = useState([]);
+  const [lowStockCount, setLowStockCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [summary, setSummary] = useState({
-    salesCount: 0,
-    totalAmount: 0,
-    profit: 0,
-    lowStockCount: 0,
-  });
 
-  const navigate = useNavigate();
+  const summary = useMemo(() => {
+    const sum = (key) =>
+      channelRows.reduce(
+        (total, row) => total + Number(row?.[key] ?? 0),
+        0,
+      );
 
-  const loadSummary = async () => {
+    return {
+      salesCount: sum("salesCount"),
+      totalAmount: sum("totalAmount"),
+      profit: sum("profit"),
+      lowStockCount,
+    };
+  }, [channelRows, lowStockCount]);
+
+  const loadDashboard = async (nextFrom = from, nextTo = to) => {
+    if (nextFrom && nextTo && nextFrom > nextTo) {
+      setError("開始日は終了日以前の日付を選択してください");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
 
-      const res = await fetchChannelProfit({
-        from: from || undefined,
-        to: to || undefined,
-      });
-      const rows = Array.isArray(res.data) ? res.data : [];
+      const [profitResponse, lowStockResponse] = await Promise.all([
+        fetchChannelProfit({
+          from: nextFrom || undefined,
+          to: nextTo || undefined,
+        }),
+        fetchLowStockVariants(),
+      ]);
 
-      const salesCount = rows.reduce(
-        (sum, r) => sum + Number(r.salesCount ?? 0),
-        0,
+      setChannelRows(
+        Array.isArray(profitResponse.data) ? profitResponse.data : [],
       );
-      const totalAmount = rows.reduce(
-        (sum, r) => sum + Number(r.totalAmount ?? 0),
-        0,
+      setLowStockCount(
+        Array.isArray(lowStockResponse.data)
+          ? lowStockResponse.data.length
+          : 0,
       );
-      const profit = rows.reduce((sum, r) => sum + Number(r.profit ?? 0), 0);
-
-      const res2 = await fetchLowStockVariants();
-      const lowStockCount = Array.isArray(res2.data) ? res2.data.length : 0;
-
-      setSummary({ salesCount, totalAmount, profit, lowStockCount });
-
+      setAppliedRange({ from: nextFrom, to: nextTo });
     } catch (e) {
       console.error(e);
-      setSummary((prev) => ({ ...prev }));
       setError("ダッシュボード集計の取得に失敗しました");
     } finally {
       setLoading(false);
@@ -76,136 +100,148 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    loadSummary();
+    loadDashboard(initialRange.from, initialRange.to);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const clearConditions = () => {
+    setFrom("");
+    setTo("");
+    loadDashboard("", "");
+  };
+
+  const dayCount = countDays(appliedRange.from, appliedRange.to);
+  const periodText =
+    appliedRange.from && appliedRange.to
+      ? `${appliedRange.from} ～ ${appliedRange.to}`
+      : appliedRange.from
+        ? `${appliedRange.from} 以降`
+        : appliedRange.to
+          ? `${appliedRange.to} 以前`
+          : "全期間";
+
   return (
-    <div>
-      <PageHeader
-        title="ダッシュボード"
-        actions={
-          <form
-            className="row g-2 align-items-end"
-            onSubmit={(e) => {
-              e.preventDefault();
-              loadSummary();
-            }}
-          >
-            <div className="col-12 col-sm-auto">
-              <label
-                htmlFor="dashbord-from"
-                className="form-label mb-1"
-              >開始日
-              </label>
+    <div className={styles.dashboard}>
+      <PageHeader title="ダッシュボード" />
 
-              <input
-                id="dashbord-from"
-                type="date"
-                className="form-control"
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                disabled={loading}
-              />
-            </div>
+      <section className={styles.periodPanel} aria-labelledby="period-title">
+        <h2 id="period-title" className="visually-hidden">
+          集計期間
+        </h2>
 
-            <div className="col-12 col-sm-auto">
-              <label
-                htmlFor="dashbord-to"
-                className="form-label mb-1"
-              >
-                終了日
-              </label>
+        <form
+          className={styles.periodForm}
+          aria-busy={loading}
+          onSubmit={(e) => {
+            e.preventDefault();
+            loadDashboard();
+          }}
+        >
+          <div className={styles.periodField}>
+            <label htmlFor="dashboard-from" className="form-label">
+              開始日
+            </label>
+            <input
+              id="dashboard-from"
+              type="date"
+              className="form-control"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              disabled={loading}
+            />
+          </div>
 
-              <input
-                id="dashbord-to"
-                type="date"
-                className="form-control"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                disabled={loading}
-              />
-            </div>
+          <div className={styles.periodField}>
+            <label htmlFor="dashboard-to" className="form-label">
+              終了日
+            </label>
+            <input
+              id="dashboard-to"
+              type="date"
+              className="form-control"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              disabled={loading}
+            />
+          </div>
 
-            <div className="col-12 col-sm-auto d-grid">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading}
-              >
-                {loading ? "更新中" : "更新"}
-              </button>
-            </div>
-          </form>
-        }
-      />
+          <div className={styles.periodActions}>
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? "集計中..." : "集計"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              onClick={clearConditions}
+              disabled={loading || (!from && !to)}
+            >
+              条件をクリア
+            </button>
+          </div>
+        </form>
+
+        <p className={styles.periodResult}>
+          {dayCount != null
+            ? `${dayCount}日間の集計を表示しています`
+            : `${periodText}の集計を表示しています`}
+        </p>
+      </section>
 
       {error && (
-        <div
-          className="app-feedback app-feedback--error"
-          role="alert"
-        >
+        <div className="app-feedback app-feedback--error" role="alert">
           {error}
         </div>
       )}
 
-      {/* サマリーカード */}
-      <div className="row g-2 mb-3">
-        <div className="col-12 col-md-3">
-          <div className="card">
-            <div className="card-body">
-              <div className="text-muted small">期間売上</div>
-              <div className="fs-4 fw-semibold text-end">
-                {money(summary.totalAmount)}
-              </div>
-            </div>
-          </div>
+      <section aria-labelledby="summary-title">
+        <div className={styles.sectionHeading}>
+          <h2 id="summary-title">サマリー</h2>
+          <p>{periodText}</p>
         </div>
 
-        <div className="col-12 col-md-3">
-          <div
-            className="card"
-            role="button"
-            onClick={() => navigate(`/profit?from=${from}&to=${to}`)}
-          >
-            <div className="card-body">
-              <div className="text-muted small">期間利益</div>
-              <div
-                className={`fs-4 fw-semibold text-end ${
-                  Number(summary.profit) < 0 ? "text-danger" : ""
-                }`}
-              >
-                {money(summary.profit)}
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className={styles.summaryGrid} aria-busy={loading}>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>売上</h3>
+            <p className={styles.summaryValue}>{money(summary.totalAmount)}</p>
+          </article>
 
-        <div className="col-12 col-md-3">
-          <div className="card">
-            <div className="card-body">
-              <div className="text-muted small">期間販売件数</div>
-              <div className="fs-4 fw-semibold text-end">
-                {Number(summary.salesCount).toLocaleString()} 件
-              </div>
-            </div>
-          </div>
-        </div>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>利益</h3>
+            <p
+              className={`${styles.summaryValue} ${
+                summary.profit < 0 ? styles.negativeValue : ""
+              }`}
+            >
+              {money(summary.profit)}
+            </p>
+          </article>
 
-        <div className="col-12 col-md-3">
-          <div className="card">
-            <div className="card-body">
-              <div className="text-muted small">
-                在庫少（現在）
-              </div>
-              <div className="fs-4 fw-semibold text-end">
-                {Number(summary.lowStockCount).toLocaleString()} 件
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>販売件数</h3>
+            <p className={styles.summaryValue}>
+              {summary.salesCount.toLocaleString("ja-JP")}件
+            </p>
+          </article>
 
+          <article className={`card ${styles.summaryCard}`}>
+            <h3 className={styles.summaryLabel}>在庫少（現在）</h3>
+            <p className={styles.summaryValue}>
+              {summary.lowStockCount.toLocaleString("ja-JP")}件
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <ChannelProfitPanel
+        rows={channelRows}
+        loading={loading}
+        from={appliedRange.from}
+        to={appliedRange.to}
+      />
+
+      <span className="visually-hidden" role="status" aria-live="polite">
+        {loading ? "ダッシュボードを更新しています" : ""}
+      </span>
     </div>
   );
 }

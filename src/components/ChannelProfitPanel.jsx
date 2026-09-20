@@ -1,6 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
-import { fetchChannelProfit } from "../api";
-
+import { useEffect, useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,46 +10,60 @@ import {
   Cell,
 } from "recharts";
 
-function money(n) {
-  return Number(n ?? 0).toLocaleString();
+import styles from "./ChannelProfitPanel.module.css";
+
+function number(value) {
+  return Number(value ?? 0).toLocaleString("ja-JP");
 }
 
-// Dachboardから「期間」と「更新トリガー」をもらう
-export default function ChannelProfitPanel({ from, to, reloadKey }) {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [metric, setMetric] = useState("profit"); // profit or totalAmont
+function rate(profit, totalAmount) {
+  const amount = Number(totalAmount ?? 0);
+  if (amount === 0) return "-";
+  return `${((Number(profit ?? 0) / amount) * 100).toFixed(1)}%`;
+}
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        setError("");
+const metricSettings = {
+  profit: { label: "利益", unit: "円" },
+  totalAmount: { label: "売上", unit: "円" },
+  salesCount: { label: "件数", unit: "件" },
+};
 
-        const res = await fetchChannelProfit({
-          from: from || undefined,
-          to: to || undefined,
-        });
+export default function ChannelProfitPanel({ rows, loading, from, to }) {
+  const [metric, setMetric] = useState("profit");
 
-        setRows(res.data ?? []);
-      } catch (e) {
-        console.error(e);
-        setError("集計取得に失敗しました");
-        setRows([]);
-      } finally {
-        setLoading(false);
-      }
+  const [isMobile, setIsMobile] = useState(
+    () =>
+      window.matchMedia(
+        "(max-width: 767.98px)",
+      ).matches,
+  );
+
+  useEffect(() =>{
+    const mediaQuery = window.matchMedia(
+      "(max-width: 767.98px)",
+    );
+
+    const handleChange = (event) => {
+      setIsMobile(event.matches);
     };
 
-    load();
-    // reloadKeyが変わった時だけ再取得する
-  }, [reloadKey, from, to]);
+    mediaQuery.addEventListener(
+      "change",
+      handleChange,
+    );
 
-  // 合計（rowsが変わったら計算しなおす）
+    return () => {
+      mediaQuery.removeEventListener(
+        "change",
+        handleChange,
+      );
+    };
+  },[]);
+
   const total = useMemo(() => {
     const sum = (key) =>
-      rows.reduce((acc, r) => acc + Number(r?.[key] ?? 0), 0);
+      rows.reduce((result, row) => result + Number(row?.[key] ?? 0), 0);
+
     return {
       salesCount: sum("salesCount"),
       totalAmount: sum("totalAmount"),
@@ -62,150 +74,183 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
     };
   }, [rows]);
 
-  // グラフ用データ（利益が大きい順）
-  const chartData = useMemo(() => {
-    const key = metric; // "profit" or "totalAmount"
+  const chartData = useMemo(
+  () =>
+    rows
+      .map((row) => {
+        const profit = Number(row.profit ?? 0);
 
-    return rows
-      .map((r) => {
-        const profit = Number(r.profit ?? 0);
-        const totalAmount = Number(r.totalAmount ?? 0);
-        const profitRate =
-          totalAmount === 0 ? null : (profit / totalAmount) * 100;
+        const totalAmount = Number(
+          row.totalAmount ?? 0,
+        );
+        const salesCount = Number(
+          row.salesCount ?? 0,
+        );
 
-        return {
-          name: r.channelName ?? "未設定",
+        const metricValue = {
           profit,
           totalAmount,
-          profitRate,
+          salesCount,
+        }[metric];
+
+        return {
+          name: row.channelName ?? "未設定",
+          profit,
+          totalAmount,
+          salesCount,
+
+          // マイナス利益も右方向へ表示するため、
+          // グラフ上では絶対値を使用する
+          chartValue:
+            metric === "profit"
+              ? Math.abs(profit)
+              : metricValue,
         };
       })
-      .sort((a, b) => Number(b[key] ?? 0) - Number(a[key] ?? 0));
-  }, [rows, metric]);
+      .sort(
+        (a, b) =>
+          Number(b.chartValue) -
+          Number(a.chartValue),
+      ),
+  [rows, metric],
+);
+
+  const periodText =
+    from && to ? `${from} ～ ${to}` : from ? `${from} 以降` : to ? `${to} 以前` : "全期間";
+
+  const formatChannelName = (value) => {
+    const name = String(value ?? "");
+
+    if (!isMobile || name.length <= 7) {
+      return name;
+    }
+
+    return `${name.slice(0, 7)}...`;
+  };
 
   return (
-    <div className="mt-2">
-      <div className="d-flex align-items-center justify-content-between mb-2">
-        <h3 className="h5 mb-3">チャネル別利益</h3>
-
-        {loading && rows.length === 0 && (
-          <div
-            className="app-loading-state"
-            role="status"
-            aria-live="polite"
-          >
-            <span
-              className="spinner-border spinner-border-sm"
-              aria-hidden="true"
-            />
-            <span>集計データを読み込んでいます</span>
-          </div>
-        )}
-
-        <div className="text-muted small">
-          {from && to ? `${from}～${to}` : "期間：全期間"}
-          {loading ? "（更新中）" : ""}
-        </div>
+    <section className={styles.panel} aria-labelledby="channel-title">
+      <div className={styles.sectionHeading}>
+        <h2 id="channel-title">チャネル別</h2>
+        <p>{periodText}</p>
       </div>
 
-      {error && (
-          <div
-            className="app-feedback app-feedback--error"
-          >
-            {error}
-          </div>
-        )}
+      {loading && rows.length === 0 && (
+        <div className="app-loading-state" role="status">
+          <span className="spinner-border spinner-border-sm" aria-hidden="true" />
+          <span>集計データを読み込んでいます</span>
+        </div>
+      )}
 
-      {/* 横棒グラフ（売上/利益 切替） */}
-      {chartData.length > 0 && (
-        <div className="card mb-3">
-          <div className="card-body">
-            <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
-              <div className="fw-semibold mb-2">
-                {metric === "profit"
-                  ? "利益（チャネル別）"
-                  : "売上（チャネル別）"}
-              </div>
-              {/* 切替スイッチ */}
-              <div
-                className="btn-group"
-                role="group"
-                aria-label="metric switch"
-              >
-                <button
-                  type="button"
-                  className={`btn btn-sm ${
-                    metric === "profit" ? "btn-primary" : "btn-outline-primary"
-                  }`}
-                  onClick={() => setMetric("profit")}
-                >
-                  利益
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-sm ${
-                    metric === "totalAmount"
-                      ? "btn-primary"
-                      : "btn-outline-primary"
-                  }`}
-                  onClick={() => setMetric("totalAmount")}
-                >
-                  売上
-                </button>
+      {!loading && rows.length === 0 && (
+        <div className="app-empty-state">
+          <p className="app-empty-state__title">データがありません</p>
+          <p className="app-empty-state__description">
+            指定した期間には販売データがありません。
+          </p>
+        </div>
+      )}
+
+      {rows.length > 0 && (
+        <>
+          <div className={styles.chartCard}>
+            <div className={styles.chartHeader}>
+              <h3>販売実績</h3>
+              <div className={styles.metricSwitch} aria-label="グラフの表示項目">
+                {Object.entries(metricSettings).map(([key, setting]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={metric === key ? styles.metricActive : ""}
+                    aria-pressed={metric === key}
+                    onClick={() => setMetric(key)}
+                  >
+                    {setting.label}
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="u-chart-h230">
-              <ResponsiveContainer>
+            <div
+              className={styles.chart}
+              style={{
+                height: `${Math.max(
+                  180,
+                  chartData.length * 36 + 60,
+                )}px`
+              }}
+            >
+              <ResponsiveContainer
+                width="100%"
+                height="100%"
+                minWidth={0}
+                minHeight={0}
+                initialDimension={{ width: 1, height: 300 }}
+              >
                 <BarChart
                   data={chartData}
-                  layout="vertical" // 横棒
-                  margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+                  layout="vertical"
+                  margin={{
+                    top: 8,
+                    right: 16,
+                    left: isMobile ? 0 : 16,
+                    bottom: 8
+                  }}
                 >
-                  <CartesianGrid strokeDasharray="4 3" />
-                  {/* 数値軸 */}
-                  <XAxis type="number" />
-                  {/* チャネル名 */}
-                  <YAxis type="category" dataKey="name" width={140} />
+                  <CartesianGrid
+                    strokeDasharray="4 3"
+                    strokeWidth={0.6}
+                  />
+                  <XAxis
+                    type="number"
+                    allowDecimals={metric !== "salesCount"}
+                   />
+
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    width={isMobile ? 76 :120}
+                    tickFormatter={formatChannelName}
+                    tick={{
+                      fontSize: isMobile ? 12 : 14,
+                    }}
+                   />
+
                   <Tooltip
                     content={({ active, payload, label }) => {
-                      if (!active || !payload || payload.length === 0)
+                      if (!active || !payload?.length) {
                         return null;
+                      }
 
-                      const d = payload[0].payload; // chartDataの１行分
-                      const value = d?.[metric];
-
-                      const rateText =
-                        d.profitRate == null
-                          ? "-"
-                          : `${d.profitRate.toFixed(1)}%`;
+                      const row = payload[0].payload;
+                      const originalValue = row[metric];
 
                       return (
-                        <div className="bg-white border rounded px-2 py-1 small">
-                          <div className="fw-semibold mb-1">{label}</div>
+                        <div className={styles.tooltip}>
+                          <strong>{label}</strong>
 
-                          <div>
-                            {metric === "profit" ? "利益" : "売上"}:
-                            {money(value)}
-                          </div>
-                          {/* <div>売上：{money(d.totalAmount)}</div>
-                          <div>利益：{money(d.profit)}</div> */}
-                          <div>
-                            利益率：
-                            <span className={d.profit < 0 ? "text-danger" : ""}>
-                              {rateText}
-                            </span>
-                          </div>
+                          <span>
+                            {metricSettings[metric].label}:
+                            {number(originalValue)}
+                            {metricSettings[metric].unit}
+                          </span>
                         </div>
                       );
                     }}
                   />
-                  {/* 切替本体 */}
-                  <Bar dataKey={metric}>
+                  <Bar
+                    dataKey="chartValue"
+                    barSize={18}
+                  >
                     {chartData.map((entry, index) => (
                       <Cell
-                        key={`cell-${index}`}
-                        fill={entry.profit < 0 ? "#dc3545" : "#0d6efd"}
+                        key={`${entry.name}-${index}`}
+                        fill={
+                          metric === "profit" &&
+                          entry.profit < 0
+                            ? "#dc3545"
+                            : "#5792f5"
+                        }
                       />
                     ))}
                   </Bar>
@@ -213,121 +258,103 @@ export default function ChannelProfitPanel({ from, to, reloadKey }) {
               </ResponsiveContainer>
             </div>
 
-            <div className="text-muted small">
-              {metric === "profit"
-                ? "※ 棒がマイナスの場合は左方向に伸びます"
-                : "※ 売上の大きいチャネルが一目でわかります"}
-            </div>
-          </div>
-        </div>
-      )}
+            <p className={styles.chartNote}>
+              ※ マイナスの利益は赤色で表示します
+            </p>
 
-      {(!loading || rows.length > 0) && !error && (
-      <div className="table-responsive">
-        <table className="table table-bordered align-middle">
-          <thead className="table-light">
-            <tr>
-              <th>販売チャネル</th>
-              <th className="text-end">販売件数</th>
-              <th className="text-end">売上</th>
-              <th className="text-end">原価</th>
-              <th className="text-end">手数料</th>
-              <th className="text-end">固定費</th>
-              <th className="text-end">利益</th>
-              <th className="text-end">利益率</th>
-            </tr>
-          </thead>
-          {/* 合計行 */}
-          {rows.length > 0 && (
-            <thead>
-              <tr className="table-dark">
-                <th>合計</th>
-                <th className="text-end">{money(total.salesCount)}</th>
-                <th className="text-end">{money(total.totalAmount)}</th>
-                <th className="text-end">{money(total.totalCost)}</th>
-                <th className="text-end">{money(total.feeAmount)}</th>
-                <th className="text-end">{money(total.fixedAmount)}</th>
-                <th
-                  className={`text-end ${
-                    Number(total.profit) < 0 ? "text-danger" : ""
-                  }`}
-                >
-                  {money(total.profit)}
-                </th>
-                <th
-                  className={`text-end ${Number(total.profit ?? 0) < 0 ? "text-danger" : ""}`}
-                >
-                  {(() => {
-                    const amt = Number(total.totalAmount ?? 0);
-                    const profit = Number(total.profit ?? 0);
-                    if (amt === 0) return "-";
-                    return `${((profit / amt) * 100).toFixed(1)}%`;
-                  })()}
-                </th>
-              </tr>
-            </thead>
-          )}
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.channelId ?? "none"}>
-                <td>{r.channelName}</td>
-                <td className="text-end">{r.salesCount ?? 0}</td>
-                <td className="text-end">{money(r.totalAmount)}</td>
-                <td className="text-end">{money(r.totalCost)}</td>
-                <td className="text-end">{money(r.feeAmount)}</td>
-                <td className="text-end">{money(r.fixedAmount)}</td>
-                <td
-                  className={`text-end ${
-                    Number(r.profit ?? 0) < 0 ? "text-danger" : ""
-                  }`}
-                >
-                  {money(r.profit)}
-                </td>
-                <td
-                  className={`text-end ${
-                    Number(r.profit ?? 0) < 0 ? "text-danger" : ""
-                  }`}
-                >
-                  {(() => {
-                    const amt = Number(r.totalAmount ?? 0);
-                    const profit = Number(r.profit ?? 0);
-                    if (amt === 0) return "-";
-                    return `${((profit / amt) * 100).toFixed(1)}%`;
-                  })()}
-                </td>
-              </tr>
-            ))}
+            {metric === "profit" && (
+              <div
+                className={styles.chartLegend}
+                aria-label="グラフの色分け"
+              >
+                <span>
+                  <i
+                    className={styles.positiveSwatch}
+                    aria-hidden="true"
+                  />
+                  プラス
+                </span>
 
-            {rows.length === 0 && !loading && !error && (
-              <tr>
-                <td colSpan={8}>
-                  <div className="app-empty-state app-empty-state--embedded">
-                    <p className="app-empty-state__title">
-                      データがありません
-                    </p>
-
-                    <p className="app-empty-state__description">
-                      指定した期間には販売データがありません。
-                    </p>
-                  </div>
-                </td>
-              </tr>
+                <span>
+                  <i
+                    className={styles.negativeSwatch}
+                    aria-hidden="true"
+                  />
+                  マイナス
+                </span>
+              </div>
             )}
-          </tbody>
-        </table>
-      </div>
-      )}
+          </div>
 
+          <div className={styles.tableHeading}>
+            <h3>チャネル別 内訳</h3>
+            <p>{periodText}</p>
+          </div>
 
-      {/* さらに見やすい：下に1行で要約 */}
-      {rows.length > 0 && (
-        <div className="text-muted small">
-          合計：売上{money(total.totalAmount)} ／ 利益{" "}
-          <span className={Number(total.profit) < 0 ? "text-danger" : ""}>
-            {money(total.profit)}
-          </span>
-        </div>
+          <div className={styles.desktopTableWrap}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>販売チャネル</th>
+                  <th>販売件数</th>
+                  <th>売上</th>
+                  <th>原価</th>
+                  <th>手数料</th>
+                  <th>固定費</th>
+                  <th>利益</th>
+                  <th>利益率</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className={styles.totalRow}>
+                  <th scope="row">合計</th>
+                  <td>{number(total.salesCount)}</td>
+                  <td>{number(total.totalAmount)}</td>
+                  <td>{number(total.totalCost)}</td>
+                  <td>{number(total.feeAmount)}</td>
+                  <td>{number(total.fixedAmount)}</td>
+                  <td className={total.profit < 0 ? styles.negative : ""}>{number(total.profit)}</td>
+                  <td className={total.profit < 0 ? styles.negative : ""}>
+                    {rate(total.profit, total.totalAmount)}
+                  </td>
+                </tr>
+                {rows.map((row, index) => (
+                  <tr key={`${row.channelId ?? row.channelName}-${index}`}>
+                    <th scope="row">{row.channelName ?? "未設定"}</th>
+                    <td>{number(row.salesCount)}</td>
+                    <td>{number(row.totalAmount)}</td>
+                    <td>{number(row.totalCost)}</td>
+                    <td>{number(row.feeAmount)}</td>
+                    <td>{number(row.fixedAmount)}</td>
+                    <td className={Number(row.profit) < 0 ? styles.negative : ""}>{number(row.profit)}</td>
+                    <td className={Number(row.profit) < 0 ? styles.negative : ""}>
+                      {rate(row.profit, row.totalAmount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className={styles.mobileBreakdown}>
+            <h3>チャネル別 内訳</h3>
+            {rows.map((row, index) => (
+              <details key={`${row.channelId ?? row.channelName}-${index}`} className={styles.channelDetails}>
+                <summary>{row.channelName ?? "未設定"}</summary>
+                <dl>
+                  <div><dt>販売件数</dt><dd>{number(row.salesCount)}件</dd></div>
+                  <div><dt>売上</dt><dd>{number(row.totalAmount)}円</dd></div>
+                  <div><dt>原価</dt><dd>{number(row.totalCost)}円</dd></div>
+                  <div><dt>手数料</dt><dd>{number(row.feeAmount)}円</dd></div>
+                  <div><dt>固定費</dt><dd>{number(row.fixedAmount)}円</dd></div>
+                  <div><dt>利益</dt><dd className={Number(row.profit) < 0 ? styles.negative : ""}>{number(row.profit)}円</dd></div>
+                  <div><dt>利益率</dt><dd>{rate(row.profit, row.totalAmount)}</dd></div>
+                </dl>
+              </details>
+            ))}
+          </div>
+        </>
       )}
-    </div>
+    </section>
   );
 }

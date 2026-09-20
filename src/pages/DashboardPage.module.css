@@ -1,0 +1,142 @@
+.dashboard {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.periodPanel {
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.periodForm {
+  display: grid;
+  grid-template-columns:
+    minmax(10rem, 1fr)
+    minmax(10rem, 1fr)
+    auto;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.periodField {
+  min-width: 0;
+}
+
+.periodField :global(.form-label) {
+  font-weight: 700;
+}
+
+.periodField :global(.form-control) {
+  width: 100%;
+}
+
+.periodActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(7.5rem, auto));
+  gap: var(--space-2);
+}
+
+.periodResult {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sectionHeading h2 {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.sectionHeading p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.summaryCard {
+  min-width: 0;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-4);
+}
+
+.summaryLabel {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.summaryValue {
+  margin: var(--space-4) 0 0;
+  color: var(--color-text);
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.negativeValue {
+  color: var(--color-danger);
+}
+
+@media (max-width: 991.98px) {
+  .summaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767.98px) {
+  .periodForm {
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+  .periodActions {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sectionHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dashboard {
+    gap: var(--space-4);
+  }
+
+  .periodPanel {
+    padding: var(--space-4);
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    min-height: 6.5rem;
+  }
+}
