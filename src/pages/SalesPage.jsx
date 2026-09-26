@@ -51,7 +51,7 @@ export default function SalesPage() {
             className="btn btn-primary"
             onClick={() => setSaleOpen(true)}
           >
-            +販売登録
+            +新規販売登録
           </button>
         }
       />
@@ -87,7 +87,7 @@ export default function SalesPage() {
           await loadVariants(); // 次の登録の選択肢も最新に
 
           setSalesReloadKey(
-            (current) => current + 1,
+            (key) => key + 1,
           );
 
           showToast("販売を登録しました");

@@ -44,7 +44,7 @@ export default function SaleDetailModal({ open, sale, onClose }) {
                 <td>
                   {l.itemName ?? "-"}
                   <br />
-                  {l.name}
+                  {l.variantName ?? "-"}
                 </td>
                 <td className="text-nowrap">{l.skuCode ?? "-"}</td>
                 <td className="text-end">{l.qty}</td>
