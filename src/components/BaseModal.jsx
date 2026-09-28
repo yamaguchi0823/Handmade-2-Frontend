@@ -162,7 +162,7 @@ export default function BaseModal({
     >
       <div
         ref={modalRef}
-        className={`app-modal-box ${sizeClass} p-3 rounded shadow`}
+        className={`app-modal-box ${sizeClass}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -172,17 +172,17 @@ export default function BaseModal({
         <div className="app-modal-header">
           <h2
             id={titleId}
-            className="h5 mb-0 text-truncate app-modal-title"
+            className="app-modal-title"
           >
             {title}
           </h2>
 
-          <div className="d-flex align-items-center gap-2">
+          <div className="app-modal-header-actions">
             {headerRight}
 
             <button
               type="button"
-              className="btn btn-sm btn-outline-secondary"
+              className="btn btn-sm btn-outline-secondary app-modal-close"
               onClick={onClose}
               disabled={busy}
               aria-label="モーダルを閉じる"

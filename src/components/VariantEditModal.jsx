@@ -159,7 +159,7 @@ export default function VariantEditModal({
             placeholder="例：モルフォ蝶・サイズ-S"
             disabled={busy}
             />
-            <div className="formp-text">
+            <div className="form-text">
               色・形・タイプなど、バリエーションを識別できる名前
             </div>
         </div>
