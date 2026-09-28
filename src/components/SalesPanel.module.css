@@ -1,0 +1,594 @@
+/* src/components/SalesPanel.module.css */
+
+/* =========================
+   Sales list
+========================= */
+
+.panel {
+  min-width: 0;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+
+.heading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.tablePanel {
+  overflow: hidden;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 760px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.table th,
+.table td {
+  padding: var(--space-4);
+  vertical-align: middle;
+}
+
+.table thead th {
+  background: var(--color-table-header-bg);
+  border-bottom: 2px solid var(--color-table-header-line);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.table tbody > tr:not(.detailRow) > td {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.infoColumn {
+  width: auto;
+}
+
+.channelColumn {
+  width: 12rem;
+}
+
+.quantityColumn {
+  width: 6rem;
+}
+
+.memoColumn {
+  width: 4.5rem;
+}
+
+.detailColumn {
+  width: 5rem;
+}
+
+.mobileHeading {
+  display: none;
+}
+
+/* =========================
+   Main row
+========================= */
+
+.infoCell {
+  min-width: 0;
+}
+
+.saleIdentity {
+  min-width: 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-table-header-line);
+}
+
+.itemName,
+.variantName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemName {
+  margin: 0 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.variantName {
+  display: -webkit-box;
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  /* font-size: 1rem; */
+  /* font-weight: 800; */
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.saleSubInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+}
+
+.channelCell {
+  overflow: hidden;
+  text-align: center;
+}
+
+.channelName {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.quantityCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.quantityCell strong {
+  font-size: 1.125rem;
+}
+
+.quantityCell span,
+.mobileQuantity small {
+  margin-left: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.memoCell {
+  text-align: center;
+}
+
+.memoIcon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-primary);
+}
+
+.mobileMemo,
+.mobileQuantity {
+  display: none;
+}
+
+
+/* =========================
+   Expanded details
+========================= */
+
+.expandedRow > td {
+  background: var(--color-primary-soft);
+}
+
+.detailRow > td {
+  padding: 0;
+  background: var(--color-surface-subtle);
+  border-bottom:
+    1px solid var(--color-border-subtle);
+}
+
+.detailPanel {
+  min-width: 0;
+  padding: var(--space-4);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+/*
+ * PC版：
+ * ①メモ・登録日時
+ * ②ID・SKU
+ * ③数量・金額
+ */
+.detailGrid {
+  display: grid;
+  grid-template-columns:
+    minmax(18rem, 1.5fr)
+    minmax(15rem, 0.8fr)
+    minmax(14rem, 0.65fr);
+  align-items: start;
+  gap: var(--space-5);
+}
+
+.detailMetaGroup {
+  min-width: 0;
+}
+
+.memoArea {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.memoArea > span,
+.registeredAt > span,
+.idList dt,
+.amountList dt {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.memoArea p {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.registeredAt {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.idList,
+.amountList {
+  min-width: 0;
+  margin: 0;
+  padding-left: var(--space-4);
+  border-left:
+    1px solid var(--color-row-divider);
+}
+
+.idList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.idList > div,
+.amountList > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.idList dd,
+.amountList dd {
+  min-width: 0;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.idList dd {
+  overflow-wrap: anywhere;
+}
+
+.amountList > div + div {
+  margin-top: var(--space-1);
+}
+
+.amountList dd {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.detailBody {
+    gap:var(--space-4);
+    padding-top: var(--space-3);
+
+}
+
+/* =========================
+   Mobile table
+========================= */
+
+@media (max-width: 767.98px) {
+  .heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heading :global(.btn) {
+    width: 100%;
+  }
+
+  .tablePanel {
+    border-radius: var(--radius-md);
+  }
+
+  .tableScroll {
+    overflow-x: visible;
+  }
+
+  /*
+   * スマホでは通常の5列テーブルを、
+   * 作品情報・チャネル・詳細の3列に組み直す
+   */
+  .table,
+  .table thead,
+  .table tbody {
+    width: 100%;
+    display: block;
+  }
+
+  .table {
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  .table thead tr,
+  .mainRow {
+    width: 100%;
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      7rem;
+      /* 3.75rem; */
+    align-items: stretch;
+  }
+
+  .table thead th:not(.quantityColumn):not(.memoColumn):not(.detailColumn) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mainRow {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .mainRow > .detailCell {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    width: auto;
+    min-width: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+  }
+
+    /*
+      * 展開時も、行全体を覆う透明ボタンのセルは
+      * 背景を透明にして概要を隠さない
+    */
+    .mainRow.expamdedRow > .detailCell {
+      background: transparent;
+    }
+
+  .mainRow > .detailCell :global(.btn) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+
+  /*
+    * 透明ボタンへキーボードフォーカスが
+    * 当たったときは行全体を囲む
+    */
+    .mainRow:focus-within {
+    outline: 3px solid var(--color-focus);
+    outline-offset: -3px;
+    }
+
+  .table th,
+  .table td {
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+
+
+  .detailGrid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .memoArea,
+  .registeredAt {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .idList,
+.amountList {
+  padding-top: var(--space-4);
+  padding-left: 0;
+  border-top:
+    1px solid var(--color-row-divider);
+  border-left: 0;
+}
+
+.idList > div,
+.amountList > div {
+  justify-content: space-between;
+}
+
+.idList dd {
+  max-width: 65%;
+}
+
+  .infoColumn,
+  .channelColumn,
+  .detailColumn {
+    width: auto;
+  }
+
+  .quantityColumn,
+  .quantityCell,
+  .memoColumn,
+  .memoCell,
+  .detailColumn,
+  .desktopHeading {
+    display: none;
+  }
+
+  .mobileHeading,
+  .mobileQuantity,
+  .mobileMemo {
+    display: inline-flex;
+  }
+
+  .mobileHeading {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .saleIdentity {
+    min-width: 0;
+    padding-left: var(--space-2);
+  }
+
+  .itemName {
+    font-size: 0.75rem;
+  }
+
+  .variantName {
+    font-size: 0.9375rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .channelCell {
+    min-width: 0;
+    overflow: hidden;
+    text-align: right;
+  }
+
+  .channelName {
+    display: block;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobileQuantity {
+    justify-content: flex-end;
+    margin-top: var(--space-1);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mobileMemo {
+    align-items: center;
+  }
+
+  .mobileMemo .memoIcon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+
+  /*
+   * 展開した詳細は3列に分割せず、
+   * テーブル全体の横幅を使用する
+   */
+  .detailRow {
+    width: 100%;
+    display: block;
+  }
+
+  .detailRow > td {
+    width: 100%;
+    display: block;
+  }
+
+  /*
+   * ローディング・空状態
+   */
+  .table tbody > tr:not(.mainRow):not(.detailRow) {
+    width: 100%;
+    display: block;
+  }
+
+  .table tbody > tr:not(.mainRow):not(.detailRow) > td {
+    width: 100%;
+    display: block;
+  }
+
+  .detailPanel {
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-3);
+  }
+
+  .detailBody {
+    gap: var(--space-3);
+  }
+
+  .memoArea,
+  .registeredAt {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .idList {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .idList > div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .idList dd {
+    max-width: 65%;
+    overflow-wrap: anywhere;
+    text-align: right;
+  }
+
+  .amountList {
+    padding-top: var(--space-3);
+    padding-left: 0;
+    border-top: 1px solid var(--color-row-divider);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .table th,
+  .table td {
+    padding: var(--space-2);
+  }
+
+  .table thead tr,
+  .mainRow {
+    grid-template-columns:
+      minmax(0, 1fr)
+      6.25rem
+      /* 3.25rem; */
+  }
+
+  .detailPanel {
+    padding: var(--space-3);
+  }
+}

@@ -9,6 +9,7 @@ export default function SalesPage() {
   const [variants, setVariants] = useState([]);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
+  const [salesReloadKey, setSalesReloadKey] = useState(0);
 
   const toastTimerRef = useRef(null);
 
@@ -50,7 +51,7 @@ export default function SalesPage() {
             className="btn btn-primary"
             onClick={() => setSaleOpen(true)}
           >
-            +販売登録
+            +新規販売登録
           </button>
         }
       />
@@ -74,7 +75,9 @@ export default function SalesPage() {
           </div>
         )}
 
-      <SalesPanel />
+      <SalesPanel
+        refreshKey={salesReloadKey}
+      />
 
       <SaleCreateModal
         open={saleOpen}
@@ -82,6 +85,11 @@ export default function SalesPage() {
         variants={variants}
         onCreated={async () => {
           await loadVariants(); // 次の登録の選択肢も最新に
+
+          setSalesReloadKey(
+            (key) => key + 1,
+          );
+
           showToast("販売を登録しました");
         }}
       />
