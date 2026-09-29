@@ -1,0 +1,90 @@
+/* =========================
+   Item page actions
+========================= */
+
+.pageActions {
+  min-width: 0;
+}
+
+.desktopActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.mobileActions {
+  display: none;
+}
+
+/* =========================
+   Mobile action menu
+========================= */
+
+@media (max-width: 767.98px) {
+  .desktopActions {
+    display: none;
+  }
+
+  .mobileActions {
+    position: relative;
+    display: block;
+  }
+
+  .mobileActions > summary {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .mobileActions > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobileActions > summary:focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  .mobileActions[open] > summary {
+    color: #ffffff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .mobileMenu {
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    right: 0;
+    z-index: 30;
+
+    width: min(17rem, calc(100vw - 2rem));
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .mobileMenu :global(.btn) {
+    width: 100%;
+    text-align: left;
+  }
+}

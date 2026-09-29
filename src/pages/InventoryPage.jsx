@@ -143,17 +143,6 @@ export default function InventoryPage() {
 
       <PageHeader
         title="在庫一覧"
-        actions={
-          <div className="d-flex gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={() => setSaleOpen(true)}
-            >
-              +販売登録
-            </button>
-          </div>
-        }
       />
 
       {error && (

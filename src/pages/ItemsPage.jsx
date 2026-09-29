@@ -9,6 +9,7 @@ import ManagementVariantList from "../components/ManagementVariantList";
 import VariantCreateModal from "../components/VariantCreateModal";
 import VariantEditModal from "../components/VariantEditModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
+import styles from "./ItemsPage.module.css";
 
 export default function ItemsPage() {
   const [items, setItems] = useState([]);
@@ -279,124 +280,136 @@ const resetSearchConditions = () => {
       )}
 
       <PageHeader
-  title="作品管理"
-  actions={
-    <div className="item-page-actions">
-      {/* PC版 */}
-      <div className="item-page-actions-desktop">
-        <button
-          type="button"
-          className="btn btn-outline-secondary"
-          onClick={() => setInactiveItemsOpen(true)}
-        >
-          無効化済み作品
-        </button>
+        title="作品管理"
+        description="作品とバリエーションの登録・編集を行います。"
+        actions={
+          <div className={styles.pageActions}>
+            {/* PC版 */}
+            <div className={styles.desktopActions}>
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() =>
+                  setInactiveItemsOpen(true)
+                }
+              >
+                無効化済み作品
+              </button>
 
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => setItemCreateOpen(true)}
-        >
-          ＋ 作品を登録
-        </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() =>
+                  setItemCreateOpen(true)
+                }
+              >
+                ＋ 作品を登録
+              </button>
 
+              <button
+                type="button"
+                className="app-icon-button app-icon-button--solid-primary"
+                onClick={reloadAll}
+                disabled={
+                  itemsLoading || variantsLoading
+                }
+                aria-label="作品とバリエーションを再読み込み"
+                title="再読み込み"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M21 12a9 9 0 0 0-15-6.7L3 8" />
+                  <path d="M3 3v5h5" />
+                  <path d="M3 12a9 9 0 0 0 15 6.7l3-2.7" />
+                  <path d="M21 21v-5h-5" />
+                </svg>
 
-        <button
-          type="button"
-          className="app-icon-button app-icon-button--solid-primary"
-          onClick={reloadAll}
-          disabled={itemsLoading || variantsLoading}
-          aria-label="作品とバリエーションを再読み込み"
-          title="再読み込み"
-        >
-          <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path d="M21 12a9 9 0 0 0-15-6.7L3 8" />
-          <path d="M3 3v5h5" />
-          <path d="M3 12a9 9 0 0 0 15 6.7l3-2.7" />
-          <path d="M21 21v-5h-5" />
-        </svg>
-          {(itemsLoading || variantsLoading) && (
-            <span className="visually-hidden">
-              読み込み中
-            </span>
-          )}
-        </button>
-      </div>
+                {(itemsLoading ||
+                  variantsLoading) && (
+                  <span className="visually-hidden">
+                    読み込み中
+                  </span>
+                )}
+              </button>
+            </div>
 
-      {/* スマホ版 */}
-      <details
-  ref={mobileActionsRef}
-  className="item-page-actions-mobile"
-  onBlur={() => {
-    requestAnimationFrame(() => {
-      const menu = mobileActionsRef.current;
+            {/* スマホ版 */}
+            <details
+              ref={mobileActionsRef}
+              className={styles.mobileActions}
+              onBlur={() => {
+                requestAnimationFrame(() => {
+                  const menu =
+                    mobileActionsRef.current;
 
-      if (menu && !menu.contains(document.activeElement)) {
-        menu.removeAttribute("open");
-      }
-    });
-  }}
->
-        <summary aria-label="作品管理メニューを開く">
-          <span aria-hidden="true">•••</span>
-        </summary>
+                  if (
+                    menu &&
+                    !menu.contains(
+                      document.activeElement,
+                    )
+                  ) {
+                    menu.removeAttribute("open");
+                  }
+                });
+              }}
+            >
+              <summary aria-label="作品管理メニューを開く">
+                <span aria-hidden="true">•••</span>
+              </summary>
 
-        <div className="item-page-actions-menu">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              closeMobileActions();
-              setItemCreateOpen(true);
-            }}
-          >
-            ＋ 作品を登録
-          </button>
+              <div className={styles.mobileMenu}>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => {
+                    closeMobileActions();
+                    setItemCreateOpen(true);
+                  }}
+                >
+                  ＋ 作品を登録
+                </button>
 
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              closeMobileActions();
-              setInactiveItemsOpen(true);
-            }}
-          >
-            無効化済み作品
-          </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => {
+                    closeMobileActions();
+                    setInactiveItemsOpen(true);
+                  }}
+                >
+                  無効化済み作品
+                </button>
 
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={async () => {
-              closeMobileActions();
-              await reloadAll();
-            }}
-            disabled={itemsLoading || variantsLoading}
-          >
-            {itemsLoading || variantsLoading
-              ? "読み込み中..."
-              : "再読み込み"}
-          </button>
-        </div>
-      </details>
-    </div>
-  }
-/>
-
-      <p className="text-secondary mb-4">
-        作品とバリエーションの登録・編集を行います。
-      </p>
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={async () => {
+                    closeMobileActions();
+                    await reloadAll();
+                  }}
+                  disabled={
+                    itemsLoading || variantsLoading
+                  }
+                >
+                  {itemsLoading || variantsLoading
+                    ? "読み込み中..."
+                    : "再読み込み"}
+                </button>
+              </div>
+            </details>
+          </div>
+        }
+      />
 
       <section aria-label="作品一覧">
 
