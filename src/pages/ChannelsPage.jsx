@@ -113,6 +113,7 @@ export default function ChannelsPage() {
     <div>
       <PageHeader
         title="チャネル管理"
+        description="販売先ごとの手数料率や固定費を登録・編集します。"
         actions={
           <button
             type="button"
@@ -123,10 +124,6 @@ export default function ChannelsPage() {
           </button>
         }
       />
-
-      <p className={styles.description}>
-        販売先ごとの手数料率や固定費を登録・編集します。
-      </p>
 
       {toast && (
         <div

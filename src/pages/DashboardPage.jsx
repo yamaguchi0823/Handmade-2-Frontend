@@ -121,116 +121,122 @@ export default function DashboardPage() {
           : "全期間";
 
   return (
-    <div className={styles.dashboard}>
-      <PageHeader title="ダッシュボード" />
+    <div>
+      <PageHeader
+        title="ダッシュボード"
+        description="売上・利益・販売件数・在庫状況を確認します。"
+        // actions={}
+      />
 
-      <section className={styles.periodPanel} aria-labelledby="period-title">
-        <h2 id="period-title" className="visually-hidden">
-          集計期間
-        </h2>
+      <div className={styles.dashboard}>
+        <section className={styles.periodPanel} aria-labelledby="period-title">
+          <h2 id="period-title" className="visually-hidden">
+            集計期間
+          </h2>
 
-        <form
-          className={styles.periodForm}
-          aria-busy={loading}
-          onSubmit={(e) => {
-            e.preventDefault();
-            loadDashboard();
-          }}
-        >
-          <div className={styles.periodField}>
-            <label htmlFor="dashboard-from" className="form-label">
-              開始日
-            </label>
-            <input
-              id="dashboard-from"
-              type="date"
-              className="form-control"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              disabled={loading}
-            />
+          <form
+            className={styles.periodForm}
+            aria-busy={loading}
+            onSubmit={(e) => {
+              e.preventDefault();
+              loadDashboard();
+            }}
+          >
+            <div className={styles.periodField}>
+              <label htmlFor="dashboard-from" className="form-label">
+                開始日
+              </label>
+              <input
+                id="dashboard-from"
+                type="date"
+                className="form-control"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles.periodField}>
+              <label htmlFor="dashboard-to" className="form-label">
+                終了日
+              </label>
+              <input
+                id="dashboard-to"
+                type="date"
+                className="form-control"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className={styles.periodActions}>
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? "集計中..." : "集計"}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={clearConditions}
+                disabled={loading || (!from && !to)}
+              >
+                条件をクリア
+              </button>
+            </div>
+          </form>
+
+          <p className={styles.periodResult}>
+            {dayCount != null
+              ? `${dayCount}日間の集計を表示しています`
+              : `${periodText}の集計を表示しています`}
+          </p>
+        </section>
+
+        {error && (
+          <div className="app-feedback app-feedback--error" role="alert">
+            {error}
+          </div>
+        )}
+
+        <section aria-labelledby="summary-title">
+          <div className={styles.sectionHeading}>
+            <h2 id="summary-title">サマリー</h2>
+            <p>{periodText}</p>
           </div>
 
-          <div className={styles.periodField}>
-            <label htmlFor="dashboard-to" className="form-label">
-              終了日
-            </label>
-            <input
-              id="dashboard-to"
-              type="date"
-              className="form-control"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              disabled={loading}
-            />
+          <div className={styles.summaryGrid} aria-busy={loading}>
+            <article className={`card ${styles.summaryCard}`}>
+              <h3 className={styles.summaryLabel}>売上</h3>
+              <p className={styles.summaryValue}>{money(summary.totalAmount)}</p>
+            </article>
+
+            <article className={`card ${styles.summaryCard}`}>
+              <h3 className={styles.summaryLabel}>利益</h3>
+              <p
+                className={`${styles.summaryValue} ${
+                  summary.profit < 0 ? styles.negativeValue : ""
+                }`}
+              >
+                {money(summary.profit)}
+              </p>
+            </article>
+
+            <article className={`card ${styles.summaryCard}`}>
+              <h3 className={styles.summaryLabel}>販売件数</h3>
+              <p className={styles.summaryValue}>
+                {summary.salesCount.toLocaleString("ja-JP")}件
+              </p>
+            </article>
+
+            <article className={`card ${styles.summaryCard}`}>
+              <h3 className={styles.summaryLabel}>在庫少（現在）</h3>
+              <p className={styles.summaryValue}>
+                {summary.lowStockCount.toLocaleString("ja-JP")}件
+              </p>
+            </article>
           </div>
-
-          <div className={styles.periodActions}>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? "集計中..." : "集計"}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={clearConditions}
-              disabled={loading || (!from && !to)}
-            >
-              条件をクリア
-            </button>
-          </div>
-        </form>
-
-        <p className={styles.periodResult}>
-          {dayCount != null
-            ? `${dayCount}日間の集計を表示しています`
-            : `${periodText}の集計を表示しています`}
-        </p>
-      </section>
-
-      {error && (
-        <div className="app-feedback app-feedback--error" role="alert">
-          {error}
-        </div>
-      )}
-
-      <section aria-labelledby="summary-title">
-        <div className={styles.sectionHeading}>
-          <h2 id="summary-title">サマリー</h2>
-          <p>{periodText}</p>
-        </div>
-
-        <div className={styles.summaryGrid} aria-busy={loading}>
-          <article className={`card ${styles.summaryCard}`}>
-            <h3 className={styles.summaryLabel}>売上</h3>
-            <p className={styles.summaryValue}>{money(summary.totalAmount)}</p>
-          </article>
-
-          <article className={`card ${styles.summaryCard}`}>
-            <h3 className={styles.summaryLabel}>利益</h3>
-            <p
-              className={`${styles.summaryValue} ${
-                summary.profit < 0 ? styles.negativeValue : ""
-              }`}
-            >
-              {money(summary.profit)}
-            </p>
-          </article>
-
-          <article className={`card ${styles.summaryCard}`}>
-            <h3 className={styles.summaryLabel}>販売件数</h3>
-            <p className={styles.summaryValue}>
-              {summary.salesCount.toLocaleString("ja-JP")}件
-            </p>
-          </article>
-
-          <article className={`card ${styles.summaryCard}`}>
-            <h3 className={styles.summaryLabel}>在庫少（現在）</h3>
-            <p className={styles.summaryValue}>
-              {summary.lowStockCount.toLocaleString("ja-JP")}件
-            </p>
-          </article>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <ChannelProfitPanel
         rows={channelRows}

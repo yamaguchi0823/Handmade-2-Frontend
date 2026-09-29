@@ -2,16 +2,6 @@
    Channels page
 ========================= */
 
-.description {
-  margin:
-    calc(var(--space-3) * -1)
-    0
-    var(--space-5);
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
 .listPanel {
   overflow: hidden;
 }
@@ -126,10 +116,6 @@
 ========================= */
 
 @media (max-width: 767.98px) {
-  .description {
-    margin-top: calc(var(--space-2) * -1);
-  }
-
   .listHeading {
     align-items: stretch;
     flex-direction: column;

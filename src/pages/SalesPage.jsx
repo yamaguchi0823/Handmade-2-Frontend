@@ -44,14 +44,15 @@ export default function SalesPage() {
   return (
     <div>
       <PageHeader
-        title="販売"
+        title="販売管理"
+        description="販売情報の登録と販売履歴の確認を行います。"
         actions={
           <button
             type="button"
             className="btn btn-primary"
             onClick={() => setSaleOpen(true)}
           >
-            +新規販売登録
+            + 販売登録
           </button>
         }
       />
