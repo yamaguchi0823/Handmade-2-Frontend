@@ -259,7 +259,7 @@
   Responsive header
 ==================== */
 
-@media (max-width: 767.98px) {
+@media (max-width: 991.98px) {
   .app-header-inner {
     min-height: 4.75rem;
     justify-content: space-between;
@@ -607,11 +607,13 @@
    Item page actions
 ========================= */
 
-.item-page-actions-desktop {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+@media (max-width: 767.98px) {
+  .item-page-actions-desktop {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
 }
 
 .item-page-actions-mobile {

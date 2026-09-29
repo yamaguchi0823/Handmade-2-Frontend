@@ -16,6 +16,7 @@ import DashboardPage from "./pages/DashboardPage";
 import InventoryPage from "./pages/InventoryPage";
 import ItemsPage from "./pages/ItemsPage";
 import SalesPage from "./pages/SalesPage";
+import ChannelsPage from "./pages/ChannelsPage";
 
 import AppLogo from "./components/AppLogo";
 
@@ -40,6 +41,12 @@ const navigationItems = [
     label: "販売管理",
     icon: "sales",
   },
+  {
+    to: "/channels",
+    label: "チャネル管理",
+    icon: "channel",
+  },
+
 ];
 
 function NavigationIcon({ name }) {
@@ -72,16 +79,35 @@ function NavigationIcon({ name }) {
     );
   }
 
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 10v10h16V10" />
-      <path d="M3 4h18l-1 6H4L3 4Z" />
-      <path d="M8 4v6" />
-      <path d="M12 4v6" />
-      <path d="M16 4v6" />
-      <path d="M8 20v-5h4v5" />
-    </svg>
-  );
+  if (name === "channel") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect
+          x="3"
+          y="5"
+          width="18"
+          height="14"
+          rx="2"
+        />
+        <path d="M3 10h18" />
+        <path d="M7 15h3" />
+      </svg>
+    );
+  }
+
+  if (name === "sales") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 10v10h16V10" />
+        <path d="M3 4h18l-1 6H4L3 4Z" />
+        <path d="M8 4v6" />
+        <path d="M12 4v6" />
+        <path d="M16 4v6" />
+        <path d="M8 20v-5h4v5" />
+      </svg>
+    );
+  }
+  return null;
 }
 
 export default function App() {
@@ -313,6 +339,12 @@ export default function App() {
                 path="/sales"
                 element={<SalesPage />}
               />
+
+              <Route
+                path="/channels"
+                element={<ChannelsPage />}
+              />
+
             </Routes>
           </div>
         </main>

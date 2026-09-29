@@ -79,6 +79,14 @@ export function fetchChannels() {
   return api.get("/channels");
 }
 
+export function createChannel(payload) {
+  return api.post("/channels", payload);
+}
+
+export function updateChannel(channelId, payload) {
+  return api.put(`/channels/${channelId}`, payload);
+}
+
 export function fetchChannelProfit(params) {
   return api.get("/reports/channel-profit", { params });
 }
