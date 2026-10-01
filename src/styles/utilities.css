@@ -1,13 +1,18 @@
 /* src/styles/utilities.css */
 
 /* =======================
-  Application layout
+   Application layout
 ========================= */
 
 .app-shell {
+  --app-sidebar-width: 16rem;
+
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns:
+    var(--app-sidebar-width)
+    minmax(0, 1fr);
+  align-items: start;
 }
 
 .app-container {
@@ -18,7 +23,8 @@
 }
 
 .app-main {
-  flex: 1;
+  min-width: 0;
+  min-height: 100vh;
 }
 
 .app-main-container {
@@ -57,25 +63,42 @@
   position: sticky;
   top: 0;
   z-index: 1020;
-  background: rgba(255, 255, 255, 0.5);
-  border-bottom: 1px solid var(--color-border-subtle);
+
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+
+  background: rgba(255, 255, 255, 0.96);
+  border-right: 1px solid var(--color-border-subtle);
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(12px);
 }
 
 .app-header-inner {
-  min-height: 5rem;
+  width: 100%;
+  max-width: none;
+  min-height: 100%;
+
   display: flex;
-  align-items: center;
-  gap: clamp(2rem, 5vw, 5rem);
+  align-items: stretch;
+  flex-direction: column;
+  gap: var(--space-6);
+
+  margin: 0;
+  padding:
+    var(--space-6)
+    var(--space-6)
+    var(--space-5);
 }
 
 .app-brand {
   --app-logo-text: var(--color-text);
   --app-logo-accent: var(--color-primary);
 
+  min-width: 0;
   flex: 0 0 auto;
   display: inline-flex;
+  align-self: flex-start;
   color: inherit;
   text-decoration: none;
 }
@@ -130,46 +153,52 @@
 /* PC navigation */
 
 .app-nav {
+  width: 100%;
   min-width: 0;
-  align-self: stretch;
 }
 
 .app-nav-list {
-  height: 100%;
+  width: 100%;
+  min-width: 0;
   display: flex;
   align-items: stretch;
-  gap: var(--space-1);
-  min-width: max-content;
+  flex-direction: column;
+  gap: var(--space-2);
+
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .app-nav-list > li {
-  display: flex;
+  width: 100%;
+  min-width: 0;
 }
 
 .app-nav-link {
-  min-height: 3rem;
-  display: inline-flex;
+  width: 100%;
+  min-height: 3.25rem;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding-inline: var(--space-3);
-  padding-right: 20px;
-  color: var(--color-text);
-  border: 3px solid transparent;
-  border-bottom: 0;
-  border-radius:
-    var(--radius-md)
-    var(--radius-md)
-    0
-    0;
-  font-size: 0.875rem;
+  justify-content: flex-start;
+  gap: var(--space-3);
+
+  padding: var(--space-5) var(--space-4);
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+
+  font-size: 0.9375rem;
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
+
+  transition:
+    color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .app-nav-link:hover {
@@ -179,17 +208,17 @@
 
 .app-nav-link:focus-visible {
   outline: 3px solid var(--color-focus);
-  outline-offset: -3px;
+  outline-offset: 2px;
 }
 
 .app-nav-link.is-active {
-  color: var(--color-text);
-  /* background: var(--color-surface); */
-  border-color: var(--color-primary);
-  box-shadow: 0 3px 0 var(--color-surface);
-  margin-top: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  /* backdrop-filter: blur(10px); */
+  margin: 0;
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-color: transparent;
+  /* box-shadow: inset 3px 0 0 var(--color-primary); */
+  outline-offset: -3px;
+  outline: 3px solid var(--color-primary);
 }
 
 .app-nav-icon,
@@ -260,12 +289,65 @@
 ==================== */
 
 @media (max-width: 991.98px) {
+  .app-shell {
+    width:100%;
+    min-height: 100vh;
+
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+
+    /* PC用グリッド設定を明示的に解除 */
+    grid-template-columns: none;
+  }
+
+  .app-header {
+    position: sticky;
+    top: 0;
+    grid-column: auto;
+
+    width: 100%;
+    height: auto;
+    overflow: visible;
+
+    background: rgba(255, 255, 255, 0.96);
+    border-right: 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
   .app-header-inner {
+    width: 100%;
+    max-width: var(--content-max-width);
     min-height: 4.75rem;
+
+    align-items: center;
     justify-content: space-between;
+    flex-direction: row;
     gap: var(--space-3);
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
+
+    margin-inline: auto;
+    padding:
+      var(--space-2)
+      clamp(1rem, 3vw, 2rem);
+  }
+
+  .app-brand {
+    align-self: auto;
+  }
+
+  .app-main {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    flex: 1 1 auto;
+    grid-column: auto;
+  }
+
+  .app-main-container {
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin-inline: auto;
   }
 
   .app-nav {
@@ -275,6 +357,13 @@
   .app-menu-toggle {
     display: inline-flex;
   }
+
+  /* 以下は既存の
+     .app-mobile-overlay
+     .app-mobile-menu
+     .app-mobile-menu-header
+     などをそのまま残す */
+}
 
   .app-mobile-overlay {
     position: fixed;
@@ -375,7 +464,6 @@
   .app-mobile-nav-icon svg {
     width: 1.5rem;
     height: 1.5rem;
-  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

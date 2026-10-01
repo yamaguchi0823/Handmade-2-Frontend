@@ -1,6 +1,7 @@
 .dashboard {
   display: grid;
   gap: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 
 .periodPanel {
