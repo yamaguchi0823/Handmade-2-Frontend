@@ -1,0 +1,206 @@
+/* =========================
+   Channels page
+========================= */
+
+.listPanel {
+  overflow: hidden;
+}
+
+.listHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.listHeading h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.25rem;
+}
+
+.channelList {
+  min-width: 0;
+}
+
+.listHeader,
+.listRow {
+  display: grid;
+  grid-template-columns:
+    minmax(10rem, 1.1fr)
+    minmax(7rem, 0.6fr)
+    minmax(7rem, 0.6fr)
+    minmax(12rem, 1.5fr)
+    6rem;
+  align-items: center;
+}
+
+.listHeader {
+  min-height: 3.5rem;
+  padding-inline: var(--space-5);
+  color: var(--color-text);
+  background: var(--color-table-header-bg);
+  border-bottom: 2px solid var(--color-table-header-line);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.listHeader span:not(:first-child) {
+  text-align: center;
+}
+
+.listRow {
+  min-height: 5rem;
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.listRow:last-child {
+  border-bottom: 0;
+}
+
+.listRow:hover {
+  background: var(--color-row-hover);
+}
+
+.nameCell,
+.numberCell,
+.noteCell,
+.actionCell {
+  min-width: 0;
+  padding-inline: var(--space-2);
+}
+
+.nameCell strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.numberCell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.noteCell {
+  overflow: hidden;
+}
+
+.noteCell > span:last-child {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.actionCell {
+  display: flex;
+  justify-content: center;
+}
+
+.actionCell :global(.btn) {
+  min-width: 4.5rem;
+}
+
+.mobileLabel {
+  display: none;
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width: 767.98px) {
+  .listHeading {
+    align-items: stretch;
+    flex-direction: column;
+    padding: var(--space-4);
+  }
+
+  .listHeading :global(.btn) {
+    width: 100%;
+  }
+
+  .listHeader {
+    display: none;
+  }
+
+  .listRow {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  .nameCell,
+  .numberCell,
+  .noteCell,
+  .actionCell {
+    padding: 0;
+  }
+
+  .nameCell,
+  .noteCell {
+    grid-column: 1 / -1;
+  }
+
+  .nameCell {
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-row-divider);
+  }
+
+  .nameCell strong {
+    margin-top: var(--space-1);
+    font-size: 1.0625rem;
+  }
+
+  .numberCell {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    text-align: right;
+  }
+
+  .noteCell {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .noteCell > span:last-child {
+    -webkit-line-clamp: 3;
+  }
+
+  .actionCell {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .actionCell :global(.btn) {
+    width: 100%;
+  }
+
+  .mobileLabel {
+    display: inline;
+    color: var(--color-text-muted);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 399.98px) {
+  .listRow {
+    grid-template-columns: 1fr;
+  }
+
+  .numberCell {
+    grid-column: 1;
+  }
+}

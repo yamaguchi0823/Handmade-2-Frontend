@@ -60,6 +60,12 @@ export default function InventoryPage() {
     }
   };
 
+  // 絞り込み条件がある状態
+  const hasSearchConditions =
+   q.trim() !== "" ||
+   stockMode !== "ALL" ||
+   status !== "";
+
   // 条件クリア
   const clearFilters = () => {
     setQ("");
@@ -67,6 +73,7 @@ export default function InventoryPage() {
     setStatus("");
   };
 
+  
   // 在庫増減
   const changeStock = async (variantId, delta) => {
     if (updatingId === variantId) return;
@@ -128,6 +135,7 @@ export default function InventoryPage() {
     };
   },[]);
 
+
   return (
     <div>
       {toast && (
@@ -143,17 +151,8 @@ export default function InventoryPage() {
 
       <PageHeader
         title="在庫一覧"
-        actions={
-          <div className="d-flex gap-2">
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              onClick={() => setSaleOpen(true)}
-            >
-              +販売登録
-            </button>
-          </div>
-        }
+        description="バリエーションごとの在庫確認・調整・履歴管理を行います。"
+        // actions={}
       />
 
       {error && (
@@ -244,18 +243,15 @@ export default function InventoryPage() {
               }
           </p>
 
-          <button
+          {hasSearchConditions && (
+            <button
             type="button"
             className="btn btn-outline-secondary"
             onClick={clearFilters}
-            disabled={
-              q === "" &&
-              stockMode === "ALL" &&
-              status === ""
-            }
           >
             条件をクリア
           </button>
+          )}
         </div>
       </section>
 
