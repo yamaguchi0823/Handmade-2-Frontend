@@ -157,7 +157,7 @@ export default function SalesPanel({
     >
       <div className={styles.heading}>
         <h2 id="sales-list-title">
-          販売一覧
+          販売履歴一覧
         </h2>
 
         {/* <button

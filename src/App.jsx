@@ -27,11 +27,6 @@ const navigationItems = [
     icon: "dashboard",
   },
   {
-    to: "/items",
-    label: "作品管理",
-    icon: "item",
-  },
-  {
     to: "/inventory",
     label: "在庫管理",
     icon: "inventory",
@@ -42,10 +37,17 @@ const navigationItems = [
     icon: "sales",
   },
   {
+    to: "/items",
+    label: "作品管理",
+    icon: "item",
+  },
+  {
     to: "/channels",
     label: "チャネル管理",
     icon: "channel",
   },
+
+
 
 ];
 

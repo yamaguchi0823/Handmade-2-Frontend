@@ -52,7 +52,7 @@ export default function SalesPage() {
             className="btn btn-primary"
             onClick={() => setSaleOpen(true)}
           >
-            + 販売登録
+            + 新規販売登録
           </button>
         }
       />
