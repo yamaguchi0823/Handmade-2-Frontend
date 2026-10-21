@@ -3,6 +3,7 @@ import BaseModal from "./BaseModal";
 import { updateVariant, uploadVariantImage, deleteVariantImage } from "../api";
 
 export default function VariantEditModal({
+  readOnly = true,
   open,
   onClose,
   variant,
@@ -38,8 +39,13 @@ export default function VariantEditModal({
 
   if (!open || !variant) return null;
 
+  const busy = saving || uploading;
+
   const submit = async (e) => {
     e.preventDefault();
+
+    if (readOnly || busy) return;
+
     setError("");
 
     if (!variantName.trim()) {
@@ -68,10 +74,8 @@ export default function VariantEditModal({
     }
   };
 
-  const busy = saving || uploading;
-
   const uploadImage = async () => {
-    if (!imageFile) return;
+    if (readOnly || busy || !imageFile) return;
 
     try {
       setUploading(true);
@@ -94,6 +98,7 @@ export default function VariantEditModal({
   };
 
   const deleteImage = async () => {
+    if (readOnly || busy) return;
     const ok = window.confirm("画像を削除しますか？");
     if (!ok) return;
 
@@ -127,7 +132,7 @@ export default function VariantEditModal({
             type="submit"
             form="variant-edit-form"
             className="btn btn-primary"
-            disabled={busy}
+            disabled={readOnly || busy}
           >
             {saving ? "保存中..." : "保存"}
           </button>
@@ -146,6 +151,11 @@ export default function VariantEditModal({
         <div>作品：{variant.itemName}</div>
       </div>
 
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、保存・画像アップロード・画像削除はできません。
+        </div>
+      )}
       {error && <div className="alert alert-danger py-2">{error}</div>}
 
       <form id="variant-edit-form" onSubmit={submit}>
@@ -211,7 +221,7 @@ export default function VariantEditModal({
             <button
               type="button"
               className="btn btn-outline-primary"
-              disabled={!imageFile || busy}
+              disabled={readOnly || !imageFile || busy}
               onClick={uploadImage}
             >
               {uploading ? "アップロード中..." : "画像アップロード"}
@@ -221,7 +231,7 @@ export default function VariantEditModal({
               <button
                 type="button"
                 className="btn btn-outline-danger btn-sm"
-                disabled={busy}
+                disabled={readOnly || busy}
                 onClick={deleteImage}
               >
                 画像を削除

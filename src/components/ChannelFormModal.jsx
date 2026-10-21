@@ -12,6 +12,7 @@ import {
 import BaseModal from "./BaseModal";
 
 export default function ChannelFormModal({
+    readOnly = true,
     open,
     channel = null,
     onClose,
@@ -53,6 +54,9 @@ export default function ChannelFormModal({
 
     const submit = async (event) => {
         event.preventDefault();
+
+        if (readOnly || saving) return;
+
         setError("");
 
         const trimmedName = name.trim();
@@ -149,7 +153,7 @@ export default function ChannelFormModal({
                     type="submit"
                     form={formId}
                     className="btn btn-primary"
-                    disabled={saving}
+                    disabled={readOnly || saving}
                 >
                     {saving
                         ? editing
@@ -172,6 +176,11 @@ export default function ChannelFormModal({
                 </>
             }
         >
+            {readOnly && (
+                <div className="alert alert-info py-2" role="status">
+                    閲覧専用デモのため、登録・更新はできません。
+                </div>
+            )}
             {error && (
                 <div
                     className="alert alert-danger"

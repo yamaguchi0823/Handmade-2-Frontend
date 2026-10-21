@@ -3,6 +3,7 @@ import { fetchInactiveItems, reactiveItem } from "../api";
 import BaseModal from "./BaseModal";
 
 export default function InactiveItemsModal ({
+    readOnly = true,
     open,
     onClose,
     onReactivated,
@@ -36,12 +37,14 @@ export default function InactiveItemsModal ({
         loadInactiveItems();
 
         // モーダルを開いたときだけ取得
-        // eslint-disable-next-line react-hook / exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     },[open]);
 
     if (!open) return null;
 
     const reactivate = async (item) => {
+        if (readOnly || loading || processingId !== null) return;
+
         const confirmed = window.confirm(
             `「${item.name}」を再有効化しますか？`,
         );
@@ -63,7 +66,7 @@ export default function InactiveItemsModal ({
         } catch (e) {
             console.error(e);
             setError(
-                e?.responce?.data?.message ||
+                e?.response?.data?.message ||
                 "作品の再有効化に失敗しました",
             );
         } finally {
@@ -95,13 +98,19 @@ export default function InactiveItemsModal ({
             無効化した作品を確認し、必要に応じて再有効化できます。
          </p>
 
+         {readOnly && (
+            <div className="alert alert-info py-2" role="status">
+                閲覧専用デモのため、再有効化はできません。
+            </div>
+         )}
+
          {error && (
            <div className="alert alert-danger">
             {error}
            </div>
          )}
 
-         <div className="d-flex jsutify-content-end mb-3">
+         <div className="d-flex justify-content-end mb-3">
             <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary"
@@ -151,7 +160,7 @@ export default function InactiveItemsModal ({
                 type="button"
                 className="btn btn-sm btn-outline-success"
                 onClick={() => reactivate(item)}
-                disabled={processingId !== null}
+                disabled={readOnly || busy || processingId !== null}
             >
                 {processing ? "処理中..." : "再有効化"}
             </button>

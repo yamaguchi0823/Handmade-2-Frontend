@@ -4,7 +4,7 @@ import SalesPanel from "../components/SalesPanel";
 import SaleCreateModal from "../components/SaleCreateModal";
 import PageHeader from "../components/PageHeader";
 
-export default function SalesPage() {
+export default function SalesPage({ readOnly = true }) {
   const [saleOpen, setSaleOpen] = useState(false);
   const [variants, setVariants] = useState([]);
   const [toast, setToast] = useState("");
@@ -81,6 +81,7 @@ export default function SalesPage() {
       />
 
       <SaleCreateModal
+        readOnly={readOnly}
         open={saleOpen}
         onClose={() => setSaleOpen(false)}
         variants={variants}

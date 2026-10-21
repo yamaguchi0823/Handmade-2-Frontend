@@ -3,6 +3,7 @@ import { useState } from "react";
 import styles from "./InventoryVariantList.module.css";
 
 export default function InventoryVariantList({
+  readOnly = true,
   variants,
   updatingId,
   onDelta,
@@ -325,7 +326,7 @@ export default function InventoryVariantList({
                           type="button"
                           className={`btn btn-outline-danger ${styles.stockButton}`}
                           onClick={() => onDelta?.(variant.id, -1)}
-                          disabled={busy || stock <= 0}
+                          disabled={readOnly || busy || stock <= 0}
                           aria-label={`${getVariantName(
                             variant,
                           )}の在庫を1減らす`}
@@ -337,7 +338,7 @@ export default function InventoryVariantList({
                           type="button"
                           className={`btn btn-outline-primary ${styles.stockButton}`}
                           onClick={() => onDelta?.(variant.id, 1)}
-                          disabled={busy}
+                          disabled={readOnly || busy}
                           aria-label={`${getVariantName(
                             variant,
                           )}の在庫を1増やす`}

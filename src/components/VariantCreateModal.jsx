@@ -7,6 +7,7 @@ import {
 import BaseModal from "./BaseModal";
 
 export default function VariantCreateModal({
+  readOnly = true,
   open,
   onClose,
   onCreated,
@@ -55,7 +56,7 @@ export default function VariantCreateModal({
           );
 
           const selectedItemId = initialItemExisits
-            ? initialItemExisits
+            ? initialItemId
             : list[0].id;
 
           setItemId(String(selectedItemId));
@@ -81,6 +82,9 @@ export default function VariantCreateModal({
 
   const submit = async (e) => {
     e.preventDefault();
+
+    if (readOnly || busy || created) return;
+
     setError("");
 
     if (!itemId) {
@@ -88,7 +92,7 @@ export default function VariantCreateModal({
       return;
     }
 
-    if (!variantName.trim) {
+    if (!variantName.trim()) {
       setError("バリエーション名は必須です");
       return;
     }
@@ -135,7 +139,7 @@ export default function VariantCreateModal({
 
       const message =
         e?.response?.data?.message ||
-        
+
         e?.message ||
         "バリエーションの登録に失敗しました";
 
@@ -158,7 +162,7 @@ export default function VariantCreateModal({
             type="submit"
             form="variant-create-form"
             className="btn btn-primary"
-            disabled={busy || created}
+            disabled={readOnly || busy || created}
           >
             {saving ? "登録中" : created ? "登録済み" : "登録"}
           </button>
@@ -174,6 +178,11 @@ export default function VariantCreateModal({
         </>
       }
     >
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、入力は試せますが登録はできません。
+        </div>
+      )}
       {error && (
         <div className="alert alert-danger py-2" role="alert">
           {error}

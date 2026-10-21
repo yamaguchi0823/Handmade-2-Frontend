@@ -3,7 +3,12 @@ import { useEffect, useId, useState } from "react";
 import { createItem } from "../api";
 import BaseModal from "./BaseModal";
 
-export default function ItemCreateModal({ open, onClose, onCreated }) {
+export default function ItemCreateModal({
+  readOnly = true,
+  open,
+  onClose,
+  onCreated,
+}) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
@@ -26,6 +31,8 @@ export default function ItemCreateModal({ open, onClose, onCreated }) {
 
   const submit = async (e) => {
     e.preventDefault();
+
+    if (readOnly || saving) return;
     setError("");
 
     const trimmedName = name.trim();
@@ -66,7 +73,7 @@ export default function ItemCreateModal({ open, onClose, onCreated }) {
             type="submit"
             form="item-create-form"
             className="btn btn-primary"
-            disabled={saving}
+            disabled={readOnly || saving}
           >
             {saving ? "登録中..." : "登録する"}
           </button>
@@ -85,6 +92,12 @@ export default function ItemCreateModal({ open, onClose, onCreated }) {
       <p className="text-secondary mb-3">
         作品の基本情報を登録します。バリエーションは作品登録後に追加できます。
       </p>
+
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、入力は試せますが登録はできません。
+        </div>
+      )}
 
       {error && (
         <div className="alert alert-danger" role="alert">

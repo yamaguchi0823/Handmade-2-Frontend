@@ -3,6 +3,7 @@ import { adjustStock } from "../api";
 import BaseModal from "./BaseModal";
 
 export default function StockAdjustModal({
+  readOnly = true,
   open,
   variant,
   onClose,
@@ -26,6 +27,8 @@ export default function StockAdjustModal({
 
   const submit = async (e) => {
     e.preventDefault();
+
+    if ( readOnly || saving ) return;
     setError("");
 
     const n = Number(newStock);
@@ -64,7 +67,7 @@ export default function StockAdjustModal({
             type="submit"
             form="stock-adjust-form"
             className="btn btn-primary"
-            disabled={saving}
+            disabled={readOnly || saving}
           >
             {saving ? "保存中" : "確定"}
           </button>
@@ -87,6 +90,11 @@ export default function StockAdjustModal({
         <div>現在の在庫：{variant.stock}</div>
       </div>
 
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、入力は試せますが保存はできません。
+        </div>
+      )}
       {error && <div className="alert alert-danger py-2">{error}</div>}
 
       <form id="stock-adjust-form" onSubmit={submit}>
