@@ -3,6 +3,7 @@ import { deactivateItem, updateItem } from "../api";
 import BaseModal from "./BaseModal";
 
 export default function ItemEditModal({
+  readOnly = true,
   open,
   item,
   hasActiveVariants = false,
@@ -36,6 +37,9 @@ export default function ItemEditModal({
 
   const submit = async (e) => {
     e.preventDefault();
+
+    if (readOnly || busy) return;
+
     setError("");
 
     const trimmedName = name.trim();
@@ -67,7 +71,7 @@ export default function ItemEditModal({
   };
 
   const deactivate = async () => {
-    if (hasActiveVariants || busy) return;
+    if (readOnly || hasActiveVariants || busy) return;
 
     const confirmed = window.confirm(
       `「${item.name}」を無効化しますか？\n作品一覧には表示されなくなります。`,
@@ -106,7 +110,7 @@ export default function ItemEditModal({
             type="submit"
             form="item-edit-form"
             className="btn btn-primary"
-            disabled={busy}
+            disabled={readOnly || busy}
           >
             {saving ? "保存中..." : "変更を保存"}
           </button>
@@ -126,6 +130,11 @@ export default function ItemEditModal({
         作品の基本情報を変更します。バリエーションの情報には影響しません。
       </p>
 
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、入力は試せますが登録はできません。
+        </div>
+      )}
       {error && (
         <div className="alert alert-danger" role="alert">
           {error}
@@ -209,7 +218,7 @@ export default function ItemEditModal({
           type="button"
           className="btn btn-outline-danger"
           onClick={deactivate}
-          disabled={busy || hasActiveVariants}
+          disabled={readOnly || busy || hasActiveVariants}
           aria-describedby={deactivateHelpId}
         >
           {deactivating

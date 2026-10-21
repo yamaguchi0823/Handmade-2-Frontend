@@ -25,6 +25,7 @@ function todayYmd() {
 }
 
 export default function SaleCreateModal({
+  readOnly = true,
   open,
   onClose,
   variants,
@@ -152,6 +153,9 @@ export default function SaleCreateModal({
 
   const submit = async (e) => {
     e.preventDefault();
+
+    if ( readOnly || saving ) return;
+
     setError("");
 
     if (!saleDate) {
@@ -256,7 +260,7 @@ export default function SaleCreateModal({
             type="submit"
             form="sale-create-form"
             className="btn btn-primary"
-            disabled={saving}
+            disabled={ readOnly || saving }
           >
             {saving
               ? "登録中"
@@ -274,6 +278,12 @@ export default function SaleCreateModal({
         </>
       }
     >
+
+      {readOnly && (
+        <div className="alert alert-info py-2" role="status">
+          閲覧専用デモのため、入力は試せますが登録はできません。
+        </div>
+      )}
       {error && (
         <div
           className="app-feedback app-feedback--error"

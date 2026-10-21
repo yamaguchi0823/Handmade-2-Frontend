@@ -7,6 +7,8 @@ const api = axios.create({
 
 export default api;
 
+export const fetchAppConfig = () => api.get("/app-config");
+
 export function fetchItems() {
   return api.get("/items");
 }

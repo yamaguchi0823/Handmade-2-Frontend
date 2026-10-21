@@ -8,7 +8,7 @@ import ImagePreviewModal from "../components/ImagePreviewModal";
 import SaleCreateModal from "../components/SaleCreateModal";
 import InventoryVariantList from "../components/InventoryVariantList";
 
-export default function InventoryPage() {
+export default function InventoryPage({ readOnly = true }) {
   const [variants, setVariants] = useState([]);
   const [updatingId, setUpdatingId] = useState(null);
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -73,9 +73,10 @@ export default function InventoryPage() {
     setStatus("");
   };
 
-  
+
   // 在庫増減
   const changeStock = async (variantId, delta) => {
+    if (readOnly) return;
     if (updatingId === variantId) return;
 
     try {
@@ -256,6 +257,7 @@ export default function InventoryPage() {
       </section>
 
       <InventoryVariantList
+        readOnly={readOnly}
         variants={variants}
         updatingId={updatingId}
         onDelta={changeStock}
@@ -290,6 +292,7 @@ export default function InventoryPage() {
       />
 
       <StockAdjustModal
+        readOnly={readOnly}
         open={adjustOpen}
         variant={adjustVariant}
         onClose={() => {
@@ -316,6 +319,7 @@ export default function InventoryPage() {
       />
 
       <SaleCreateModal
+        readOnly={readOnly}
         open={saleOpen}
         onClose={() => setSaleOpen(false)}
         variants={variants}

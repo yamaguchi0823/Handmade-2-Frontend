@@ -11,7 +11,7 @@ import VariantEditModal from "../components/VariantEditModal";
 import ImagePreviewModal from "../components/ImagePreviewModal";
 import styles from "./ItemsPage.module.css";
 
-export default function ItemsPage() {
+export default function ItemsPage({ readOnly = true }) {
   const [items, setItems] = useState([]);
   const [expandedItemIds, setExpandedItemIds] = useState([]);
   const [variants, setVariants] = useState([]);
@@ -779,6 +779,7 @@ const resetSearchConditions = () => {
       </section>
 
       <ItemCreateModal
+        readOnly={readOnly}
         open={itemCreateOpen}
         onClose={() => setItemCreateOpen(false)}
         onCreated={async () => {
@@ -788,6 +789,7 @@ const resetSearchConditions = () => {
       />
 
       <ItemEditModal
+        readOnly={readOnly}
         open={itemEditOpen}
         item={editingItem}
         hasActiveVariants={variants.some(
@@ -810,6 +812,7 @@ const resetSearchConditions = () => {
       />
 
       <InactiveItemsModal
+        readOnly={readOnly}
         open={inactiveItemsOpen}
         onClose={() => setInactiveItemsOpen(false)}
         onReactivated={async () => {
@@ -819,6 +822,7 @@ const resetSearchConditions = () => {
       />
 
       <VariantCreateModal
+        readOnly={readOnly}
         open={variantCreateOpen}
         initialItemId={creatingVariantItemId}
         onClose={() => {
@@ -841,6 +845,7 @@ const resetSearchConditions = () => {
       />
 
       <VariantEditModal
+        readOnly={readOnly}
         open={variantEditOpen}
         variant={editingVariant}
         onClose={() => {

@@ -20,6 +20,8 @@ import ChannelsPage from "./pages/ChannelsPage";
 
 import AppLogo from "./components/AppLogo";
 
+import { fetchAppConfig } from "./api";
+
 const navigationItems = [
   {
     to: "/dashboard",
@@ -114,6 +116,42 @@ function NavigationIcon({ name }) {
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const [appConfig, setAppConfig] = useState(null);
+  const [configError, setConfigError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadConfig = async () => {
+      try {
+        const res = await fetchAppConfig();
+
+        if (typeof res.data?.readOnly !== "boolean") {
+          throw new Error("設定の形式が正しくありません");
+        }
+
+        if (!cancelled) {
+          setAppConfig(res.data);
+          setConfigError("");
+        }
+      } catch (error) {
+        console.error(error);
+
+        if (!cancelled) {
+          setConfigError(
+            "設定を取得できませんでした。ページを再読み込みしてください。"
+          );
+        }
+      }
+    };
+
+    loadConfig();
+
+    return () => {
+      cancelled = true;
+    };
+  },[]);
 
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
@@ -301,6 +339,23 @@ export default function App() {
           tabIndex="-1"
         >
           <div className="app-container app-main-container">
+            {appConfig?.readOnly && (
+              <div className="alert alert-info" role="status">
+                <strong>閲覧専用デモ</strong>
+                サンプルデータを使用しています。
+                登録・編集・削除などの更新操作はできません。
+              </div>
+            )}
+
+            {configError && (
+              <div className="alert alert-danger" role="alert">
+                {configError}
+              </div>
+            )}
+
+            {!appConfig && !configError && (
+              <p role="status">設定を読み込んでいます...</p>
+            )}
             <Routes>
               <Route
                 path="/"
@@ -329,22 +384,34 @@ export default function App() {
 
               <Route
                 path="/items"
-                element={<ItemsPage />}
+                element={
+                <ItemsPage
+                  readOnly={appConfig?.readOnly !== false}
+                />}
               />
 
               <Route
                 path="/inventory"
-                element={<InventoryPage />}
+                element={
+                <InventoryPage
+                  readOnly={appConfig?.readOnly !== false}
+                  />}
               />
 
               <Route
                 path="/sales"
-                element={<SalesPage />}
+                element={
+                <SalesPage
+                  readOnly={appConfig?.readOnly !== false}
+                />}
               />
 
               <Route
                 path="/channels"
-                element={<ChannelsPage />}
+                element={
+                <ChannelsPage
+                  readOnly={appConfig?.readOnly !== false}
+                />}
               />
 
             </Routes>

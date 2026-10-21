@@ -32,7 +32,7 @@ function formatMoney(value) {
   );
 }
 
-export default function ChannelsPage() {
+export default function ChannelsPage({ readOnly = true }) {
   const [channels, setChannels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -278,6 +278,7 @@ export default function ChannelsPage() {
       </section>
 
       <ChannelFormModal
+        readOnly={readOnly}
         open={modalOpen}
         channel={editingChannel}
         onClose={closeModal}
