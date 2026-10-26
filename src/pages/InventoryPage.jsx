@@ -10,7 +10,6 @@ import InventoryVariantList from "../components/InventoryVariantList";
 
 export default function InventoryPage({ readOnly = true }) {
   const [variants, setVariants] = useState([]);
-  const [updatingId, setUpdatingId] = useState(null);
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [adjustVariant, setAdjustVariant] = useState(null);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -73,47 +72,6 @@ export default function InventoryPage({ readOnly = true }) {
     setStatus("");
   };
 
-
-  // 在庫増減
-  const changeStock = async (variantId, delta) => {
-    if (readOnly) return;
-    if (updatingId === variantId) return;
-
-    try {
-      setUpdatingId(variantId);
-      setError("");
-
-      const res = await api.post(
-        `/variants/${variantId}/stock-movements/delta`,
-        {
-          delta,
-          note: "Reactから調整",
-        },
-      );
-
-      const newStock = res.data?.stock;
-
-      if (typeof newStock === "number") {
-        setVariants((prev) =>
-          prev.map((v) => (v.id === variantId ? { ...v, stock: newStock } : v)),
-        );
-      } else {
-        await loadVariants();
-      }
-
-      showToast("在庫を更新しました");
-    } catch (e) {
-      console.error(e);
-      const msg =
-        e?.response?.data?.message ||
-        (e?.response?.status === 409 ? "在庫が不足しています" : "") ||
-        "在庫更新に失敗しました";
-      setError(msg);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
   // 初回表示時：検索条件が変わったら自動的に取得
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -144,7 +102,7 @@ export default function InventoryPage({ readOnly = true }) {
           className="app-feedback app-feedback--success"
           role="status"
           aria-live="polite"
-          aria-atmic="true"
+          aria-atomic="true"
         >
           {toast}
         </div>
@@ -177,7 +135,7 @@ export default function InventoryPage({ readOnly = true }) {
               htmlFor="inventory-keyword"
               className="form-label"
             >
-              在庫を検索
+              バリエーションを検索
             </label>
 
             <input
@@ -257,10 +215,7 @@ export default function InventoryPage({ readOnly = true }) {
       </section>
 
       <InventoryVariantList
-        readOnly={readOnly}
         variants={variants}
-        updatingId={updatingId}
-        onDelta={changeStock}
         onPreviewImage={(v) => {
           if (!v.imageUrl) return;
 
@@ -299,12 +254,16 @@ export default function InventoryPage({ readOnly = true }) {
           setAdjustOpen(false);
           setAdjustVariant(null);
         }}
-        onAdjusted={(newStock) => {
+        onAdjusted={async (newStock) => {
           setVariants((prev) =>
             prev.map((v) =>
-              v.id === adjustVariant.id ? { ...v, stock: newStock } : v,
+              v.id === adjustVariant.id
+                ? { ...v, stock: newStock }
+                : v,
             ),
           );
+
+          await loadVariants();
           showToast("棚卸を反映しました");
         }}
       />

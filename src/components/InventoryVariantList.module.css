@@ -31,11 +31,9 @@
 
   /* 列幅 */
   --inventory-image-column-width: 108px;
-  /* --inventory-state-column-width: 126px; */
-  --inventory-state-column-width: 100px;
-  --inventory-stock-column-width: 94px;
-  --inventory-change-column-width: 144px;
-  --inventory-icon-column-width: 64px;
+  --inventory-state-column-width: 112px;
+  --inventory-stock-column-width: 100px;
+  --inventory-icon-column-width: 70px;
 
   display: block;
   overflow: hidden;
@@ -51,7 +49,7 @@
 
 .table {
   width: 100%;
-  /* min-width: 1000px; */
+  min-width: 720px;
   color: var(--color-text);
   background: var(--color-surface);
   border-collapse: collapse;
@@ -114,10 +112,6 @@
 
 .stockColumn {
   width: var(--inventory-stock-column-width);
-}
-
-.changeColumn {
-  width: var(--inventory-change-column-width);
 }
 
 .adjustColumn,
@@ -198,23 +192,27 @@
   white-space: nowrap;
 }
 
-.desktopStockActions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.stockButton {
-  min-width: 0;
-  min-height: var(--inventory-control-min-height);
-  padding-inline: var(--space-2);
-  font-size: 1rem;
-  font-weight: 800;
-}
-
 .iconCell {
   padding-inline: 0.25rem !important;
   text-align: center;
+}
+
+.actionButton {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 3rem;
+  min-height: 3rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.actionButton svg {
+  flex-shrink: 0;
 }
 
 /* =========================
@@ -399,14 +397,6 @@
     font-weight: 800;
   }
 
-  .mobileUpdating {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-top: var(--space-3);
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-  }
 }
 
 @media (max-width: 374.98px) {

@@ -10,8 +10,9 @@
   --stock-available-bg: #ffffff;
   --stock-available-border: #111111;
 
-  --stock-low-bg: #ffdf3f;
-  --stock-low-border: #806600;
+  --stock-low-bg: #fdf0ec;
+  /* --stock-low-border: #806600; */
+  --stock-low-border: #f63f1e;
   --stock-low-text: #332700;
 
   --stock-out-bg: #d4d4d8;
@@ -34,7 +35,7 @@
   min-height: 1.75rem;
   padding: 0.3rem 0.625rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: 0.75rem;
   font-weight: 800;
   line-height: 1;
@@ -48,7 +49,9 @@
 }
 
 .app-stock-status--low {
-  color: var(--stock-low-text);
+  /* color: var(--stock-low-text); */
+  /* color: var(--color-surface); */
+  color: var(--stock-low-border);
   background: var(--stock-low-bg);
   border-color: var(--stock-low-border);
 }
@@ -56,7 +59,7 @@
 .app-stock-status--out {
   color: var(--stock-out-text);
   background: var(--stock-out-bg);
-  border-color: var(--stock-out-border);
+  /* border-color: var(--stock-out-border); */
 }
 
 /* =========================
@@ -131,7 +134,7 @@
   color: var(--color-text);
   background: rgba(255, 255, 255, 0.75);
   border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
