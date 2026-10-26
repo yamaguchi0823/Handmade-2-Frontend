@@ -3,10 +3,7 @@ import { useState } from "react";
 import styles from "./InventoryVariantList.module.css";
 
 export default function InventoryVariantList({
-  readOnly = true,
   variants,
-  updatingId,
-  onDelta,
   onAdjust,
   onHistory,
   onPreviewImage,
@@ -238,7 +235,6 @@ export default function InventoryVariantList({
               <col className={styles.nameColumn} />
               <col className={styles.stateColumn} />
               <col className={styles.stockColumn} />
-              <col className={styles.changeColumn} />
               <col className={styles.adjustColumn} />
               <col className={styles.historyColumn} />
             </colgroup>
@@ -256,10 +252,7 @@ export default function InventoryVariantList({
                   在庫
                 </th>
                 <th scope="col" className={styles.centerHeading}>
-                  在庫を増減
-                </th>
-                <th scope="col" className={styles.centerHeading}>
-                  棚卸
+                  在庫調整
                 </th>
                 <th scope="col" className={styles.centerHeading}>
                   在庫履歴
@@ -269,7 +262,6 @@ export default function InventoryVariantList({
 
             <tbody>
               {variants.map((variant) => {
-                const busy = updatingId === variant.id;
                 const stock = Number(variant.stock ?? 0);
                 const statusState = getStatusState(variant);
 
@@ -320,61 +312,36 @@ export default function InventoryVariantList({
                       </span>
                     </td>
 
-                    <td>
-                      <div className={styles.desktopStockActions}>
-                        <button
-                          type="button"
-                          className={`btn btn-outline-danger ${styles.stockButton}`}
-                          onClick={() => onDelta?.(variant.id, -1)}
-                          disabled={readOnly || busy || stock <= 0}
-                          aria-label={`${getVariantName(
-                            variant,
-                          )}の在庫を1減らす`}
-                        >
-                          −1
-                        </button>
-
-                        <button
-                          type="button"
-                          className={`btn btn-outline-primary ${styles.stockButton}`}
-                          onClick={() => onDelta?.(variant.id, 1)}
-                          disabled={readOnly || busy}
-                          aria-label={`${getVariantName(
-                            variant,
-                          )}の在庫を1増やす`}
-                        >
-                          ＋1
-                        </button>
-                      </div>
-                    </td>
-
                     <td className={styles.iconCell}>
                       <button
                         type="button"
-                        className="app-icon-button app-icon-button--secondary"
+                        className={`btn btn-primary ${styles.actionButton}`}
+                        // className="app-icon-button app-icon-button--primary"
+
                         onClick={() => onAdjust?.(variant)}
-                        disabled={busy}
                         aria-label={`${getVariantName(
                           variant,
-                        )}の棚卸を行う`}
-                        title="棚卸"
+                        )}の在庫を調整`}
+                        title="在庫調整"
                       >
                         {renderAdjustIcon()}
+                        {/* <span>調整</span> */}
                       </button>
                     </td>
 
                     <td className={styles.iconCell}>
                       <button
                         type="button"
-                        className="app-icon-button app-icon-button--secondary"
+                        className={`btn btn-outline-secondary ${styles.actionButton}`}
+                        // className="app-icon-button app-icon-button--secondary"
                         onClick={() => onHistory?.(variant)}
-                        disabled={busy}
                         aria-label={`${getVariantName(
                           variant,
                         )}の在庫履歴を表示`}
                         title="在庫履歴"
                       >
                         {renderHistoryIcon()}
+                        {/* <span>履歴</span> */}
                       </button>
                     </td>
                   </tr>
@@ -391,7 +358,6 @@ export default function InventoryVariantList({
         aria-label="在庫バリエーション一覧"
       >
         {variants.map((variant) => {
-          const busy = updatingId === variant.id;
           const stock = Number(variant.stock ?? 0);
           const statusState = getStatusState(variant);
           const actionsOpen = openActionsId === variant.id;
@@ -478,38 +444,16 @@ export default function InventoryVariantList({
                   id={actionsId}
                   className={styles.mobileActionPanel}
                 >
-                  {/* 1. 在庫を増やす */}
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary"
-                    onClick={() => onDelta?.(variant.id, 1)}
-                    disabled={busy}
-                    aria-label={`${getVariantName(variant)}の在庫を1増やす`}
-                  >
-                    ＋1
-                  </button>
-
-                  {/* 2. 在庫を減らす */}
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger"
-                    onClick={() => onDelta?.(variant.id, -1)}
-                    disabled={busy || stock <= 0}
-                    aria-label={`${getVariantName(variant)}の在庫を1減らす`}
-                  >
-                    −1
-                  </button>
 
                   {/* 3. 棚卸 */}
                   <button
                     type="button"
-                    className="btn btn-outline-secondary"
+                    className="btn btn-primary"
                     onClick={() => onAdjust?.(variant)}
-                    disabled={busy}
-                    aria-label={`${getVariantName(variant)}の棚卸を行う`}
+                    aria-label={`${getVariantName(variant)}の在庫を調整`}
                   >
                     {renderAdjustIcon()}
-                    <span>棚卸</span>
+                    <span>在庫調整</span>
                   </button>
 
                   {/* 4. 在庫履歴 */}
@@ -517,7 +461,6 @@ export default function InventoryVariantList({
                     type="button"
                     className="btn btn-outline-secondary"
                     onClick={() => onHistory?.(variant)}
-                    disabled={busy}
                     aria-label={`${getVariantName(variant)}の在庫履歴を表示`}
                   >
                     {renderHistoryIcon()}
@@ -526,15 +469,6 @@ export default function InventoryVariantList({
                 </div>
               )}
 
-              {busy && (
-                <div className={styles.mobileUpdating} role="status">
-                  <span
-                    className="spinner-border spinner-border-sm"
-                    aria-hidden="true"
-                  />
-                  <span>在庫を更新しています</span>
-                </div>
-              )}
             </article>
           );
         })}
