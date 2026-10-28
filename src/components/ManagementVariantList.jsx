@@ -194,10 +194,10 @@ export default function ManagementVariantList({
         className="app-empty-state app-empty-state--embedded"
         role="status">
           <p className="app-empty-state__title">
-            バリエーションがありません
+            表示できるバリエーションがありません
           </p>
           <p>
-            この作品にはバリエーションが登録されていません。
+            検索条件や絞り込み条件を確認してください。
           </p>
       </div>
     );
@@ -216,9 +216,10 @@ export default function ManagementVariantList({
             <colgroup>
               <col className={styles.imageColumn} />
               <col className={styles.nameColumn} />
-              <col className={styles.stockInfoColumn} />
-              <col className={styles.stockNumberColumn} />
               <col className={styles.statusColumn} />
+              <col className={styles.stockInfoColumn} />
+              <col className={styles.stockInfoColumn} />
+              {/* <col className={styles.stockNumberColumn} /> */}
               <col className={styles.priceColumn} />
               <col className={styles.editColumn} />
             </colgroup>
@@ -227,15 +228,22 @@ export default function ManagementVariantList({
                 <th scope="col" colSpan="2">
                   バリエーション名／SKU
                 </th>
+                <th scope="col">販売状態</th>
                 <th scope="col">
                   <span className={styles.headerStack}>
                     <span>在庫状況</span>
+                    {/* <span>しきい値</span> */}
+                  </span>
+                </th>
+                <th scope="col">
+                  <span className={styles.headerStack}>
                     <span>しきい値</span>
                   </span>
                 </th>
-                <th scope="col">在庫</th>
-                <th scope="col">販売状態</th>
-                <th scope="col">販売価格</th>
+                {/* <th scope="col">在庫</th> */}
+                <th scope="col" className={styles.priceHeading}>
+                  販売価格
+                </th>
                 <th scope="col">編集</th>
               </tr>
             </thead>
@@ -276,31 +284,35 @@ export default function ManagementVariantList({
                       </span>
                     </td>
 
+                    <td className={styles.statusCell}>
+                      <span
+                        className={`app-sales-status app-sales-status--inline app-sales-status--${statusInfo.type}`}
+                      >
+                        <span
+                          className="app-sales-status__dot"
+                          aria-hidden="true"
+                         />
+                          {statusInfo.label}
+                      </span>
+                    </td>
+
                     <td className={styles.stockInfoCell}>
                       <span
                         className={`app-stock-status app-stock-status--${stockInfo.type}`}
                         aria-label={stockInfo.fullLabel}
                       >
-                        <span aria-hidden="true">
-                          在庫
-                        </span>
-                        {stockInfo.shortLabel}
+                        {stockInfo.fullLabel}
                       </span>
 
+                    </td>
+
+                    <td className={styles.stockInfoCell}>
                       {renderThreshold(variant)}
                     </td>
 
-                    <td className={styles.stockNumber}>
+                    {/* <td className={styles.stockNumber}>
                       {variant.stock ?? 0}
-                    </td>
-
-                    <td>
-                      <span
-                        className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
-                      >
-                        {statusInfo.label}
-                      </span>
-                    </td>
+                    </td> */}
 
                     <td className={styles.price}>
                       {formatPrice(variant.price)}
@@ -325,60 +337,59 @@ export default function ManagementVariantList({
         {variants.map((variant) => {
           const stockInfo = getStockInfo(variant);
           const statusInfo = getStatusInfo(variant);
+          const variantName =
+            variant.variantName || "名称未設定";
 
           return (
             <article
               key={variant.id}
               className={`${styles.mobileRow} ${statusInfo.rowClass}`}
             >
-              <div className={styles.mobileImage}>
-                {renderImage(variant)}
-              </div>
 
-              <div className={styles.mobileSummary}>
+              <div className={styles.mobileHeading}>
                 <h3
                   className={styles.mobileName}
-                  title={
-                    variant.variantName ?? "名称未設定"
-                  }
+                  title={variantName}
                 >
-                  {variant.variantName ?? "名称未設定"}
+                  {variantName}
                 </h3>
 
                 <p
                   className={styles.mobileSku}
-                  title={
-                    variant.skuCode || "SKU未設定"
-                  }
+                  title={variant.skuCode}
                 >
                   {variant.skuCode || "SKU未設定"}
                 </p>
+              </div>
 
-                <div className={styles.mobileStock}>
-                  <span className={styles.mobileMetaLabel}>
-                    在庫
-                  </span>
+              <div className={styles.mobileDetails}>
+                <div className={styles.mobileImage}>
+                  {renderImage(variant)}
+                </div>
 
-                  <span
-                    className={`app-stock-status app-stock-status--${stockInfo.type}`}
-                    aria-label={stockInfo.fullLabel}
-                  >
-                    <span className="visually-hidden">
-                      在庫
+                <div className={styles.mobileInfo}>
+                  <div className={styles.mobileStatus}>
+                    <span
+                      className={`app-sales-status app-sales-status--inline app-sales-status--${statusInfo.type}`}
+                    >
+                      <span
+                        className="app-sales-status__dot"
+                        aria-hidden="true"
+                      />
                     </span>
-                    {stockInfo.shortLabel}
+                      {statusInfo.label}
+                  </div>
+                <div className={styles.mobileStock}>
+                  <span className={`app-stock-status app-stock-status--${stockInfo.type}`}>
+                    {stockInfo.fullLabel}
                   </span>
 
                   {renderThreshold(variant)}
-
-                  <strong className={styles.mobileStockNumber}>
-                    {variant.stock ?? 0}
-                  </strong>
                 </div>
 
                 <div className={styles.mobilePrice}>
                   <span className={styles.mobileMetaLabel}>
-                    価格
+                    販売価格
                   </span>
 
                   <strong>
@@ -386,18 +397,11 @@ export default function ManagementVariantList({
                   </strong>
                 </div>
               </div>
+            </div>
 
-              <div className={styles.mobileStatus}>
-                <span
-                  className={`app-sales-status app-sales-status--badge app-sales-status--${statusInfo.type}`}
-                >
-                  {statusInfo.label}
-                </span>
-              </div>
-
-              <div className={styles.mobileAction}>
-                {renderEditButton(variant, true)}
-              </div>
+            <div className={styles.mobileAction}>
+              {renderEditButton(variant, true)}
+            </div>
             </article>
           );
         })}

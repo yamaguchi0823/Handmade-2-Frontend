@@ -81,6 +81,9 @@
 }
 
 .summaryLabel {
+  display: flex;
+  align-items:center;
+  gap: 0.4rem;
   margin: 0;
   color: var(--color-text-muted);
   font-size: 0.875rem;
@@ -140,4 +143,38 @@
   .summaryCard {
     min-height: 6.5rem;
   }
+}
+
+.summaryIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* 在庫少パネル */
+.lowStockCard {
+  --dashboard-stock-accent: #ff5a51;
+
+  color: var(--color-text);
+  text-decoration: none;
+  border: 1px solid var(--dashboard-stock-accent);
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.lowStockCard .lowStockValue {
+  color: var(--dashboard-stock-accent)
+}
+
+.lowStockCard:hover {
+  color: var(--color-text);
+  text-decoration: none;
+  background: #fff7ed;
+  box-shadow: var(--shadow-md);
+}
+
+.lowStockCard:focus-visible {
+  outline: 3px solid var(--color-surface);
+  outline-offset: 3px;
 }

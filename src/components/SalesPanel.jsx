@@ -185,7 +185,7 @@ export default function SalesPanel({
             <thead>
               <tr>
                 <th className={styles.infoColumn}>
-                  作品・バリエーション・販売日
+                  販売日・作品・バリエーション
                 </th>
 
                 <th className={styles.channelColumn}>
@@ -197,11 +197,16 @@ export default function SalesPanel({
                     チャネル
                     <br />
                     販売点数
+                    <br />
+                    売上
                   </span>
                 </th>
-
                 <th className={styles.quantityColumn}>
                   点数
+                </th>
+
+                <th className={styles.amountColumn}>
+                  売上
                 </th>
 
                 <th className={styles.memoColumn}>
@@ -217,7 +222,7 @@ export default function SalesPanel({
             <tbody>
               {loading && sales.length === 0 && (
                 <tr>
-                  <td colSpan={5}>
+                  <td colSpan={6}>
                     <div
                       className="app-loading-state app-loading-state--compact"
                       role="status"
@@ -268,20 +273,6 @@ export default function SalesPanel({
                         <div
                           className={styles.saleIdentity}
                         >
-                          <p className={styles.itemName}>
-                            {sale.itemNames ||
-                              sale.itemName ||
-                              "作品名未設定"}
-                          </p>
-
-                          <p
-                            className={styles.variantName}
-                          >
-                            {sale.variantNames ||
-                              sale.variantName ||
-                              "バリエーション名未設定"}
-                          </p>
-
                           <div
                             className={
                               styles.saleSubInfo
@@ -311,6 +302,21 @@ export default function SalesPanel({
                               </span>
                             )}
                           </div>
+
+                          <p className={styles.itemName}>
+                            {sale.itemNames ||
+                              sale.itemName ||
+                              "作品名未設定"}
+                          </p>
+
+                          <p
+                            className={styles.variantName}
+                          >
+                            {sale.variantNames ||
+                              sale.variantName ||
+                              "バリエーション名未設定"}
+                          </p>
+
                         </div>
                       </td>
 
@@ -337,7 +343,15 @@ export default function SalesPanel({
                           {number(sale.totalQty)}
                           <small>点</small>
                         </strong>
+
+                        <span className={styles.mobileAmount}>
+                          {sale.totalAmount == null
+                            ? "-"
+                            : money(sale.totalAmount)
+                          }
+                        </span>
                       </td>
+
 
                       <td
                         className={styles.quantityCell}
@@ -346,6 +360,18 @@ export default function SalesPanel({
                           {number(sale.totalQty)}
                         </strong>
                         <span>点</span>
+                      </td>
+
+                      <td className={styles.amountCell}>
+                        {sale.totalAmount == null ? (
+                          "-"
+                        ) : (
+                          <>
+                            <strong>{number(sale.totalAmount)}
+                              <span>円</span>
+                            </strong>
+                          </>
+                        )}
                       </td>
 
                       <td className={styles.memoCell}>
@@ -362,8 +388,10 @@ export default function SalesPanel({
                       <td className={styles.detailCell}>
                         <button
                           type="button"
-                          className="btn btn-sm btn-outline-primary"
-                          // className={styles.detailButton}
+                          className={`btn btn-sm ${
+                            isExpanded ? "btn-outline-primary" : "btn-primary"
+                          } ${styles.datailButton}`}
+
                           aria-expanded={isExpanded}
                           aria-controls={`sale-detail-${sale.id}`}
                           aria-label={
@@ -376,7 +404,31 @@ export default function SalesPanel({
                           }
                         >
                           <span aria-hidden="true">
-                            {isExpanded ? "▲" : "▼"}
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="24"
+                              height="24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                              focusable="false"
+                            >
+                            {isExpanded ? (
+                              <>
+                                <path d="M6 5h12" />
+                                <path d="m7 15 5-5 5 5" />
+                              </>
+                            ) :(
+                              <>
+                                <path d="M6 4v15" />
+                                <path d="m3 16 3 3 3-3" />
+                                <path d="M13 5h7M13 11h7M13 17h7" />
+                              </>
+                            )}
+                            </svg>
                           </span>
                         </button>
                       </td>
@@ -387,7 +439,7 @@ export default function SalesPanel({
                         id={`sale-detail-${sale.id}`}
                         className={styles.detailRow}
                       >
-                        <td colSpan={5}>
+                        <td colSpan={6}>
                           {detailLoading && (
                             <div
                               className="app-loading-state app-loading-state--compact"
@@ -418,13 +470,20 @@ export default function SalesPanel({
                                 <div className={styles.detailGrid}>
                                   {/* ① メモ・登録日時 */}
                                   <div className={styles.detailMetaGroup}>
-                                    <div className={styles.memoArea}>
-                                      <span>メモ</span>
+                                    <div className={styles.registeredAt}>
+                                      <span>販売日時</span>
 
-                                      <p>
-                                        {String(detail.note ?? "").trim() ||
-                                          "-"}
-                                      </p>
+                                      <time
+                                        datetime={
+                                          detail.soldAt ??
+                                          sale.soldAt ??
+                                          undefined
+                                        }
+                                        >
+                                        {formatDateTime(
+                                          detail.soldAt ?? sale.soldAt,
+                                        )}
+                                      </time>
                                     </div>
 
                                     <div className={styles.registeredAt}>
@@ -440,6 +499,16 @@ export default function SalesPanel({
                                         )}
                                       </time>
                                     </div>
+
+                                    <div className={styles.memoArea}>
+                                      <span>メモ</span>
+
+                                      <p>
+                                        {String(detail.note ?? "").trim() ||
+                                          "-"}
+                                      </p>
+                                    </div>
+
                                   </div>
 
                                   {/* ② 各種ID・SKU */}
@@ -481,7 +550,7 @@ export default function SalesPanel({
                                     </div>
 
                                     <div>
-                                      <dt>単価（税抜）</dt>
+                                      <dt>単価</dt>
                                       <dd>
                                         {lines.length === 1
                                           ? money(primaryLine.unitPrice)
@@ -496,12 +565,12 @@ export default function SalesPanel({
                                       </dd>
                                     </div>
 
-                                    <div>
+                                    {/* <div>
                                       <dt>コスト</dt>
                                       <dd>
                                         {money(sale.totalCost)}
                                       </dd>
-                                    </div>
+                                    </div> */}
                                   </dl>
                                 </div>
                               ) : (
@@ -524,7 +593,7 @@ export default function SalesPanel({
                 !error &&
                 sales.length === 0 && (
                   <tr>
-                    <td colSpan={5}>
+                    <td colSpan={6}>
                       <div className="app-empty-state app-empty-state--embedded">
                         <p className="app-empty-state__title">
                           販売データがありません

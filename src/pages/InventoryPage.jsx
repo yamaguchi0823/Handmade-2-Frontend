@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import api from "../api";
 
 import PageHeader from "../components/PageHeader";
@@ -17,7 +18,34 @@ export default function InventoryPage({ readOnly = true }) {
   const [saleOpen, setSaleOpen] = useState(false);
 
   const [q, setQ] = useState("");
-  const [stockMode, setStockMode] = useState("ALL");
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const requestedStockMode = searchParams.get("stockMode");
+
+  const stockMode = [
+    "All",
+    "IN_STOCK",
+    "LOW_STOCK",
+    "OUT_OF_STOCK"
+  ].includes(requestedStockMode)
+    ? requestedStockMode
+    : "ALL";
+
+  const setStockMode = (nextMode) => {
+    setSearchParams((currentParams) => {
+      const nextParams = new URLSearchParams(currentParams);
+
+      if (nextMode === "ALL") {
+        nextParams.delete("stockMode");
+      } else {
+        nextParams.set("stockMode", nextMode);
+      }
+
+      return nextParams;
+    })
+  }
+
   const [status, setStatus] = useState("");
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState("");

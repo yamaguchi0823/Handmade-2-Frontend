@@ -27,7 +27,7 @@
 .app-icon-button--primary {
     color: var(--color-primary);
     background: var(--color-surface);
-    border: 2px solid #5792f5;
+    border: 1px solid #5792f5;
 }
 
 .app-icon-button--primary:hover:not(:disabled) {
