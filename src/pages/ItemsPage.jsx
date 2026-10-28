@@ -72,18 +72,13 @@ export default function ItemsPage({ readOnly = true }) {
 
       setItems(list);
 
-      setExpandedItemIds((prev) => {
-        const validIds = prev.filter((id) =>
+      // 存在している作品の開閉状態だけを維持する
+      // 初回は空配列なので、すべて閉じた状態になる
+      setExpandedItemIds((prev) =>
+        prev.filter((id) =>
           list.some((item) => item.id === id),
-        );
-
-        if (validIds.length > 0 || list.length === 0) {
-          return validIds;
-        }
-
-        // 初回は先頭の作品だけ開く
-        return [list[0].id];
-      });
+        ),
+      );
     } catch (e) {
       console.error(e);
       setItemError("作品一覧の取得に失敗しました");
@@ -256,6 +251,35 @@ const filteredItems = items.filter((item) => {
       return true;
   }
 });
+
+const allDisplayedEpanded =
+  filteredItems.length > 0 &&
+  filteredItems.every((item) =>
+    expandedItemIds.includes(item.id),
+);
+
+const anyDisplayedExpanded = filteredItems.some((item) =>
+  expandedItemIds.includes(item.id),
+);
+
+const expandedAllDisplayed = () => {
+  setExpandedItemIds((prev) => [
+    ...new Set([
+      ...prev,
+      ...filteredItems.map((item) => item.id),
+    ]),
+  ]);
+};
+
+const collapseAllDisplayed = () => {
+  const displayedIds = new Set(
+    filteredItems.map((item) => item.id),
+  );
+
+  setExpandedItemIds((prev) =>
+  prev.filter((id) => !displayedIds.has(id)),
+  );
+};
 
 const hasSearchConditions =
   searchQuery.trim() !== "" || itemFilter !== "ALL";
@@ -525,6 +549,43 @@ const resetSearchConditions = () => {
           </div>
         )}
 
+        <div className={styles.listToolbar}>
+          <h2 className={styles.listTitle}>作品一覧</h2>
+
+          <div className={styles.expandActions}>
+            <span className={styles.expandLabel}>
+              バリエーション
+            </span>
+
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={expandedAllDisplayed}
+              disabled={
+                itemsLoading ||
+                variantsLoading ||
+                filteredItems.length === 0 ||
+                allDisplayedEpanded
+              }
+            >
+              すべて開く
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={collapseAllDisplayed}
+              disabled={
+                itemsLoading ||
+                variantsLoading ||
+                !anyDisplayedExpanded
+              }
+            >
+              すべて閉じる
+            </button>
+          </div>
+        </div>
+
         {itemsLoading && items.length === 0 ? (
           <div
             className="app-loading-state"
@@ -559,7 +620,7 @@ const resetSearchConditions = () => {
               const variantCountLabel =
                 normalizedSearchQuery || filtersVariantRows
                 ? `${displayedVariants.length} / ${itemVariants.length}件`
-                : `${itemVariants.length}件`
+                : `${itemVariants.length}件`;
                 const expanded = expandedItemIds.includes(item.id);
 
                 const panelId = `item-variants-${item.id}`;
@@ -569,115 +630,195 @@ const resetSearchConditions = () => {
                       key={item.id}
                       className="card item-management-card"
                     >
-                  <div className="item-card-header">
-                    <div className="item-card-heading">
-                      <div className="item-card-title-group">
-                        <svg
-                          className="item-card-icon"
-                          viewBox="0 0 24 24"
-                          width="20"
-                          height="20"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                          focusable="false"
-                        >
-                          <path d="m21 8-9 5-9-5" />
-                          <path d="m3 8 9-5 9 5v8l-9 5-9-5Z" />
-                          <path d="M12 13v8" />
-                        </svg>
-
+                  <div className={styles.itemHeader}>
+                    <div className={styles.itemSummary}>
                         <h3
-                          className="item-card-title"
+                          className={styles.itemTitle}
                           title={item.name}
                         >
                           {item.name}
                         </h3>
-                      </div>
 
-                      <button
-                        type="button"
-                        className="app-icon-button app-icon-button--secondary"
-                        onClick={() => {
-                          setEditingItem(item);
-                          setItemEditOpen(true);
-                        }}
-                        aria-label={`${item.name}の作品情報を編集`}
-                        title="作品情報を編集"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="18"
-                          height="18"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                          focusable="false"
+                        <button
+                          type="button"
+                          className={styles.variantCount}
+                          onClick={() => toggleItem(item.id)}
+                          aria-expanded={expanded}
+                          aria-controls={panelId}
                         >
-                          <path d="M12 20h9" />
-                          <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" />
-                        </svg>
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="18"
+                            height="18"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <path d="M20 13 13 20 3 10V3h7Z" />
+                            <circle cx="7.5" cy="7.5" r="1" />
+                          </svg>
+                        <span>バリエーション：{variantCountLabel}</span>
+                        </button>
 
-                        {/* <span>作品編集</span> */}
-                      </button>
+                        {item.description && (
+                          <p className={styles.itemDescription}>
+                            {item.description}
+                          </p>
+                        )}
                     </div>
 
-                    <p
-                      className="item-card-description"
-                      title={
-                        item.description ||
-                        "説明は登録されていません"
-                      }
-                    >
-                      {item.description ||
-                        ""
-                        // "説明は登録されていません"
-                        }
-                    </p>
+                    <div className={styles.itemControls}>
+                      <details
+                        className={styles.itemMenu}
+                        onKeyDown={(e) => {
+                          if (e.key !== "Escape") return;
 
-                    <div className="item-card-actions">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-primary item-variants-toggle"
-                        onClick={() => toggleItem(item.id)}
-                        aria-expanded={expanded}
-                        aria-controls={panelId}
-                      >
-                        <span
-                          className="item-toggle-icon"
-                          aria-hidden="true"
-                        >
-                          {expanded ? "▲" : "▼"}
-                        </span>
-
-                        <span>
-                          {expanded ? "閉じる" : "バリエーション"}
-                        </span>
-
-                        <span className="item-variant-count">
-                          {variantCountLabel}
-                        </span>
-                      </button>
-
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-outline-primary item-variant-add"
-                        onClick={() => {
-                          setCreatingVariantItemId(item.id);
-                          setVariantCreateOpen(true);
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.currentTarget.removeAttribute("open");
+                          e.currentTarget
+                            .querySelector("summary")
+                            ?.focus();
                         }}
-                        aria-label={`${item.name}にバリエーションを追加`}
+                        onBlur={(e) => {
+                          const menu = e.currentTarget;
+
+                          requestAnimationFrame(() => {
+                            if (
+                              !menu.contains(document.activeElement)
+                            ) {
+                              menu.removeAttribute("open");
+                            }
+                          });
+                        }}
                       >
-                        ＋ 追加
-                      </button>
+                        <summary
+                          aria-label={`${item.name}の操作メニュー`}
+                          title="作品の操作"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="24"
+                            height="24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <circle cx="5" cy="12" r="1.75" />
+                            <circle cx="12" cy="12" r="1.75" />
+                            <circle cx="19" cy="12" r="1.75" />
+                          </svg>
+                        </summary>
+
+                        <div className={styles.itemMenuPanel}>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              const menu =
+                                e.currentTarget.closest("details");
+
+                                // モーダルを閉じた後の戻り先を
+                                // メニューボタンにする
+                                menu?.querySelector("summary")?.focus();
+                                menu?.removeAttribute("open");
+
+                                setEditingItem(item);
+                                setItemEditOpen(true);
+                            }}
+                          >
+                            作品を編集
+                          </button>
+
+                          <button
+                            type="button"
+                            aria-expanded={expanded}
+                            aria-controls={panelId}
+                            onClick={(e) => {
+                              const menu =
+                                e.currentTarget.closest("details");
+
+                                menu?.querySelector("summary")?.focus();
+                                menu?.removeAttribute("open");
+                                toggleItem(item.id);
+                            }}
+                          >
+                            {expanded
+                              ? "バリエーション一覧を閉じる"
+                              : "バリエーション一覧を開く"
+                            }
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              const menu =
+                                e.currentTarget.closest("details");
+
+                                menu?.querySelector("summary")?.focus();
+                                menu?.removeAttribute("open");
+
+                                setCreatingVariantItemId(item.id);
+                                setVariantCreateOpen(true);
+                            }}
+                          >
+                            + バリエーションを追加
+                          </button>
+                        </div>
+                      </details>
+
+                      {expanded && (
+                        <button
+                          type="button"
+                          className={styles.closeVariants}
+                          aria-label={`${item.name}のバリエーションを閉じる`}
+                          aria-controls={panelId}
+                          aria-expanded={expanded}
+                          onClick={(e) => {
+                            // 閉じるとこのボタンが消えるため、
+                            // 同じカードのメニューボタンへ戻す
+                            e.currentTarget.parentElement
+                              ?.querySelector("summary")
+                              ?.focus();
+
+                            toggleItem(item.id);
+                          }}
+                        >
+                          <span className={styles.closeLabel}>
+                            バリエーションを閉じる
+                          </span>
+
+                          <span
+                            className={styles.closeIcon}
+                            aria-hidden="true"
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="22"
+                              height="22"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLineCap="round"
+                              focusable="false"
+                            >
+                              <path d="m6 6 12 12M18 6 6 18" />
+                            </svg>
+                          </span>
+
+                          {/* <span
+                            className={styles.closeIcon}
+                            aria-hidden="true"
+                          >
+                            x
+                          </span> */}
+                        </button>
+                      )}
                     </div>
-</div>
+                  </div>
 
                   {expanded && (
                       <div
@@ -714,7 +855,7 @@ const resetSearchConditions = () => {
                                 </p>
 
                                 <p className="app-empty-state__description">
-                                  「追加」から最初のバリエーションを登録できます。
+                                  作品メニューの「バリエーション追加」から登録できます。
                                 </p>
                         </div>
                       )}

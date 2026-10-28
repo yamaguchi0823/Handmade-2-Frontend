@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-
+import { Link } from "react-router-dom";
 import {
   fetchChannelProfit,
   fetchLowStockVariants,
@@ -36,6 +36,52 @@ function countDays(from, to) {
   const start = new Date(`${from}T00:00:00`);
   const end = new Date(`${to}T00:00:00`);
   return Math.floor((end - start) / 86400000) + 1;
+}
+
+function SummaryIcon({ type }) {
+  return (
+    <svg
+      className={styles.summaryIcon}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {type === "sales" && (
+        <>
+          <path d="m6 3 6 8 6-8" />
+          <path d="M12 11v10M7 12h10M7 16h10" />
+        </>
+      )}
+
+      {type === "profit" && (
+        <>
+          <path d="M5 9a7 7 0 0 1 12-3l3-1v5l2 1v5l-3 1-1 4h-3l-1-3H9l-1 3H5l-1-5a7 7 0 0 1-1-4V9Z" />
+          <path d="M9 7h4M2 10H1" />
+          <circle cx="17" cy="10" r="0.7" fill="currentColor" />
+        </>
+      )}
+
+      {type === "count" && (
+        <>
+          <path d="M2 3h3l3 12h11l3-9H6" />
+          <circle cx="9" cy="20" r="1" />
+          <circle cx="18" cy="20" r="1" />
+        </>
+      )}
+
+      {type === "stock" && (
+        <>
+          <rect x="3" y="4" width="18" height="17" rx="1" />
+          <path d="M9 4v6l3-2 3 2V4M7 16h4" />
+        </>
+      )}
+    </svg>
+  );
 }
 
 export default function DashboardPage() {
@@ -206,12 +252,18 @@ export default function DashboardPage() {
 
           <div className={styles.summaryGrid} aria-busy={loading}>
             <article className={`card ${styles.summaryCard}`}>
-              <h3 className={styles.summaryLabel}>売上</h3>
+              <h3 className={styles.summaryLabel}>
+                <SummaryIcon type="sales" />
+                <span>売上</span>
+              </h3>
               <p className={styles.summaryValue}>{money(summary.totalAmount)}</p>
             </article>
 
             <article className={`card ${styles.summaryCard}`}>
-              <h3 className={styles.summaryLabel}>利益</h3>
+              <h3 className={styles.summaryLabel}>
+                <SummaryIcon type="profit" />
+                <span>利益</span>
+              </h3>
               <p
                 className={`${styles.summaryValue} ${
                   summary.profit < 0 ? styles.negativeValue : ""
@@ -222,18 +274,33 @@ export default function DashboardPage() {
             </article>
 
             <article className={`card ${styles.summaryCard}`}>
-              <h3 className={styles.summaryLabel}>販売件数</h3>
+              <h3 className={styles.summaryLabel}>
+                <SummaryIcon type="count" />
+                <span>販売件数</span>
+              </h3>
               <p className={styles.summaryValue}>
                 {summary.salesCount.toLocaleString("ja-JP")}件
               </p>
             </article>
 
-            <article className={`card ${styles.summaryCard}`}>
-              <h3 className={styles.summaryLabel}>在庫少（現在）</h3>
-              <p className={styles.summaryValue}>
-                {summary.lowStockCount.toLocaleString("ja-JP")}件
-              </p>
-            </article>
+            <Link
+              to="/inventory?stockMode=LOW_STOCK"
+              className={`card ${styles.summaryCard} ${styles.lowStockCard}`}
+            >
+            <h3 className={styles.summaryLabel}>
+              <SummaryIcon type="stock" />
+              <span>在庫少（現在）</span>
+            </h3>
+            <p
+              className={`${styles.summaryValue} ${styles.lowStockValue}`}
+            >
+              {summary.lowStockCount.toLocaleString("ja-JP")}件
+            </p>
+
+            <span className="visually-hidden">
+              在庫少で絞り込んだ在庫一覧を開く
+            </span>
+            </Link>
           </div>
         </section>
       </div>

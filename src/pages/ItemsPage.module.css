@@ -88,3 +88,242 @@
     text-align: left;
   }
 }
+
+/* ======================
+  一括開閉
+======================== */
+
+.listToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+}
+
+.listTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.expandActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.expandLabel {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.expandActions :global(.btn) {
+  min-height: 2.75rem;
+  border-radius: 999px;
+}
+
+/* =======================
+  作品カード
+========================= */
+
+.itemHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.itemSummary {
+  min-width: 0;
+}
+
+.itemTitle {
+  margin:  0;
+  color: var(--color-text);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.variantCount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-1) 0 0;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  /* min-height: 2.75rem; */
+  text-align: left;
+}
+
+.variantCount:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.variantCount:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.variantCount svg {
+  flex-shrink: 0;
+}
+
+.itemDescription {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.itemControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.itemMenu {
+  position: relative;
+}
+
+.itemMenu > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  color: #ffffff;
+  background:var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  list-style: none;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.itemMenu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.itemMenuPanel {
+  position:absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 30;
+  display: grid;
+  gap: var(--space-1);
+  width: min(17rem, calc(100vw - 3rem));
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.itemMenuPanel button {
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  font:inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin: 4px;
+}
+
+.itemMenuPanel button:hover {
+  background: var(--color-row-hover);
+}
+
+.closeVariants {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.closeLabel {
+  font-size: 0.8125rem;
+}
+
+.closeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1.5rem;
+}
+
+.itemMenu summary:focus-visible,
+.itemMenuPanel button:focus-visible,
+.closeVariants:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* メニューをカードの外に表示できるようにする */
+:global(.item-management-card) {
+  overflow: visible;
+}
+
+/* カードのメニューは外に出し、一覧部分だけを角丸に収める */
+:global(.item-management-card) > :global(.item-variants-panel) {
+  min-width: 0;
+  overflow: hidden;
+  border-bottom-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+@media (max-width: 767.98px) {
+  .listToolbar {
+    align-items: flex-start;
+  }
+
+  .expandActions {
+    width: 100%;
+  }
+
+  .expandLabel {
+    width: 100%;
+  }
+
+  .itemHeader {
+    gap: var(--space-3);
+  }
+
+  .closeLabel {
+    display: none;
+  }
+}
+
+.itemMenu > summary svg,
+.closeIcon svg {
+  display: block;
+  flex-shrink: 0;
+}
